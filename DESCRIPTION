@@ -23,3 +23,13 @@ URL: https://github.com/caldwellst/augury
 BugReports: https://github.com/caldwellst/augury/issues
 Depends: 
     R (>= 2.10)
+Imports: 
+    INLA,
+    VGAM,
+    stats,
+    dplyr,
+    rlang,
+    purrr,
+    magrittr
+Remotes:
+    url::https://inla.r-inla-download.org/R/stable/src/contrib/INLA_20.03.17.tar.gz

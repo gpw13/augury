@@ -8,10 +8,12 @@
 A data frame with 5044 rows and 8 variables:
 \describe{
 \item{iso3}{Country ISO3 code.}
-\item{year}{Year}
-\item{region}{World Bank regional classification}
+\item{year}{Year.}
+\item{region}{World Bank regional classification.}
 \item{sdi}{Socio-demographic Index, a composite calculated using publicly available on total fertility rates, mean years of schooling, and lag distributed income per capita.}
-\item{e0}{Life expectancy at birth, total (years)}
+\item{sdi_scaled}{Socio-demographic Index, rescaled to a 0 - 1 scale.}
+\item{e0}{Life expectancy at birth, total (years).}
+\item{e0_scaled}{Life expectancy at birth, rescaled to a 0 - 1 scale.}
 }
 }
 \source{
