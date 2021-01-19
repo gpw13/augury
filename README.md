@@ -11,14 +11,86 @@ status](https://github.com/caldwellst/augury/workflows/R-CMD-check/badge.svg)](h
 status](https://travis-ci.com/caldwellst/augury.svg?branch=master)](https://travis-ci.com/caldwellst/augury)
 <!-- badges: end -->
 
-The goal of augury is to …
+The goal of augury is to streamline the process of fitting models to
+infill and forecast data, particularly for models used within the WHO’s
+Triple Billion framework
 
 ## Installation
 
 You can install augury from
-[GitHub](https://github.com/caldwellst/augury) with:
+[GitHub](https://github.com/caldwellst/augury). The package depends on
+the [INLA package](https://www.r-inla.org/home) which is not available
+on CRAN. You will need to separately install that prior to installing
+augury. The below code should allow you to install the packages without
+any trouble:
 
 ``` r
-# install.packages("devtools")
-devtools::install_github("caldwellst/augury")
+if (!require("INLA")) install.packages("INLA",repos=c(getOption("repos"),INLA="https://inla.r-inla-download.org/R/stable"), dep=TRUE)
+remotes::install_github("caldwellst/augury")
 ```
+
+## Overview
+
+Most of the functions available through the package are designed to
+streamline fitting a model and replacing missing observations within a
+single data frame in one pass.
+
+-   `predict_general_mdl()` is a function that takes in a data frame,
+    generic R modelling function (such as `stats::lm`), and fits a model
+    and returns newly projected data, error metrics, the fitted model
+    itself, or a list of all 3.
+-   `predict_inla()` is a function similar to the above, except rather
+    than taking a generic modelling function it accepts a formula and
+    additional argument passed to `INLA::inla()` to perform Bayesian
+    analysis of structured additive models.
+
+Given that models might need to be fit separately to different portions
+of a data frame, such as fitting time series models for each country
+individually, there are grouped versions of the above functions.
+
+-   `grouped_predict_general_mdl()`
+-   `grouped_predict_inla()`
+
+The grouped functions apply the modeling separately across each group
+before joining them back together into the original data frame and
+returning similar objects as the original functions.
+
+## Additional model wrappers
+
+Additional functions are provided as requested to streamlining fitting
+of specific models. For general modeling, there are grouped and
+individual functions for `stats::lm()`, `stats::glm()`, and
+`lme4::lmer()` to fit linear models, generalized linear models, and
+linear mixed-effects models respectively. These wrappers are:
+
+-   `predict_lm()` & `grouped_predict_lm()`
+-   `predict_glm()` & `grouped_predict_glm()`
+-   `predict_lmer()` & `grouped_predict_lmer()`
+
+As well, wrappers are provided around INLA for models currently in place
+for the Triple Billion framework. These are a time series model with no
+additional covariates (fit individually by country) and a mixed-effects
+model using covariates.
+
+-   `predict_inla_me()` & `grouped_predict_inla_me()`
+
+## Covariates
+
+For convenience, the covariates used within the default INLA modeling
+are exported from the package and can be easily joined up to a data
+frame for use in modeling. These are available through
+`augury::covariates_df`.
+
+## Additional functionality
+
+To help streamline other portions of the modeling process, some other
+functions are included in the package.
+
+-   `probit_transform()` uses a probit transformation on select columns
+    of a data frame, and inverses it if specified.
+-   `scale_transform()` scales a vector by a single number, very simple,
+    and can inverse the scaling if specified.
+
+Together, they can be used to transform and scale data for better
+modeling, and then inverse these to get data back into the original
+feature space.
