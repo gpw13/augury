@@ -95,8 +95,6 @@ predicted data, a vector of errors, a fitted model, or a list with all 3.
 and use that model to infill and project the dependent variable. The function
 uses \code{\link[INLA:inla]{INLA::inla()}} to perform the model fitting and prediction, and full
 details and explanation of arguments that it can accept is available on that page.
-}
-\details{
 The function also allows for inputting of data type and source information
 directly into the data frame if the \code{type_col} and \code{source_col} are specified
 respectively.

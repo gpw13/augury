@@ -1,4 +1,9 @@
-#' Use INLA for autoregressive time series prediction by group
+#' Use INLA for time series prediction by group
+#'
+#' `grouped_predict_inla_ts()` uses a Integrated Nested Laplace approximation to
+#' fit a model and use that model to infill and project the dependent variable. See
+#' [grouped_predict_inla()] for more details, but the function defaults to fitting
+#' a second-order random walk with no covariates for each group individually.
 #'
 #' @inherit grouped_predict_inla params return
 #' @param model Argument passed to [INLA::f()] to define the time series model
@@ -59,6 +64,13 @@ grouped_predict_inla_ts <- function(df,
 }
 
 #' Use INLA for mixed effects modeling for prediction
+#'
+#' `predict_inla_me()` uses a Integrated Nested Laplace approximation to
+#' fit a model and use that model to infill and project the dependent variable. See
+#' [grouped_predict_inla()] for more details, but the function defaults to fitting
+#' a mixed-effects model with the Socio-Demographic Index and life-expectancy at
+#' birth (both scaled) used as covariates and second-order random walk time
+#' process incorporated.
 #'
 #' @inherit predict_inla params return
 #' @inherit grouped_predict_inla_ts params

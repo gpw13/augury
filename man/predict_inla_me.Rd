@@ -108,5 +108,10 @@ Depending on the value passed to \code{ret}, either a data frame with
 predicted data, a vector of errors, a fitted model, or a list with all 3.
 }
 \description{
-Use INLA for mixed effects modeling for prediction
+\code{predict_inla_me()} uses a Integrated Nested Laplace approximation to
+fit a model and use that model to infill and project the dependent variable. See
+\code{\link[=grouped_predict_inla]{grouped_predict_inla()}} for more details, but the function defaults to fitting
+a mixed-effects model with the Socio-Demographic Index and life-expectancy at
+birth (both scaled) used as covariates and second-order random walk time
+process incorporated.
 }

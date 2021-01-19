@@ -4,7 +4,6 @@
 #' and use that model to infill and project the dependent variable. The function
 #' uses [INLA::inla()] to perform the model fitting and prediction, and full
 #' details and explanation of arguments that it can accept is available on that page.
-#'
 #' The function also allows for inputting of data type and source information
 #' directly into the data frame if the `type_col` and `source_col` are specified
 #' respectively.
@@ -147,7 +146,6 @@ predict_inla_data <- function(df,
 #' and use that model to infill and project the dependent variable by group. It
 #' uses [INLA::inla()] to perform the model fitting and prediction, and full
 #' details and explanation of arguments that it can accept is available on that page.
-#'
 #' The function also allows for inputting of data type and source information
 #' directly into the data frame if the `type_col` and `source_col` are specified
 #' respectively.

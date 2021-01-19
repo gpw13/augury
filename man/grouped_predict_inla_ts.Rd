@@ -2,7 +2,7 @@
 % Please edit documentation in R/inla_model_wrappers.R
 \name{grouped_predict_inla_ts}
 \alias{grouped_predict_inla_ts}
-\title{Use INLA for autoregressive time series prediction by group}
+\title{Use INLA for time series prediction by group}
 \usage{
 grouped_predict_inla_ts(
   df,
@@ -110,5 +110,8 @@ Depending on the value passed to \code{ret}, either a data frame with
 predicted data, a vector of errors, a fitted model, or a list with all 3.
 }
 \description{
-Use INLA for autoregressive time series prediction by group
+\code{grouped_predict_inla_ts()} uses a Integrated Nested Laplace approximation to
+fit a model and use that model to infill and project the dependent variable. See
+\code{\link[=grouped_predict_inla]{grouped_predict_inla()}} for more details, but the function defaults to fitting
+a second-order random walk with no covariates for each group individually.
 }
