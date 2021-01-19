@@ -4,7 +4,14 @@
 \alias{scale_vec}
 \title{Scale a vector}
 \usage{
-scale_vec(x, scale, inverse)
+scale_vec(x, scale, divide)
+}
+\arguments{
+\item{x}{Numeric vector.}
+
+\item{scale}{Value to scale the vector(s) by. Defaults by 100}
+
+\item{divide}{If \code{TRUE}, divide the vector by the scale. Otherwise, multiply.}
 }
 \description{
 Scale a vector

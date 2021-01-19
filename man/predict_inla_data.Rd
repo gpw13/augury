@@ -6,6 +6,18 @@
 \usage{
 predict_inla_data(df, model, pred_col, upper_col, lower_col)
 }
+\arguments{
+\item{df}{Data frame of model data.}
+
+\item{model}{INLA model object returned by \code{\link[INLA:inla]{INLA::inla()}} which contains
+\code{summary.fitted.values}.}
+
+\item{pred_col}{Column name to store predicted value.}
+
+\item{upper_col}{Column name to store upper bound of confidence interval.}
+
+\item{lower_col}{Column name to store lower bound of confidence interval.}
+}
 \value{
 A data frame.
 }

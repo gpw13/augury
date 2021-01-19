@@ -4,7 +4,14 @@
 \alias{get_model_data}
 \title{Minimizes dataset to data needed for modelling}
 \usage{
-get_model_data(df, formula_vars, test_col, group_col, filter_na)
+get_model_data(
+  df,
+  formula_vars,
+  test_col,
+  group_col = NULL,
+  filter_na,
+  reduce_columns = TRUE
+)
 }
 \arguments{
 \item{df}{Data frame of model data.}
@@ -15,11 +22,16 @@ extracted from a formula using \code{all.vars(fmla)}.}
 \item{test_col}{Name of logical column specifying which response values to remove
 for testing the model's predictive accuracy. If \code{NULL}, ignored.}
 
+\item{group_col}{Column name to split data frame prior to model application.}
+
 \item{filter_na}{Character value specifying how, if at all, to filter \code{NA}
 values from the dataset prior to applying the model.  By default, all
 observations with missing values are removed, although it can also remove
 rows only if they have missing dependent or independent variables, or no
 filtering at all.}
+
+\item{reduce_columns}{Logical on whether or not to reduce the number of columns
+in the data to just those necessary for modelling.}
 }
 \value{
 A data frame.

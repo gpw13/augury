@@ -6,6 +6,9 @@
 \usage{
 parse_formula(formula)
 }
+\arguments{
+\item{formula}{A formula that will be supplied to the model, such as \code{y~x}.}
+}
 \description{
 Asserts formula and extract variables
 }

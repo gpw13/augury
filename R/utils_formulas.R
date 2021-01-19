@@ -1,4 +1,6 @@
 #' Asserts formula and extract variables
+#'
+#' @inheritParams predict_general_mdl
 parse_formula <- function(formula) {
   assert_formula(formula)
   all.vars(formula)

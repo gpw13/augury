@@ -6,8 +6,9 @@
 \usage{
 predict_inla_me(
   df,
-  formula = value ~ sdi_scaled + e0_scaled + INLA::f(region, model = "iid") +
-    INLA::f(year_n, model = "rw2"),
+  model,
+  formula = value ~ sdi_scaled + e0_scaled + f(region, model = "iid") + f(year_n, model
+    = model),
   family = "gaussian",
   control.predictor = list(compute = TRUE),
   control.inla = list(strategy = "laplace"),
@@ -28,6 +29,83 @@ predict_inla_me(
   error_correct = TRUE,
   error_correct_cols = "iso3"
 )
+}
+\arguments{
+\item{df}{Data frame of model data.}
+
+\item{model}{Argument passed to \code{\link[INLA:f]{INLA::f()}} to define the time series model
+used in the default formula. Defaults to "rw2".}
+
+\item{formula}{A formula that will be supplied to the model, such as \code{y~x}.}
+
+\item{family}{A string indicating the likelihood family. The default is
+\code{gaussian} with identity link. See \code{names(INLA::inla.model()$likelihood)}
+for a list of possible alternatives and use \code{\link[INLA:doc]{INLA::inla.doc()}} for
+detailed docs for individual families.}
+
+\item{control.predictor}{See \code{\link[INLA:control.predictor]{INLA::control.predictor()}} for details.}
+
+\item{control.inla}{See \code{\link[INLA:control.inla]{INLA::control.inla()}} for details.}
+
+\item{...}{Additional arguments passed to \code{\link[INLA:inla]{INLA::inla()}}.}
+
+\item{ret}{Character vector specifying what values the function returns. Defaults
+to returning a data frame, but can return a vector of model error, the
+model itself or a list with all 3 as components.}
+
+\item{test_col}{Name of logical column specifying which response values to remove
+for testing the model's predictive accuracy. If \code{NULL}, ignored.}
+
+\item{pred_col}{Column name to store predicted value.}
+
+\item{upper_col}{Column name to store upper bound of confidence interval.}
+
+\item{lower_col}{Column name to store lower bound of confidence interval.}
+
+\item{filter_na}{Character value specifying how, if at all, to filter \code{NA}
+values from the dataset prior to applying the model. By default, only
+observations with missing predictors are removed, although it can also remove
+rows only if they have missing dependent or independent variables, or no
+filtering at all. Model prediction and fitting are done in one pass with
+\code{\link[INLA:inla]{INLA::inla()}}, so there will be no predictions if observations with
+missing dependent variables are removed.}
+
+\item{type_col}{Column name specifying data type.}
+
+\item{types}{Vector of length 3 that provides the type to provide to data
+produced in the model. These values are only used to fill in type values
+where the dependent variable is missing. The first value is given to missing
+observations that precede the first observation, the second to those after
+the last observation, and the third for those following the final observation.}
+
+\item{type_group}{Column name(s) of group(s) to use in \code{\link[dplyr:group_by]{dplyr::group_by()}} when
+supplying type.}
+
+\item{type_sort}{Column name to use to \code{\link[dplyr:arrange]{dplyr::arrange()}} the data prior to
+supplying type.}
+
+\item{source_col}{Column name containing source information for the data frame.
+If provided, the argument in \code{source} is used to fill in where predictions
+have filled in missing data.}
+
+\item{source}{Source to add to missing values.}
+
+\item{replace_obs}{Character value specifying how, if at all, observations should
+be replaced by fitted values. Defaults to replacing only missing values,
+but can be used to replace all values or none.}
+
+\item{error_correct}{Logical value indicating whether or not whether mean error
+should be used to adjust predicted values. If \code{TRUE}, the mean error between
+observed and predicted data points will be used to adjust predictions. If
+\code{error_correct_cols} is not \code{NULL}, mean error will be used within those
+groups instead of overall mean error.}
+
+\item{error_correct_cols}{Column names of data frame to group by when applying
+error correction to the predicted values.}
+}
+\value{
+Depending on the value passed to \code{ret}, either a data frame with
+predicted data, a vector of errors, a fitted model, or a list with all 3.
 }
 \description{
 Use INLA for mixed effects modeling for prediction

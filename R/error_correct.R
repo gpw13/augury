@@ -1,13 +1,14 @@
 #' Use mean error to correct predictions
 #'
 #' @inherit predict_general_mdl params return
+#' @param response Column name of response variable.
 error_correct_fn <- function(df,
-                          response,
-                          pred_col,
-                          upper_col,
-                          lower_col,
-                          error_correct,
-                          error_correct_cols) {
+                             response,
+                             pred_col,
+                             upper_col,
+                             lower_col,
+                             error_correct,
+                             error_correct_cols) {
   if (error_correct) {
     df <- df %>%
       dplyr::group_by(dplyr::across(dplyr::all_of(error_correct_cols))) %>%

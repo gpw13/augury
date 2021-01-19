@@ -4,20 +4,22 @@
 \alias{scale_transform}
 \title{Scales data in a data frame}
 \usage{
-scale_transform(df, cols, scale = 100, inverse = FALSE)
+scale_transform(df, cols, scale = 100, divide = TRUE)
 }
 \arguments{
 \item{df}{A data frame.}
 
 \item{cols}{Names of columns to transform.}
 
-\item{inverse}{Logical value indicating whether or not to inverse the transformation.}
+\item{scale}{Value to scale the vector(s) by. Defaults by 100}
+
+\item{divide}{If \code{TRUE}, divide the vector by the scale. Otherwise, multiply.}
 }
 \value{
 A data frame.
 }
 \description{
 \code{scale_transform()} transform specified columns in a data frame using
-a provided scale. If \code{inverse = FALSE}, it's simply \code{x * scale}, otherwise
+a provided scale. If \code{divide = FALSE}, it's simply \code{x * scale}, otherwise
 it is \code{x / scale}.
 }

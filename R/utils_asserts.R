@@ -32,7 +32,7 @@ assert_test_col <- function(df, test_col) {
 assert_df <- function(df) {
   if (!is.data.frame(df)) {
     stop(sprintf("`df` must be a data frame, not a %s.",
-                 class(x)[1]),
+                 class(df)[1]),
          call. = FALSE)
   }
 }

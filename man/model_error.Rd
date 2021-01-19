@@ -6,6 +6,16 @@
 \usage{
 model_error(df, response, pred_col, test_col)
 }
+\arguments{
+\item{df}{Data frame of model data.}
+
+\item{response}{Column name of response variable.}
+
+\item{pred_col}{Column name to store predicted value.}
+
+\item{test_col}{Name of logical column specifying which response values to remove
+for testing the model's predictive accuracy. If \code{NULL}, ignored.}
+}
 \value{
 A named vector of errors: RMSE, MSE, and MASE.
 }

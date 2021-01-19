@@ -6,6 +6,9 @@
 #' observations that were excluded from modeling for test purpose. Otherwise,
 #' the error is calculated for all non-missing values.
 #'
+#' @inheritParams predict_general_mdl
+#' @param response Column name of response variable.
+#'
 #' @return A named vector of errors: RMSE, MSE, and MASE.
 #'
 #' @export

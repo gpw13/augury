@@ -43,9 +43,8 @@ predict_inla <- function(df,
                          error_correct_cols = NULL) {
   # Assertions and error checking
   assert_df(df)
-  assert_model(model)
   formula_vars <- parse_formula(formula)
-  assert_columns(df, formula_vars, test_col, type_col, source_col, error_correct_col)
+  assert_columns(df, formula_vars, test_col, type_col, source_col, error_correct_cols)
   ret <- rlang::arg_match(ret)
   assert_test_col(df, test_col)
   assert_string_l1(pred_col)
@@ -124,15 +123,17 @@ predict_inla <- function(df,
 #' `predict_inla_data()` generates a prediction vector from an [INLA::inla()]
 #' output object, putting this prediction back into the data frame.
 #'
+#'
+#' @inheritParams predict_inla
+#' @param model INLA model object returned by [INLA::inla()] which contains
+#'     `summary.fitted.values`.
+#'
 #' @return A data frame.
 predict_inla_data <- function(df,
                               model,
                               pred_col,
                               upper_col,
                               lower_col) {
-  fitm        <- result$summary.fitted.values$mean
-  fitl        <- result$summary.fitted.values$"0.025quant"
-  fitu        <- result$summary.fitted.values$"0.975quant"
   fit <- model[["summary.fitted.values"]]
   df[[pred_col]] <- fit[["mean"]]
   df[[upper_col]] <- fit[["0.025quant"]]
@@ -164,7 +165,7 @@ grouped_predict_inla <- function(df,
                                  group_col = "iso3",
                                  formula,
                                  ...,
-                                 ret = c("df", "all", "error", "model"),
+                                 ret = c("df", "all", "error"),
                                  test_col = NULL,
                                  pred_col = "pred",
                                  upper_col = "upper",
@@ -181,9 +182,8 @@ grouped_predict_inla <- function(df,
                                  error_correct_cols = NULL) {
   # Assertions and error checking
   assert_df(df)
-  assert_model(model)
   formula_vars <- parse_formula(formula)
-  assert_columns(df, formula_vars, test_col, type_col, source_col, error_correct_col)
+  assert_columns(df, formula_vars, test_col, type_col, source_col, error_correct_cols)
   ret <- rlang::arg_match(ret)
   assert_test_col(df, test_col)
   assert_string_l1(pred_col)
@@ -202,7 +202,8 @@ grouped_predict_inla <- function(df,
   data <- get_model_data(df = df,
                          formula_vars = formula_vars,
                          test_col = test_col,
-                         filter_na = filter_na)
+                         filter_na = filter_na,
+                         reduce_columns = FALSE)
 
   # Split data frames
   data <- dplyr::group_by(data, .data[[group_col]]) %>%
@@ -253,7 +254,6 @@ grouped_predict_inla <- function(df,
     return(df)
   } else if (ret == "all") {
     list(df = df,
-         error = err,
-         model = mdl)
+         error = err)
   }
 }

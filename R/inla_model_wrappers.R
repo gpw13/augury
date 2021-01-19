@@ -1,28 +1,39 @@
 #' Use INLA for autoregressive time series prediction by group
 #'
+#' @inherit grouped_predict_inla params return
+#' @param model Argument passed to [INLA::f()] to define the time series model
+#'      used in the default formula. Defaults to "rw2".
+#' @param family A string indicating the likelihood family. The default is
+#'      `gaussian` with identity link. See `names(INLA::inla.model()$likelihood)`
+#'      for a list of possible alternatives and use [INLA::inla.doc()] for
+#'      detailed docs for individual families.
+#' @param control.predictor See [INLA::control.predictor()] for details.
+#' @param control.inla See [INLA::control.inla()] for details.
+#'
 #' @export
-grouped_inla_ts <- function(df,
-                            group_col = "iso3",
-                            formula = value ~ INLA::f(year_n, model = "ar1"),
-                            family = "gaussian",
-                            control.predictor = list(compute = TRUE),
-                            control.inla = list(strategy = "laplace"),
-                            ...,
-                            ret = c("df", "all", "error", "model"),
-                            test_col = NULL,
-                            pred_col = "pred",
-                            upper_col = "upper",
-                            lower_col = "lower",
-                            filter_na = c("predictors", "response", "all", "none"),
-                            type_col = NULL,
-                            types = c("imputed", "imputed", "projected"),
-                            type_group = "iso3",
-                            type_sort = "year",
-                            source_col = NULL,
-                            source = NULL,
-                            replace_obs = c("missing", "all", "none"),
-                            error_correct = FALSE,
-                            error_correct_cols = NULL) {
+grouped_predict_inla_ts <- function(df,
+                                    group_col = "iso3",
+                                    model = "rw2",
+                                    formula = value ~ f(year_n, model = model),
+                                    family = "gaussian",
+                                    control.predictor = list(compute = TRUE),
+                                    control.inla = list(strategy = "laplace"),
+                                    ...,
+                                    ret = c("df", "all", "error", "model"),
+                                    test_col = NULL,
+                                    pred_col = "pred",
+                                    upper_col = "upper",
+                                    lower_col = "lower",
+                                    filter_na = c("predictors", "response", "all", "none"),
+                                    type_col = NULL,
+                                    types = c("imputed", "imputed", "projected"),
+                                    type_group = "iso3",
+                                    type_sort = "year",
+                                    source_col = NULL,
+                                    source = NULL,
+                                    replace_obs = c("missing", "all", "none"),
+                                    error_correct = FALSE,
+                                    error_correct_cols = NULL) {
   grouped_predict_inla(df = df,
                        group_col = group_col,
                        formula = formula,
@@ -49,9 +60,15 @@ grouped_inla_ts <- function(df,
 
 #' Use INLA for mixed effects modeling for prediction
 #'
+#' @inherit predict_inla params return
+#' @inherit grouped_predict_inla_ts params
+#' @param model Argument passed to [INLA::f()] to define the time series model
+#'      used in the default formula. Defaults to "rw2".
+#'
 #' @export
 predict_inla_me <- function(df,
-                            formula = value ~ sdi_scaled + e0_scaled + INLA::f(region, model = 'iid') + INLA::f(year_n, model = "rw2"),
+                            model,
+                            formula = value ~ sdi_scaled + e0_scaled + f(region, model = 'iid') + f(year_n, model = model),
                             family = "gaussian",
                             control.predictor = list(compute = TRUE),
                             control.inla = list(strategy = "laplace"),

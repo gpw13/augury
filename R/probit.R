@@ -7,7 +7,7 @@
 #'
 #' @return A numeric vector
 probit_vec <- function(x, inverse = FALSE){
-  if (inverse) {
+  if (!inverse) {
     x[x <= 1e-4] <- 1e-4
     x[x >= 1-1e-3] <- 1-1e-3
   }
@@ -31,5 +31,5 @@ probit_transform <- function(df,
                              cols,
                              inverse = FALSE) {
   assert_columns(df, cols)
-  dplyr::mutate(df, dplyr::across(cols), probit_vec, inverse = inverse)
+  dplyr::mutate(df, dplyr::across(dplyr::all_of(cols), probit_vec, inverse = inverse))
 }

@@ -9,7 +9,7 @@ grouped_predict_inla(
   group_col = "iso3",
   formula,
   ...,
-  ret = c("df", "all", "error", "model"),
+  ret = c("df", "all", "error"),
   test_col = NULL,
   pred_col = "pred",
   upper_col = "upper",
@@ -69,6 +69,12 @@ supplying type.}
 
 \item{type_sort}{Column name to use to \code{\link[dplyr:arrange]{dplyr::arrange()}} the data prior to
 supplying type.}
+
+\item{source_col}{Column name containing source information for the data frame.
+If provided, the argument in \code{source} is used to fill in where predictions
+have filled in missing data.}
+
+\item{source}{Source to add to missing values.}
 
 \item{replace_obs}{Character value specifying how, if at all, observations should
 be replaced by fitted values. Defaults to replacing only missing values,

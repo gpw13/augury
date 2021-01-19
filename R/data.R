@@ -8,6 +8,7 @@
 #' \describe{
 #'   \item{iso3}{Country ISO3 code.}
 #'   \item{year}{Year.}
+#'   \item{year_n}{Year, starting with `1` in 2000. For use in time series modelling.}
 #'   \item{region}{World Bank regional classification.}
 #'   \item{sdi}{Socio-demographic Index, a composite calculated using publicly available on total fertility rates, mean years of schooling, and lag distributed income per capita.}
 #'   \item{sdi_scaled}{Socio-demographic Index, rescaled to a 0 - 1 scale.}

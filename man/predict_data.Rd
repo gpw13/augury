@@ -6,6 +6,20 @@
 \usage{
 predict_data(df, model, pred_col, upper_col, lower_col)
 }
+\arguments{
+\item{df}{Data frame of model data.}
+
+\item{model}{An R function that outputs a model object with a \code{predict.model} generic,
+where \code{\link[stats:family]{stats::family()}} contains an inverse link function \code{linkinv} and
+\code{predict.model()} accepts the \code{se.fit = TRUE} argument and returns confidence
+intervals. This includes \link[stats:lm]{stats::lm}, \link[stats:glm]{stats::glm}, and \link[lme4:lmer]{lme4::lmer}.}
+
+\item{pred_col}{Column name to store predicted value.}
+
+\item{upper_col}{Column name to store upper bound of confidence interval.}
+
+\item{lower_col}{Column name to store lower bound of confidence interval.}
+}
 \value{
 A data frame.
 }

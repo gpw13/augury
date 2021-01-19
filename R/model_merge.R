@@ -5,6 +5,7 @@
 #' included.
 #'
 #' @inheritParams predict_general_mdl
+#' @param response Column name of response variable.
 #'
 #' @return A data frame.
 merge_prediction <- function(df,

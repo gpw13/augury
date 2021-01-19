@@ -17,6 +17,8 @@ error_correct_fn(
 \arguments{
 \item{df}{Data frame of model data.}
 
+\item{response}{Column name of response variable.}
+
 \item{pred_col}{Column name to store predicted value.}
 
 \item{upper_col}{Column name to store upper bound of confidence interval.}

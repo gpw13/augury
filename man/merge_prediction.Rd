@@ -24,6 +24,8 @@ merge_prediction(
 \arguments{
 \item{df}{Data frame of model data.}
 
+\item{response}{Column name of response variable.}
+
 \item{pred_col}{Column name to store predicted value.}
 
 \item{upper_col}{Column name to store upper bound of confidence interval.}
@@ -43,6 +45,12 @@ supplying type.}
 
 \item{type_sort}{Column name to use to \code{\link[dplyr:arrange]{dplyr::arrange()}} the data prior to
 supplying type.}
+
+\item{source_col}{Column name containing source information for the data frame.
+If provided, the argument in \code{source} is used to fill in where predictions
+have filled in missing data.}
+
+\item{source}{Source to add to missing values.}
 
 \item{replace_obs}{Character value specifying how, if at all, observations should
 be replaced by fitted values. Defaults to replacing only missing values,

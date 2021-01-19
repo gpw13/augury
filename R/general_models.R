@@ -50,6 +50,10 @@
 #'     supplying type.
 #' @param type_sort Column name to use to [dplyr::arrange()] the data prior to
 #'     supplying type.
+#' @param source_col Column name containing source information for the data frame.
+#'     If provided, the argument in `source` is used to fill in where predictions
+#'     have filled in missing data.
+#' @param source Source to add to missing values.
 #' @param replace_obs Character value specifying how, if at all, observations should
 #'     be replaced by fitted values. Defaults to replacing only missing values,
 #'     but can be used to replace all values or none.
@@ -167,6 +171,7 @@ predict_general_mdl <- function(df,
 #' `predict_data()` generates a prediction vector from a model object and full
 #' data frame, putting this prediction back into the data frame.
 #'
+#' @inheritParams predict_general_mdl
 #' @return A data frame.
 predict_data <- function(df,
                          model,
