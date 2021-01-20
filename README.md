@@ -205,19 +205,19 @@ infill and project the data.
 
 ``` r
 df <- ghost::gho_data("SDGIHR2018") %>%
-  billionaiRe::wrangle_gho_data(source = "WHO GHO",
+  billionaiRe::wrangle_gho_data(source = "Electronic State Parties Self-Assessment Annual Reporting Tool (e-SPAR)",
                                 type = "reported")
 
 head(df)
 #> # A tibble: 6 x 9
-#>   iso3   year ind   value lower upper source  type     other_detail
-#>   <chr> <int> <chr> <dbl> <lgl> <lgl> <chr>   <chr>    <lgl>       
-#> 1 AFG    2018 espar    35 NA    NA    WHO GHO reported NA          
-#> 2 AFG    2019 espar    43 NA    NA    WHO GHO reported NA          
-#> 3 AGO    2018 espar    59 NA    NA    WHO GHO reported NA          
-#> 4 AGO    2019 espar    63 NA    NA    WHO GHO reported NA          
-#> 5 ALB    2018 espar    NA NA    NA    WHO GHO reported NA          
-#> 6 ALB    2019 espar    62 NA    NA    WHO GHO reported NA
+#>   iso3   year ind   value lower upper source                  type  other_detail
+#>   <chr> <int> <chr> <dbl> <lgl> <lgl> <chr>                   <chr> <lgl>       
+#> 1 AFG    2018 espar    35 NA    NA    Electronic State Parti… repo… NA          
+#> 2 AFG    2019 espar    43 NA    NA    Electronic State Parti… repo… NA          
+#> 3 AGO    2018 espar    59 NA    NA    Electronic State Parti… repo… NA          
+#> 4 AGO    2019 espar    63 NA    NA    Electronic State Parti… repo… NA          
+#> 5 ALB    2018 espar    NA NA    NA    Electronic State Parti… repo… NA          
+#> 6 ALB    2019 espar    62 NA    NA    Electronic State Parti… repo… NA
 ```
 
 With this, let’s go straight into the modeling like last time, except we
@@ -234,7 +234,7 @@ modeled_df <- df %>%
   predict_inla_me(model = "ar1",
                   type_col = "type",
                   source_col = "source",
-                  source = "augury modeling") %>%
+                  source = "WHO DDI Preliminary infilling and projections") %>%
   probit_transform(c("value", "pred", "upper", "lower"), inverse = TRUE) %>%
   scale_transform(c("value", "pred", "upper", "lower"), divide = FALSE)
 
@@ -244,16 +244,16 @@ modeled_df %>%
   filter(year > 2017, iso3 == "AFG") %>%
   select(iso3, year, value, pred, lower, upper, source, type)
 #> # A tibble: 8 x 8
-#>   iso3   year value  pred lower upper source          type     
-#>   <chr> <dbl> <dbl> <dbl> <dbl> <dbl> <chr>           <chr>    
-#> 1 AFG    2018  35    42.3  45.7  38.9 WHO GHO         reported 
-#> 2 AFG    2019  43    43.0  46.4  39.7 WHO GHO         reported 
-#> 3 AFG    2020  43.6  43.6  47.0  40.2 augury modeling projected
-#> 4 AFG    2021  44.2  44.2  47.6  40.9 augury modeling projected
-#> 5 AFG    2022  44.8  44.8  48.2  41.5 augury modeling projected
-#> 6 AFG    2023  45.5  45.5  48.8  42.1 augury modeling projected
-#> 7 AFG    2024  46.0  46.0  49.3  42.7 augury modeling projected
-#> 8 AFG    2025  46.6  46.6  49.9  43.3 augury modeling projected
+#>   iso3   year value  pred lower upper source                              type  
+#>   <chr> <dbl> <dbl> <dbl> <dbl> <dbl> <chr>                               <chr> 
+#> 1 AFG    2018  35    42.3  45.7  38.9 Electronic State Parties Self-Asse… repor…
+#> 2 AFG    2019  43    43.0  46.4  39.7 Electronic State Parties Self-Asse… repor…
+#> 3 AFG    2020  43.6  43.6  47.0  40.2 WHO DDI Preliminary infilling and … proje…
+#> 4 AFG    2021  44.2  44.2  47.6  40.9 WHO DDI Preliminary infilling and … proje…
+#> 5 AFG    2022  44.8  44.8  48.2  41.5 WHO DDI Preliminary infilling and … proje…
+#> 6 AFG    2023  45.5  45.5  48.8  42.1 WHO DDI Preliminary infilling and … proje…
+#> 7 AFG    2024  46.0  46.0  49.3  42.7 WHO DDI Preliminary infilling and … proje…
+#> 8 AFG    2025  46.6  46.6  49.9  43.3 WHO DDI Preliminary infilling and … proje…
 ```
 
 And exactly as we were able to do with the time series modeling, we now

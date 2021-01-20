@@ -69,7 +69,7 @@ Now we will look at another indicator, a composite of 13 International Health Re
 
 ```{r load_spar}
 df <- ghost::gho_data("SDGIHR2018") %>%
-  billionaiRe::wrangle_gho_data(source = "WHO GHO",
+  billionaiRe::wrangle_gho_data(source = "Electronic State Parties Self-Assessment Annual Reporting Tool (e-SPAR)",
                                 type = "reported")
 
 head(df)
@@ -84,7 +84,7 @@ modeled_df <- df %>%
   predict_inla_me(model = "ar1",
                   type_col = "type",
                   source_col = "source",
-                  source = "augury modeling") %>%
+                  source = "WHO DDI Preliminary infilling and projections") %>%
   probit_transform(c("value", "pred", "upper", "lower"), inverse = TRUE) %>%
   scale_transform(c("value", "pred", "upper", "lower"), divide = FALSE)
 
