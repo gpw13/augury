@@ -4,3 +4,5 @@ language: R
 cache: packages
 install:
   - R -e "install.packages('INLA',repos=c(getOption('repos'),INLA='https://inla.r-inla-download.org/R/stable'), dep = TRUE)"
+  - R -e "install.packages('devtools')"
+  - R -e "devtools::install_deps(dependencies = TRUE, upgrade='always')""
