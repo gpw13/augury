@@ -2,3 +2,5 @@
 
 language: R
 cache: packages
+install:
+  - R -e 'install.packages("INLA",repos=c(getOption("repos"),INLA="https://inla.r-inla-download.org/R/stable")'
