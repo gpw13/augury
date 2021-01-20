@@ -25,6 +25,7 @@ Depends:
     R (>= 2.10)
 Imports: 
     VGAM,
+    INLA,
     stats,
     dplyr,
     rlang,
@@ -33,7 +34,6 @@ Imports:
     lme4,
     zoo
 Suggests:
-    INLA,
     knitr,
     rmarkdown,
     billionaiRe,

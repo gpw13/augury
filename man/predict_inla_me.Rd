@@ -6,9 +6,10 @@
 \usage{
 predict_inla_me(
   df,
-  model,
-  formula = value ~ sdi_scaled + e0_scaled + f(region, model = "iid") + f(year_n, model
-    = model),
+  model = "rw2",
+ 
+    formula = as.formula(sprintf("value ~ sdi_scaled + e0_scaled + f(region, model = 'iid') + f(year_n, model = '\%s')",
+    model)),
   family = "gaussian",
   control.predictor = list(compute = TRUE),
   control.inla = list(strategy = "laplace"),
