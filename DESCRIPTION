@@ -35,7 +35,8 @@ Imports:
 Suggests:
     INLA,
     knitr,
-    rmarkdown
+    rmarkdown,
+    billionaiRe
 Remotes:
     url::https://inla.r-inla-download.org/R/stable/src/contrib/INLA_20.03.17.tar.gz
 VignetteBuilder: knitr
