@@ -38,6 +38,6 @@ Suggests:
     rmarkdown,
     billionaiRe
 Remotes:
-    caldwellst/billionaiRe
+    caldwellst/billionaiRe,
     url::https://inla.r-inla-download.org/R/stable/src/contrib/INLA_20.03.17.tar.gz
 VignetteBuilder: knitr
