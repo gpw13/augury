@@ -100,7 +100,6 @@ predict_general_mdl <- function(df,
   assert_string_l1(lower_col)
   filter_na <- rlang::arg_match(filter_na)
   assert_string_l1(type_col)
-  types <- rlang::arg_match(types)
   if (!is.null(type_col)) {
     assert_columns(df, type_group, type_sort)
   }
@@ -237,7 +236,6 @@ grouped_predict_general_mdl <- function(df,
   assert_string_l1(lower_col)
   filter_na <- rlang::arg_match(filter_na)
   assert_string_l1(type_col)
-  types <- rlang::arg_match(types)
   if (!is.null(type_col)) {
     assert_columns(df, type_group, type_sort)
   }

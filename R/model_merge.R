@@ -33,9 +33,9 @@ merge_prediction <- function(df,
       df <- dplyr::arrange(df, .data[[type_sort]], .by_group = TRUE) %>%
         dplyr::mutate(
           !!sym(type_col) := dplyr::case_when(
+            is.na(.data[[response]]) & .data[[type_sort]] <= min(.data[[type_sort]][!is.na(.data[[response]])], Inf) ~ types[1],
+            is.na(.data[[response]]) & .data[[type_sort]] > max(.data[[type_sort]][!is.na(.data[[response]])], -Inf) ~ types[3],
             !is.na(.data[[response]]) ~ .data[[type_col]],
-            .data[[type_sort]] <= min(.data[[type_sort]][!is.na(.data[[response]])]) ~ types[1],
-            .data[[type_sort]] > max(.data[[type_sort]][!is.na(.data[[response]])]) ~ types[3],
             TRUE ~ types[2]
           ))
     }

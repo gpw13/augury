@@ -51,7 +51,6 @@ predict_inla <- function(df,
   assert_string_l1(lower_col)
   filter_na <- rlang::arg_match(filter_na)
   assert_string_l1(type_col)
-  types <- rlang::arg_match(types)
   if (!is.null(type_col)) {
     assert_columns(df, type_group, type_sort)
   }
@@ -62,7 +61,8 @@ predict_inla <- function(df,
   data <- get_model_data(df = df,
                          formula_vars = formula_vars,
                          test_col = test_col,
-                         filter_na = filter_na)
+                         filter_na = filter_na,
+                         reduce_columns = FALSE)
 
   # Build model
   mdl <- INLA::inla(formula = formula,
@@ -189,7 +189,6 @@ grouped_predict_inla <- function(df,
   assert_string_l1(lower_col)
   filter_na <- rlang::arg_match(filter_na)
   assert_string_l1(type_col)
-  types <- rlang::arg_match(types)
   if (!is.null(type_col)) {
     assert_columns(df, type_group, type_sort)
   }
