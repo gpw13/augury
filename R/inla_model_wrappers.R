@@ -60,7 +60,7 @@ grouped_predict_inla_ts <- function(df,
                        source = source,
                        replace_obs = replace_obs,
                        error_correct = error_correct,
-                       error_correct_cols)
+                       error_correct_cols = error_correct_cols)
 }
 
 #' Use INLA for mixed effects modeling for prediction
@@ -120,5 +120,5 @@ predict_inla_me <- function(df,
                source = source,
                replace_obs = replace_obs,
                error_correct = error_correct,
-               error_correct_cols)
+               error_correct_cols = error_correct_cols)
 }

@@ -11,6 +11,7 @@ error_correct_fn <- function(df,
                              error_correct_cols) {
   if (error_correct) {
     df <- df %>%
+      dplyr::ungroup() %>%
       dplyr::group_by(dplyr::across(dplyr::all_of(error_correct_cols))) %>%
       dplyr::mutate("temp_error" := .data[[response]] - .data[[pred_col]],
                     "temp_error" := mean(.data[["temp_error"]], na.rm = TRUE)) %>%
