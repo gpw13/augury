@@ -33,6 +33,7 @@ merge_prediction <- function(df,
       df <- dplyr::arrange(df, .data[[type_sort]], .by_group = TRUE) %>%
         dplyr::mutate(
           !!sym(type_col) := dplyr::case_when(
+            is.na(.data[[pred_col]]) ~ NA_character_,
             is.na(.data[[response]]) & .data[[type_sort]] <= min(.data[[type_sort]][!is.na(.data[[response]])], Inf) ~ types[1],
             is.na(.data[[response]]) & .data[[type_sort]] > max(.data[[type_sort]][!is.na(.data[[response]])], -Inf) ~ types[3],
             !is.na(.data[[response]]) ~ .data[[type_col]],
@@ -42,7 +43,7 @@ merge_prediction <- function(df,
 
     # put source for missing values, where applicable
     if (!is.null(source_col)) {
-      df[[source_col]] <- ifelse(is.na(df[[response]]), source, df[[source_col]])
+      df[[source_col]] <- ifelse(is.na(df[[response]]) & !is.na(df[[pred_col]]), source, df[[source_col]])
     }
 
     # use error correction if applicable
