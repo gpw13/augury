@@ -49,7 +49,7 @@ filter_model_data <- function(df,
                               formula_vars,
                               filter_na) {
   if (filter_na == "all") {
-    df <- df[!is.na(df[[formula_vars]])]
+    fltr <- stats::complete.cases(df[,formula_vars])
   } else if (filter_na == "response") {
     df <- df[!is.na(df[[formula_vars[1]]]),]
   } else if (filter_na == "predictors") {
