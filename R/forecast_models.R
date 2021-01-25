@@ -1,24 +1,9 @@
-#' Use a generic R model to infill and project data
+#' Use an ARIMA model to infill and project data
 #'
-#' `predict_general_mdl()` uses a general model object from R to fit a model and
-#' use that model to infill and project the dependent variable. It is flexible
-#' to allow for many general models to be used through the function. However,
-#' they need to fit certain criteria:
-#' * The model accepts `formula` and `data` arguments. All other arguments can be
-#'     passed anonymously through  `...`.
-#' * The returned object passed through [stats::family()] returns an inverse
-#'     link function in its list as `linkinv`.
-#' * Must have a `predict.model` generic that accepts the `se.fit = TRUE` argument
-#'     and returns confidence intervals.
-#'
-#' As example, [stats::lm()], [stats::glm()], and [lme4::lmer()] all fit the
-#' above criteria and convenient wrappers for those models are
-#' provided in augury, but additional model functions can be used in
-#' `predict_general_mdl()` if they fit the criteria.
-#'
-#' The function also allows for inputting of data type and source information
-#' directly into the data frame if the `type_col` and `source_col` are specified
-#' respectively.
+#' `predict_forecast()` uses the forecast package's [forecast::forecast()] to
+#' generate predictions on time series data. Although it can be applied directly
+#' to numeric vectors, it is often useful to apply a model such as [forecast::Arima()]
+#' to the series prior to passing it to forecast.
 #'
 #' @param df Data frame of model data.
 #' @param model An R function that outputs a model object with a `predict.model` generic,
