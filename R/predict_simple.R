@@ -23,19 +23,13 @@ predict_simple_fn <- function(df,
     df <- dplyr::arrange(df, dplyr::across(sort_col, fn))
   }
 
-  if (model == "linear_interp") rule <- 1 else rule <- 2
+  if (model %in% c("both", "linear_interp")) {
+    df <- dplyr::mutate(df, !!sym(pred_col) := zoo::na.approx(.data[[col]],
+                                                              na.rm = FALSE))
+  }
 
-  df <- dplyr::mutate(df, !!sym(pred_col) := zoo::na.approx(.data[[col]],
-                                                            rule = rule,
-                                                            na.rm = FALSE))
-
-  if (model == "flat_extrap") {
-    df <- dplyr::mutate(df,
-                        !!sym(pred_col) := dplyr::case_when(
-                          !is.na(.data[[col]]) ~ .data[[pred_col]],
-                          dplyr::row_number() > max(which(!is.na(.data[[col]]))) ~ .data[[pred_col]],
-                          TRUE ~ NA_real_
-                        ))
+  if (model %in% c("both", "flat_extrap")) {
+    df <- dplyr::mutate(df, !!sym(pred_col) := simple_extrap(.data[[col]]))
   }
 
   dplyr::ungroup(df)
@@ -107,4 +101,13 @@ predict_simple <- function(df,
                          error_correct_cols = NULL)
 
   df
+}
+
+simple_extrap <- function(x) {
+  missing_x <- is.na(x)
+  if (!all(missing_x)) {
+    whr <- max(which(!missing_x))
+    x[whr:length(x)] <- x[whr]
+  }
+  x
 }
