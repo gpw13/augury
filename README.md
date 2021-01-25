@@ -29,6 +29,14 @@ if (!require("INLA")) install.packages("INLA",repos=c(getOption("repos"),INLA="h
 remotes::install_github("caldwellst/augury")
 ```
 
+If you are reinstalling the package to update something, you should make
+sure you have necessary dependencies, but to avoid re-downloading the
+large INLA tarball, you can use:
+
+``` r
+remotes::install_github("caldwellst/augury", dependencies = FALSE)
+```
+
 ## Overview
 
 Most of the functions available through the package are designed to
