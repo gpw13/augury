@@ -26,9 +26,9 @@ model_error <- function(df,
     dplyr::mutate("diff" := .data[[pred_col]] - .data[[response]],
                   "diff_sqr" := .data[["diff"]] ^ 2,
                   "diff_abs" := abs(.data[["diff"]])) %>%
-    dplyr::summarize("mse" := mean(.data[["diff_sqr"]]),
+    dplyr::summarize("mse" := mean(.data[["diff_sqr"]], na.rm = TRUE),
                      "rmse" := sqrt(.data[["mse"]]),
-                     "mae" := mean(.data[["diff_abs"]]))
+                     "mae" := mean(.data[["diff_abs"]], na.rm = TRUE))
 
   unlist(x)
 }
