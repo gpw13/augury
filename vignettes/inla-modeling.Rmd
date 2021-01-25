@@ -20,7 +20,7 @@ In order to show the INLA modeling wrappers provided in augury, we will look at 
 
 The first indicator will be on safe sanitation. We will also use the [billionaiRe](https://github.com/caldwellst/billionaiRe) package to quickly transform the GHO data into the simple format used by augury, billionaiRe, and other packages.
 
-```{r setup}
+```{r setup_forecasting}
 library(augury)
 
 df <- ghost::gho_data("WSH_SANITATION_SAFELY_MANAGED",

@@ -1,83 +1,48 @@
-#' Use an ARIMA model to infill and project data
+#' Use a time series model to infill and project data
 #'
-#' `predict_forecast()` uses the forecast package's [forecast::forecast()] to
-#' generate predictions on time series data. Although it can be applied directly
-#' to numeric vectors, it is often useful to apply a model such as [forecast::Arima()]
-#' to the series prior to passing it to forecast.
+#' `predict_forecast()` uses the forecast package's [forecast::forecast()] methods
+#' to generate predictions on time series data. These use the longest contiguous
+#' observed values to forecast out a certain number periods. This function
+#' automatically detects the latest observed values and the number of missing
+#' values to forecast, and runs the provided forecasting function on the
+#' observed data series.
 #'
-#' @param df Data frame of model data.
-#' @param model An R function that outputs a model object with a `predict.model` generic,
-#'     where [stats::family()] contains an inverse link function `linkinv` and
-#'     `predict.model()` accepts the `se.fit = TRUE` argument and returns confidence
-#'     intervals. This includes [stats::lm], [stats::glm], and [lme4::lmer].
-#' @param formula A formula that will be supplied to the model, such as `y~x`.
-#' @param ... Other arguments passed to the model function.
-#' @param ret Character vector specifying what values the function returns. Defaults
-#'     to returning a data frame, but can return a vector of model error, the
-#'     model itself or a list with all 3 as components.
-#' @param test_col Name of logical column specifying which response values to remove
-#'     for testing the model's predictive accuracy. If `NULL`, ignored.
-#' @param pred_col Column name to store predicted value.
-#' @param upper_col Column name to store upper bound of confidence interval.
-#' @param lower_col Column name to store lower bound of confidence interval.
-#' @param filter_na Character value specifying how, if at all, to filter `NA`
-#'     values from the dataset prior to applying the model.  By default, all
-#'     observations with missing values are removed, although it can also remove
-#'     rows only if they have missing dependent or independent variables, or no
-#'     filtering at all.
-#' @param type_col Column name specifying data type.
-#' @param types Vector of length 3 that provides the type to provide to data
-#'     produced in the model. These values are only used to fill in type values
-#'     where the dependent variable is missing. The first value is given to missing
-#'     observations that precede the first observation, the second to those after
-#'     the last observation, and the third for those following the final observation.
-#' @param type_group Column name(s) of group(s) to use in [dplyr::group_by()] when
-#'     supplying type.
-#' @param type_sort Column name to use to [dplyr::arrange()] the data prior to
-#'     supplying type.
-#' @param source_col Column name containing source information for the data frame.
-#'     If provided, the argument in `source` is used to fill in where predictions
-#'     have filled in missing data.
-#' @param source Source to add to missing values.
-#' @param replace_obs Character value specifying how, if at all, observations should
-#'     be replaced by fitted values. Defaults to replacing only missing values,
-#'     but can be used to replace all values or none.
-#' @param error_correct Logical value indicating whether or not whether mean error
-#'     should be used to adjust predicted values. If `TRUE`, the mean error between
-#'     observed and predicted data points will be used to adjust predictions. If
-#'     `error_correct_cols` is not `NULL`, mean error will be used within those
-#'     groups instead of overall mean error.
-#' @param error_correct_cols Column names of data frame to group by when applying
-#'     error correction to the predicted values.
+#' @param forecast_function An R function that outputs a forecast object coming from the
+#'     forecast package. You can directly pass [forecast::forecast()] to the
+#'     function, or you can pass other wrappers to it such as [forecast::holt()] or
+#'     [forecast::ses()].
+#' @param response Column name of response variable to be used as the input to the
+#'     forecast function.
+#' @param sort_col Column name of column to arrange data by in `dplyr::arrange()`,
+#'     prior to filtering for latest contiguous time series and producing the
+#'     forecast.
+#' @param ... Additional arguments passed to the forecast function.
 #'
-#' @return Depending on the value passed to `ret`, either a data frame with
-#'     predicted data, a vector of errors, a fitted model, or a list with all 3.
+#' @inherit predict_general_mdl params return
 #'
 #' @export
-predict_general_mdl <- function(df,
-                                model,
-                                formula,
-                                ...,
-                                ret = c("df", "all", "error", "model"),
-                                test_col = NULL,
-                                pred_col = "pred",
-                                upper_col = "upper",
-                                lower_col = "lower",
-                                filter_na = c("all", "response", "predictors", "none"),
-                                type_col = NULL,
-                                types = c("imputed", "imputed", "projected"),
-                                type_group = "iso3",
-                                type_sort = "year",
-                                source_col = NULL,
-                                source = NULL,
-                                replace_obs = c("missing", "all", "none"),
-                                error_correct = FALSE,
-                                error_correct_cols = NULL) {
+predict_forecast <- function(df,
+                             forecast_function,
+                             response,
+                             sort_col = NULL,
+                             ...,
+                             ret = c("df", "all", "error", "model"),
+                             test_col = NULL,
+                             pred_col = "pred",
+                             upper_col = "upper",
+                             lower_col = "lower",
+                             filter_na = c("all", "response", "predictors", "none"),
+                             type_col = NULL,
+                             types = c("imputed", "imputed", "projected"),
+                             type_group = "iso3",
+                             type_sort = "year",
+                             source_col = NULL,
+                             source = NULL,
+                             replace_obs = c("missing", "all", "none")) {
   # Assertions and error checking
   assert_df(df)
-  assert_model(model)
-  formula_vars <- parse_formula(formula)
-  assert_columns(df, formula_vars, test_col, type_col, source_col)
+  assert_function(forecast_function)
+  assert_columns(df, response, sort_col, test_col, type_col, source_col)
   ret <- rlang::arg_match(ret)
   assert_test_col(df, test_col)
   assert_string_l1(pred_col)
@@ -92,31 +57,31 @@ predict_general_mdl <- function(df,
   replace_obs <- rlang::arg_match(replace_obs)
 
   # Filter data for modeling
-  data <- get_model_data(df = df,
-                         formula_vars = formula_vars,
-                         test_col = test_col,
-                         filter_na = filter_na)
+  x <- get_forecast_series(df = df,
+                           response = response,
+                           sort_col = sort_col,
+                           test_col = test_col)
 
   # Build model
-  mdl <- model(formula = formula,
-               data = data,
-               ...)
+  mdl <- forecast_series(x,
+                         forecast_function,
+                         ...)
 
   if (ret == "model") {
     return(mdl)
   }
 
   # Get model predictions
-  df <- predict_data(df,
-                     mdl,
-                     pred_col,
-                     upper_col,
-                     lower_col)
+  df <- predict_forecast_data(df,
+                              mdl,
+                              pred_col,
+                              upper_col,
+                              lower_col)
 
   # Get error if being returned
   if (ret %in% c("all", "error")) {
     err <- model_error(df,
-                       formula_vars[1],
+                       response,
                        pred_col,
                        test_col)
 
@@ -127,7 +92,7 @@ predict_general_mdl <- function(df,
 
   # Merge predictions into observations
   df <- merge_prediction(df,
-                         formula_vars[1],
+                         response,
                          pred_col,
                          upper_col,
                          lower_col,
@@ -138,8 +103,8 @@ predict_general_mdl <- function(df,
                          source_col,
                          source,
                          replace_obs,
-                         error_correct,
-                         error_correct_cols)
+                         error_correct = FALSE,
+                         error_correct_cols = NULL)
 
   if (ret == "df") {
     return(df)
@@ -152,22 +117,197 @@ predict_general_mdl <- function(df,
 
 #' Generate prediction from model object
 #'
-#' `predict_data()` generates a prediction vector from a model object and full
-#' data frame, putting this prediction back into the data frame.
+#' `predict_forecast_data()` generates a prediction vector from a forecast object
+#' and full data frame, putting this prediction back into the data frame.
 #'
 #' @inheritParams predict_general_mdl
+#' @param forecast_obj Object of class `forecast` that is output from the `forecast::`
+#'     family of functions.
 #' @return A data frame.
-predict_data <- function(df,
-                         model,
+predict_forecast_data <- function(df,
+                                  forecast_obj,
+                                  pred_col,
+                                  upper_col,
+                                  lower_col) {
+  x <- as.numeric(forecast_obj[["mean"]])
+  x_len <- length(x)
+  na_len <- nrow(df) - x_len # fill in NA for "pred" prior to the forecast
+  df[[pred_col]] <- c(rep(NA_real_, na_len), x)
+  df[[upper_col]] <- c(rep(NA_real_, na_len), get_forecast_bounds(forecast_obj, "upper"))
+  df[[lower_col]] <- c(rep(NA_real_, na_len), get_forecast_bounds(forecast_obj, "lower"))
+  df
+}
+
+#' @noRd
+get_forecast_bounds <- function(x, bound) {
+  df <- as.data.frame(x[[bound]])
+  df[["95%"]]
+}
+
+#' Get data for forecast models
+#'
+#' Keep only the latest contiguous time series, dropping all other NA values
+#' from the response variable. Removes test column variables first.
+#'
+#' @inheritParams predict_forecast
+#'
+#' @return A data series.
+get_forecast_series <- function(df,
+                                response,
+                                sort_col,
+                                test_col) {
+  if (!is.null(sort_col)) {
+    df <- dplyr::arrange(df, .data[[sort_col]], .by_group = TRUE)
+  }
+
+  if (!is.null(test_col)) {
+    df[[response]][df[[test_col]]] <- NA_real_
+  }
+
+  trim_series(df[[response]])
+}
+
+
+#' Get latest data for forecasting
+#'
+#' Gets latest data for forecasting. It also gets the number of missing data
+#' points to forecast.
+#'
+#' @param x Data series to reduce for forecasting
+#'
+#' @return Series with contiguous observations followed by NA values to forecast.
+trim_series <- function(x) {
+  na_x <- is.na(x)
+  last_obs <- max(which(!na_x)) # latest observation
+  missing <- which(na_x)
+  start_from <- max(missing[missing < last_obs], -Inf) + 1 # find start of contiguous series
+  if (is.infinite(start_from)) start_from <- 1
+  x[start_from:length(x)]
+}
+
+#' Forecast data series
+#'
+#' Using series coming from `trim_series()`, it uses latest observed values
+#' to forecast missing values.
+#'
+#' @param x Series to forecast, coming from `trim_series()`
+#' @inheritParams predict_forecast
+#'
+#' @return Forecast model.
+forecast_series <- function(x,
+                            forecast_function,
+                            ...) {
+  na_x <- is.na(x)
+  h <- sum(na_x)
+  assert_h(h)
+  x <- x[!na_x]
+  forecast_function(x,
+                    h = h,
+                    ...)
+}
+
+
+#' Use a time series model to infill and project data by group.
+#'
+#' `grouped_predict_forecast()` uses the forecast package's [forecast::forecast()] methods
+#' to generate predictions on time series data by group. For each group, it
+#' automatically detects the latest observed values and the number of missing
+#' values to forecast, and runs the provided forecasting function on the
+#' observed data series. Note that this will not infill missing values to create
+#' an entire data series, so consider passing to other infilling methods if and
+#' when necessary.
+#'
+#' @inherit predict_forecast params return
+#' @inheritParams grouped_predict_general_mdl
+#'
+#' @export
+grouped_predict_forecast <- function(df,
+                                     forecast_function,
+                                     response,
+                                     group_col,
+                                     sort_col = NULL,
+                                     ...,
+                                     ret = c("df", "all", "error", "model"),
+                                     test_col = NULL,
+                                     pred_col = "pred",
+                                     upper_col = "upper",
+                                     lower_col = "lower",
+                                     filter_na = c("all", "response", "predictors", "none"),
+                                     type_col = NULL,
+                                     types = c("imputed", "imputed", "projected"),
+                                     type_group = "iso3",
+                                     type_sort = "year",
+                                     source_col = NULL,
+                                     source = NULL,
+                                     replace_obs = c("missing", "all", "none")) {
+  # Assertions and error checking
+  assert_df(df)
+  assert_function(forecast_function)
+  assert_columns(df, response, group_col, sort_col, test_col, type_col, source_col)
+  ret <- rlang::arg_match(ret)
+  assert_test_col(df, test_col)
+  assert_string_l1(pred_col)
+  assert_string_l1(upper_col)
+  assert_string_l1(lower_col)
+  filter_na <- rlang::arg_match(filter_na)
+  assert_string_l1(type_col)
+  if (!is.null(type_col)) {
+    assert_columns(df, type_group, type_sort)
+  }
+  assert_string_l1(source)
+  replace_obs <- rlang::arg_match(replace_obs)
+
+  # map by group
+  df_list <- dplyr::group_by(df, .data[[group_col]]) %>%
+    dplyr::group_split()
+
+  df <- purrr::map_dfr(df_list, function(df) {
+    x <- get_forecast_series(df = df,
+                             response = response,
+                             sort_col = sort_col,
+                             test_col = test_col)
+    mdl <- forecast_series(x,
+                           forecast_function,
+                           ...)
+    predict_forecast_data(df,
+                          mdl,
+                          pred_col,
+                          upper_col,
+                          lower_col)
+  })
+
+  # Get error if being returned
+  if (ret %in% c("all", "error")) {
+    err <- model_error(df,
+                       response,
+                       pred_col,
+                       test_col)
+
+    if (ret == "error") {
+      return(err)
+    }
+  }
+
+  # Merge predictions into observations
+  df <- merge_prediction(df,
+                         response,
                          pred_col,
                          upper_col,
-                         lower_col) {
-  inv_link <- stats::family(model)[["linkinv"]]
-  pred <- stats::predict(model, newdata = df, se.fit = TRUE)
-  x <- pred[["fit"]]
-  se <- pred[["se.fit"]]
-  df[[pred_col]] <- inv_link(x)
-  df[[upper_col]] <- inv_link(x + 2 * se)
-  df[[lower_col]] <- inv_link(x - 2 * se)
-  df
+                         lower_col,
+                         type_col,
+                         types,
+                         type_group,
+                         type_sort,
+                         source_col,
+                         source,
+                         replace_obs,
+                         error_correct = FALSE,
+                         error_correct_cols = NULL)
+
+  if (ret == "df") {
+    return(df)
+  } else if (ret == "all") {
+    list(df = df,
+         error = err)
+  }
 }

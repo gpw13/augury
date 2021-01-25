@@ -8,7 +8,7 @@ grouped_predict_inla_ts(
   df,
   group_col = "iso3",
   model = "rw2",
-  formula = as.formula(sprintf("value ~ f(year_n, model = '\%s')", model)),
+  formula = stats::as.formula(sprintf("value ~ f(year_n, model = '\%s')", model)),
   family = "gaussian",
   control.predictor = list(compute = TRUE),
   control.inla = list(strategy = "laplace"),

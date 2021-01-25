@@ -58,7 +58,30 @@ assert_string_l1 <- function(x) {
       stop(sprintf("`%s` must be a character vector of length 1, not %s of length %d.",
                    deparse(substitute(x)),
                    class(x),
-                   lx))
+                   lx),
+           call. = FALSE)
     }
+  }
+}
+
+#' Assert that `x` is a function
+#'
+#' @param x Supposed function to test
+assert_function <- function(x) {
+  if (!is.function(x)) {
+    stop(sprintf("`%s` must be a function, not a %s.",
+                 deparse(substitute(x)),
+                 class(x)[1]),
+         call. = FALSE)
+  }
+}
+
+#' Assert that h, for forecasting, is > 0
+#'
+#' @param h Number of missing values in series passed to forecast
+assert_h <- function(h) {
+  if (h == 0) {
+    stop("No missing values to forecast supplied.",
+         call. = FALSE)
   }
 }

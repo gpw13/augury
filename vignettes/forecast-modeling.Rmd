@@ -1,0 +1,57 @@
+---
+title: "Forecast modeling"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Forecast modeling}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+To look at using forecast methods to predict data, we will again be using the [ghost package](https://github.com/caldwellst/ghost), which provides an R interface for the GHO OData API and accessing data on blood pressure. We will load in data for the USA and Great Britain initially, which provide full time series from 1975 to 2015.
+
+```{r setup}
+library(augury)
+
+df <- ghost::gho_data("BP_04", query = "$filter=SpatialDim in ('USA', 'GBR') and Dim1 eq 'MLE' and Dim2 eq 'YEARS18-PLUS'") %>%
+  billionaiRe::wrangle_gho_data() %>%
+  dplyr::right_join(tidyr::expand_grid(iso3 = c("USA", "GBR"),
+                                       year = 1975:2017))
+```
+
+With this data, we can now use the `predict_forecast()` function like we would any of the other `predict_...` functions from augury to forecast out to 2017. First, we will do this just on USA data and use the `forecast::holt` to forecast using exponential smoothing. 
+
+```{r forecast}
+usa_df <- dplyr::filter(df, iso3 == "USA")
+
+predict_forecast(usa_df,
+                 forecast::holt,
+                 "value",
+                 "year") %>%
+  dplyr::filter(year >= 2012)
+```
+
+Of course, we might want to run these models all together for each country individually. In this case, we can use the `grouped_predict_forecast()` function to perform the forecast by country. To save a bit of limited time, let's use the wrapper `grouped_predict_holt()` to automatically supply `forecast::holt` as the forecasting function.
+
+```{r grouped_forecast}
+grouped_predict_holt(df,
+                     response = "value",
+                     group_col = "iso3",
+                     sort_col = "year") %>%
+  dplyr::filter(year >= 2014, year <= 2017)
+```
+Et voila, we have the same results for the USA and have also ran forecasting on Great Britain as well. However, you should be careful on the data that is supplied for forecasting. The `forecast` package functions default to using the longest, contiguous non-missing data for forecasting. `augury` instead automatically pulls the latest contiguous observed data to use for forecasting, to ensure that older data is not prioritized over new data. However, this means any break in a time series will prevent data before that from being used.
+
+```{r bad_example}
+bad_df <- dplyr::tibble(x = c(1:4, NA, 3:2, rep(NA, 4)))
+
+predict_holt(bad_df, "x")
+```
+
+It's advisable to consider if other data infilling or imputation methods should be used to generate a full time series prior to the use of forecasting methods to prevent issues like above from impacting the predictive accuracy.

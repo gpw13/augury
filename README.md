@@ -43,6 +43,9 @@ single data frame in one pass.
     than taking a generic modelling function it accepts a formula and
     additional argument passed to `INLA::inla()` to perform Bayesian
     analysis of structured additive models.
+-   `predict_forecast()` instead uses forecasting methods available from
+    `forecast::forecast()` to perform exponential smoothing or other
+    time series models on a response variable.
 
 Given that models might need to be fit separately to different portions
 of a data frame, such as fitting time series models for each country
@@ -50,6 +53,7 @@ individually, there are grouped versions of the above functions.
 
 -   `grouped_predict_general_mdl()`
 -   `grouped_predict_inla()`
+-   `grouped_predict_forecast()`
 
 The grouped functions apply the modeling separately across each group
 before joining them back together into the original data frame and
@@ -74,6 +78,12 @@ model using covariates.
 
 -   `predict_inla_me()` & `grouped_predict_inla_me()`
 
+And for forecasting, generic functions are provided for simple
+exponential smoothing and Holt’s linear trend exponential smoothing.
+
+-   `predict_inla_holt()` & `grouped_predict_inla_holt()`
+-   `predict_inla_ses()` & `grouped_predict_inla_ses()`
+
 ## Covariates
 
 For convenience, the covariates used within the default INLA modeling
@@ -90,6 +100,9 @@ functions are included in the package.
     of a data frame, and inverses it if specified.
 -   `scale_transform()` scales a vector by a single number, very simple,
     and can inverse the scaling if specified.
+-   `predict_simple()` performs linear interpolation or flat
+    extrapolation in the same manner as the other `predict_...`
+    functions, but without modelling or confidence bounds.
 
 Together, they can be used to transform and scale data for better
 modeling, and then inverse these to get data back into the original
@@ -246,14 +259,14 @@ modeled_df %>%
 #> # A tibble: 8 x 8
 #>   iso3   year value  pred lower upper source                              type  
 #>   <chr> <dbl> <dbl> <dbl> <dbl> <dbl> <chr>                               <chr> 
-#> 1 AFG    2018  35    42.3  45.7  38.9 Electronic State Parties Self-Asse… repor…
-#> 2 AFG    2019  43    43.0  46.4  39.7 Electronic State Parties Self-Asse… repor…
-#> 3 AFG    2020  43.6  43.6  47.0  40.2 WHO DDI Preliminary infilling and … proje…
-#> 4 AFG    2021  44.2  44.2  47.6  40.9 WHO DDI Preliminary infilling and … proje…
-#> 5 AFG    2022  44.8  44.8  48.2  41.5 WHO DDI Preliminary infilling and … proje…
-#> 6 AFG    2023  45.5  45.5  48.8  42.1 WHO DDI Preliminary infilling and … proje…
-#> 7 AFG    2024  46.0  46.0  49.3  42.7 WHO DDI Preliminary infilling and … proje…
-#> 8 AFG    2025  46.6  46.6  49.9  43.3 WHO DDI Preliminary infilling and … proje…
+#> 1 AFG    2018  35    38.6  41.9  35.3 Electronic State Parties Self-Asse… repor…
+#> 2 AFG    2019  43    39.3  42.6  36.0 Electronic State Parties Self-Asse… repor…
+#> 3 AFG    2020  39.9  39.9  43.2  36.6 WHO DDI Preliminary infilling and … proje…
+#> 4 AFG    2021  40.5  40.5  43.9  37.2 WHO DDI Preliminary infilling and … proje…
+#> 5 AFG    2022  41.1  41.1  44.4  37.8 WHO DDI Preliminary infilling and … proje…
+#> 6 AFG    2023  41.7  41.7  45.0  38.4 WHO DDI Preliminary infilling and … proje…
+#> 7 AFG    2024  42.2  42.2  45.6  39.0 WHO DDI Preliminary infilling and … proje…
+#> 8 AFG    2025  42.8  42.8  46.1  39.6 WHO DDI Preliminary infilling and … proje…
 ```
 
 And exactly as we were able to do with the time series modeling, we now
@@ -268,3 +281,108 @@ to these INLA models or use the base `predict_inla()` and
 models. There is much more functionality to test modeling accuracy and
 iteratively develop methods available in this package not shown here, so
 please continue to explore and play around.
+
+## Forecasting examples
+
+To look at using forecast methods to predict data, we will again be
+using the [ghost package](https://github.com/caldwellst/ghost), which
+provides an R interface for the GHO OData API and accessing data on
+blood pressure. We will load in data for the USA and Great Britain
+initially, which provide full time series from 1975 to 2015.
+
+``` r
+library(augury)
+
+df <- ghost::gho_data("BP_04", query = "$filter=SpatialDim in ('USA', 'GBR') and Dim1 eq 'MLE' and Dim2 eq 'YEARS18-PLUS'") %>%
+  billionaiRe::wrangle_gho_data() %>%
+  dplyr::right_join(tidyr::expand_grid(iso3 = c("USA", "GBR"),
+                                       year = 1975:2017))
+#> Joining, by = c("iso3", "year")
+```
+
+With this data, we can now use the `predict_forecast()` function like we
+would any of the other `predict_...` functions from augury to forecast
+out to 2017. First, we will do this just on USA data and use the
+`forecast::holt` to forecast using exponential smoothing.
+
+``` r
+usa_df <- dplyr::filter(df, iso3 == "USA")
+
+predict_forecast(usa_df,
+                 forecast::holt,
+                 "value",
+                 "year") %>%
+  dplyr::filter(year >= 2012)
+#> Registered S3 method overwritten by 'quantmod':
+#>   method            from
+#>   as.zoo.data.frame zoo
+#> # A tibble: 6 x 10
+#>   iso3   year ind   value lower upper source type  other_detail  pred
+#>   <chr> <int> <chr> <dbl> <dbl> <dbl> <lgl>  <chr> <lgl>        <dbl>
+#> 1 USA    2012 bp     15.7  NA    NA   NA     <NA>  NA            NA  
+#> 2 USA    2013 bp     15.5  NA    NA   NA     <NA>  NA            NA  
+#> 3 USA    2014 bp     15.4  NA    NA   NA     <NA>  NA            NA  
+#> 4 USA    2015 bp     15.3  NA    NA   NA     <NA>  NA            NA  
+#> 5 USA    2016 <NA>   15.2  15.0  15.3 NA     <NA>  NA            15.2
+#> 6 USA    2017 <NA>   15.1  14.9  15.2 NA     <NA>  NA            15.1
+```
+
+Of course, we might want to run these models all together for each
+country individually. In this case, we can use the
+`grouped_predict_forecast()` function to perform the forecast by
+country. To save a bit of limited time, let’s use the wrapper
+`grouped_predict_holt()` to automatically supply `forecast::holt` as the
+forecasting function.
+
+``` r
+grouped_predict_holt(df,
+                     response = "value",
+                     group_col = "iso3",
+                     sort_col = "year") %>%
+  dplyr::filter(year >= 2014, year <= 2017)
+#> # A tibble: 8 x 10
+#>   iso3   year ind   value lower upper source type  other_detail  pred
+#>   <chr> <int> <chr> <dbl> <dbl> <dbl> <lgl>  <chr> <lgl>        <dbl>
+#> 1 GBR    2014 bp     18.5  NA    NA   NA     <NA>  NA            NA  
+#> 2 GBR    2015 bp     17.9  NA    NA   NA     <NA>  NA            NA  
+#> 3 GBR    2016 <NA>   17.3  17.2  17.4 NA     <NA>  NA            17.3
+#> 4 GBR    2017 <NA>   16.7  16.5  16.9 NA     <NA>  NA            16.7
+#> 5 USA    2014 bp     15.4  NA    NA   NA     <NA>  NA            NA  
+#> 6 USA    2015 bp     15.3  NA    NA   NA     <NA>  NA            NA  
+#> 7 USA    2016 <NA>   15.2  15.0  15.3 NA     <NA>  NA            15.2
+#> 8 USA    2017 <NA>   15.1  14.9  15.2 NA     <NA>  NA            15.1
+```
+
+Et voila, we have the same results for the USA and have also ran
+forecasting on Great Britain as well. However, you should be careful on
+the data that is supplied for forecasting. The `forecast` package
+functions default to using the longest, contiguous non-missing data for
+forecasting. `augury` instead automatically pulls the latest contiguous
+observed data to use for forecasting, to ensure that older data is not
+prioritized over new data. However, this means any break in a time
+series will prevent data before that from being used.
+
+``` r
+bad_df <- dplyr::tibble(x = c(1:4, NA, 3:2, rep(NA, 4)))
+
+predict_holt(bad_df, "x")
+#> # A tibble: 11 x 4
+#>         x   pred upper  lower
+#>     <dbl>  <dbl> <dbl>  <dbl>
+#>  1  1     NA     NA    NA    
+#>  2  2     NA     NA    NA    
+#>  3  3     NA     NA    NA    
+#>  4  4     NA     NA    NA    
+#>  5 NA     NA     NA    NA    
+#>  6  3     NA     NA    NA    
+#>  7  2     NA     NA    NA    
+#>  8  1.17   1.17   2.55 -0.217
+#>  9  0.338  0.338  2.33 -1.66 
+#> 10 -0.494 -0.494  2.14 -3.12 
+#> 11 -1.32  -1.32   1.98 -4.63
+```
+
+It’s advisable to consider if other data infilling or imputation methods
+should be used to generate a full time series prior to the use of
+forecasting methods to prevent issues like above from impacting the
+predictive accuracy.

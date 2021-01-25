@@ -50,6 +50,9 @@ in one pass.
     a generic modelling function it accepts a formula and additional argument
     passed to `INLA::inla()` to perform Bayesian analysis of structured additive
     models.
+* `predict_forecast()` instead uses forecasting methods available from
+    `forecast::forecast()` to perform exponential smoothing or other time series
+    models on a response variable.
     
 Given that models might need to be fit separately to different portions of a data
 frame, such as fitting time series models for each country individually, there are
@@ -57,6 +60,7 @@ grouped versions of the above functions.
 
 * `grouped_predict_general_mdl()`
 * `grouped_predict_inla()`
+* `grouped_predict_forecast()`
 
 The grouped functions apply the modeling separately across each group before
 joining them back together into the original data frame and returning similar
@@ -81,6 +85,12 @@ covariates.
 
 * `predict_inla_me()` & `grouped_predict_inla_me()`
 
+And for forecasting, generic functions are provided for simple exponential smoothing
+and Holt's linear trend exponential smoothing.
+
+* `predict_inla_holt()` & `grouped_predict_inla_holt()`
+* `predict_inla_ses()` & `grouped_predict_inla_ses()`
+
 ## Covariates
 
 For convenience, the covariates used within the default INLA modeling are exported
@@ -96,6 +106,9 @@ are included in the package.
    frame, and inverses it if specified.
 * `scale_transform()` scales a vector by a single number, very simple, and can
    inverse the scaling if specified.
+* `predict_simple()` performs linear interpolation or flat extrapolation in the
+   same manner as the other `predict_...` functions, but without modelling or
+   confidence bounds.
    
 Together, they can be used to transform and scale data for better modeling, and
 then inverse these to get data back into the original feature space.
@@ -103,4 +116,9 @@ then inverse these to get data back into the original feature space.
 ## INLA modeling examples
  
 ```{r child = "vignettes/inla-modeling.Rmd"}
+```
+
+## Forecasting examples
+
+```{r child = "vignettes/forecast-modeling.Rmd"}
 ```

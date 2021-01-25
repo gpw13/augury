@@ -8,7 +8,7 @@ predict_inla_me(
   df,
   model = "rw2",
  
-    formula = as.formula(sprintf("value ~ sdi_scaled + e0_scaled + f(region, model = 'iid') + f(year_n, model = '\%s')",
+    formula = stats::as.formula(sprintf("value ~ sdi_scaled + e0_scaled + f(region, model = 'iid') + f(year_n, model = '\%s')",
     model)),
   family = "gaussian",
   control.predictor = list(compute = TRUE),
