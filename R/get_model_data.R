@@ -23,7 +23,6 @@ get_model_data <- function(df,
 
   # first make dependent variable NA for test cases, if applicable
   if (!is.null(test_col)) {
-    assert_test_col(df[[test_col]])
     df[[formula_vars[1]]][df[[test_col]]] <- NA
   }
 
