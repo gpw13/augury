@@ -24,66 +24,68 @@
 predict_forecast <- function(df,
                              forecast_function,
                              response,
-                             sort_col = NULL,
                              ...,
                              ret = c("df", "all", "error", "model"),
                              test_col = NULL,
+                             group_col = NULL,
+                             group_models = FALSE,
+                             sort_col = NULL,
+                             sort_descending = FALSE,
                              pred_col = "pred",
                              upper_col = "upper",
                              lower_col = "lower",
                              filter_na = c("all", "response", "predictors", "none"),
                              type_col = NULL,
                              types = c("imputed", "imputed", "projected"),
-                             type_group = "iso3",
-                             type_sort = "year",
                              source_col = NULL,
                              source = NULL,
                              replace_obs = c("missing", "all", "none")) {
   # Assertions and error checking
   assert_df(df)
   assert_function(forecast_function)
-  assert_columns(df, response, sort_col, test_col, type_col, source_col)
+  assert_columns(df, response, test_col, group_col, sort_col, type_col, source_col)
   ret <- rlang::arg_match(ret)
   assert_test_col(df, test_col)
-  assert_string_l1(pred_col)
-  assert_string_l1(upper_col)
-  assert_string_l1(lower_col)
+  assert_string(pred_col, 1)
+  assert_string(upper_col, 1)
+  assert_string(lower_col, 1)
   filter_na <- rlang::arg_match(filter_na)
-  assert_string_l1(type_col)
-  if (!is.null(type_col)) {
-    assert_columns(df, type_group, type_sort)
-  }
-  assert_string_l1(source)
+  assert_string(types, 3)
+  assert_string(source, 1)
   replace_obs <- rlang::arg_match(replace_obs)
 
-  # Filter data for modeling
-  x <- get_forecast_series(df = df,
-                           response = response,
-                           sort_col = sort_col,
-                           test_col = test_col)
+  mdl_df <- fit_forecast_model(df = df,
+                               forecast_function = forecast_function,
+                               response = response,
+                               ...,
+                               test_col = test_col,
+                               group_col = group_col,
+                               group_models = group_models,
+                               sort_col = sort_col,
+                               sort_descending = sort_descending,
+                               pred_col = pred_col,
+                               upper_col = upper_col,
+                               lower_col = lower_col,
+                               filter_na = filter_na,
+                               ret = ret)
 
-  # Build model
-  mdl <- forecast_series(x,
-                         forecast_function,
-                         ...)
+  mdl <- mdl_df[["mdl"]]
+  df <- mdl_df[["df"]]
 
   if (ret == "model") {
     return(mdl)
   }
-
-  # Get model predictions
-  df <- predict_forecast_data(df,
-                              mdl,
-                              pred_col,
-                              upper_col,
-                              lower_col)
-
   # Get error if being returned
   if (ret %in% c("all", "error")) {
-    err <- model_error(df,
-                       response,
-                       pred_col,
-                       test_col)
+    err <- model_error(df = df,
+                       response = response,
+                       test_col = test_col,
+                       group_col = group_col,
+                       sort_col = sort_col,
+                       sort_descending,
+                       pred_col = pred_col,
+                       upper_col = upper_col,
+                       lower_col = lower_col)
 
     if (ret == "error") {
       return(err)
@@ -91,18 +93,19 @@ predict_forecast <- function(df,
   }
 
   # Merge predictions into observations
-  df <- merge_prediction(df,
-                         response,
-                         pred_col,
-                         upper_col,
-                         lower_col,
-                         type_col,
-                         types,
-                         type_group,
-                         type_sort,
-                         source_col,
-                         source,
-                         replace_obs,
+  df <- merge_prediction(df = df,
+                         response = response,
+                         group_col = group_col,
+                         sort_col = sort_col,
+                         sort_descending = sort_descending,
+                         pred_col = pred_col,
+                         upper_col = upper_col,
+                         lower_col = lower_col,
+                         type_col = type_col,
+                         types = types,
+                         source_col = source_col,
+                         source = source,
+                         replace_obs = replace_obs,
                          error_correct = FALSE,
                          error_correct_cols = NULL)
 
@@ -123,6 +126,7 @@ predict_forecast <- function(df,
 #' @inheritParams predict_general_mdl
 #' @param forecast_obj Object of class `forecast` that is output from the `forecast::`
 #'     family of functions.
+#'
 #' @return A data frame.
 predict_forecast_data <- function(df,
                                   forecast_obj,
@@ -152,12 +156,18 @@ get_forecast_bounds <- function(x, bound) {
 #' @inheritParams predict_forecast
 #'
 #' @return A data series.
-get_forecast_series <- function(df,
-                                response,
-                                sort_col,
-                                test_col) {
+get_forecast_data <- function(df,
+                              response,
+                              sort_col,
+                              sort_descending,
+                              test_col) {
   if (!is.null(sort_col)) {
-    df <- dplyr::arrange(df, .data[[sort_col]], .by_group = TRUE)
+    if (sort_descending) {
+      fn <- dplyr::desc
+    } else {
+      fn <- NULL
+    }
+    df <- dplyr::arrange(df, dplyr::across(dplyr::all_of(sort_col), fn), .by_group = TRUE)
   }
 
   if (!is.null(test_col)) {
@@ -206,108 +216,82 @@ forecast_series <- function(x,
                     ...)
 }
 
-
-#' Use a time series model to infill and project data by group.
+#' Fit forecast model to data
 #'
-#' `grouped_predict_forecast()` uses the forecast package's [forecast::forecast()] methods
-#' to generate predictions on time series data by group. For each group, it
-#' automatically detects the latest observed values and the number of missing
-#' values to forecast, and runs the provided forecasting function on the
-#' observed data series. Note that this will not infill missing values to create
-#' an entire data series, so consider passing to other infilling methods if and
-#' when necessary.
+#' Used within `predict_forecast()`, this function fits the model to the data
+#' frame, working whether the model is being fit across the entire data frame or
+#' being fit to each group individually. Data is filtered prior to fitting,
+#' model(s) are fit, and then fitted values are generated on the original.
 #'
-#' @inherit predict_forecast params return
-#' @inheritParams grouped_predict_general_mdl
+#' If fitting models individually to each group, `mdl` will never be returned, as
+#' as these are instead a large list of models. Otherwise, a list of `mdl` and `df`
+#' is returned and used within `predict_inla()`.
 #'
-#' @export
-grouped_predict_forecast <- function(df,
-                                     forecast_function,
-                                     response,
-                                     group_col,
-                                     sort_col = NULL,
-                                     ...,
-                                     ret = c("df", "all", "error", "model"),
-                                     test_col = NULL,
-                                     pred_col = "pred",
-                                     upper_col = "upper",
-                                     lower_col = "lower",
-                                     filter_na = c("all", "response", "predictors", "none"),
-                                     type_col = NULL,
-                                     types = c("imputed", "imputed", "projected"),
-                                     type_group = "iso3",
-                                     type_sort = "year",
-                                     source_col = NULL,
-                                     source = NULL,
-                                     replace_obs = c("missing", "all", "none")) {
-  # Assertions and error checking
-  assert_df(df)
-  assert_function(forecast_function)
-  assert_columns(df, response, group_col, sort_col, test_col, type_col, source_col)
-  ret <- rlang::arg_match(ret)
-  assert_test_col(df, test_col)
-  assert_string_l1(pred_col)
-  assert_string_l1(upper_col)
-  assert_string_l1(lower_col)
-  filter_na <- rlang::arg_match(filter_na)
-  assert_string_l1(type_col)
-  if (!is.null(type_col)) {
-    assert_columns(df, type_group, type_sort)
-  }
-  assert_string_l1(source)
-  replace_obs <- rlang::arg_match(replace_obs)
+#' @inheritParams predict_forecast
+#' @inheritParams fit_general_model
+#'
+#' @return List of `mdl` (fitted model) and `df` (data frame with fitted values
+#'     and confidence bounds generated from the model).
+fit_forecast_model <- function(df,
+                               forecast_function,
+                               response,
+                               ...,
+                               test_col,
+                               group_col,
+                               group_models,
+                               sort_col,
+                               sort_descending,
+                               pred_col,
+                               upper_col,
+                               lower_col,
+                               filter_na,
+                               ret) {
 
-  # map by group
-  df_list <- dplyr::group_by(df, .data[[group_col]]) %>%
-    dplyr::group_split()
+  if (!group_models) {
+    # Filter data for modeling
+    x <- get_forecast_data(df = df,
+                           response = response,
+                           sort_col = sort_col,
+                           sort_descending = sort_descending,
+                           test_col = test_col)
 
-  df <- purrr::map_dfr(df_list, function(df) {
-    x <- get_forecast_series(df = df,
-                             response = response,
-                             sort_col = sort_col,
-                             test_col = test_col)
+    # Build model
     mdl <- forecast_series(x,
                            forecast_function,
                            ...)
-    predict_forecast_data(df,
-                          mdl,
-                          pred_col,
-                          upper_col,
-                          lower_col)
-  })
 
-  # Get error if being returned
-  if (ret %in% c("all", "error")) {
-    err <- model_error(df,
-                       response,
-                       pred_col,
-                       test_col)
-
-    if (ret == "error") {
-      return(err)
+    if (ret == "model") {
+      df <- NULL
+    } else {
+      # Get model predictions
+      df <- predict_forecast_data(df = df,
+                                  forecast_obj = mdl,
+                                  pred_col = pred_col,
+                                  upper_col = upper_col,
+                                  lower_col = lower_col)
     }
-  }
+  } else {
+    # map by group
+    df_list <- dplyr::group_by(df, dplyr::across(dplyr::all_of(group_col))) %>%
+      dplyr::group_split()
 
-  # Merge predictions into observations
-  df <- merge_prediction(df,
-                         response,
-                         pred_col,
-                         upper_col,
-                         lower_col,
-                         type_col,
-                         types,
-                         type_group,
-                         type_sort,
-                         source_col,
-                         source,
-                         replace_obs,
-                         error_correct = FALSE,
-                         error_correct_cols = NULL)
+    df <- purrr::map_dfr(df_list, function(df) {
+      x <- get_forecast_data(df = df,
+                             response = response,
+                             sort_col = sort_col,
+                             sort_descending = sort_descending,
+                             test_col = test_col)
+      mdl <- forecast_series(x,
+                             forecast_function,
+                             ...)
+      predict_forecast_data(df = df,
+                            forecast_obj = mdl,
+                            pred_col = pred_col,
+                            upper_col = upper_col,
+                            lower_col = lower_col)
+    })
 
-  if (ret == "df") {
-    return(df)
-  } else if (ret == "all") {
-    list(df = df,
-         error = err)
+    mdl <- NULL
   }
+  list(df = df, mdl = mdl)
 }

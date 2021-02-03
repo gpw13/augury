@@ -23,6 +23,8 @@ df <- ghost::gho_data("BP_04", query = "$filter=SpatialDim in ('USA', 'GBR') and
   billionaiRe::wrangle_gho_data() %>%
   dplyr::right_join(tidyr::expand_grid(iso3 = c("USA", "GBR"),
                                        year = 1975:2017))
+
+head(df)
 ```
 
 With this data, we can now use the `predict_forecast()` function like we would any of the other `predict_...` functions from augury to forecast out to 2017. First, we will do this just on USA data and use the `forecast::holt` to forecast using exponential smoothing. 
@@ -33,17 +35,18 @@ usa_df <- dplyr::filter(df, iso3 == "USA")
 predict_forecast(usa_df,
                  forecast::holt,
                  "value",
-                 "year") %>%
+                 sort_col = "year") %>%
   dplyr::filter(year >= 2012)
 ```
 
-Of course, we might want to run these models all together for each country individually. In this case, we can use the `grouped_predict_forecast()` function to perform the forecast by country. To save a bit of limited time, let's use the wrapper `grouped_predict_holt()` to automatically supply `forecast::holt` as the forecasting function.
+Of course, we might want to run these models all together for each country individually. In this case, we can use the `group_models = TRUE` function to perform the forecast individually by country. To save a bit of limited time, let's use the wrapper `predict_holt()` to automatically supply `forecast::holt` as the forecasting function.
 
 ```{r grouped_forecast}
-grouped_predict_holt(df,
-                     response = "value",
-                     group_col = "iso3",
-                     sort_col = "year") %>%
+predict_holt(df,
+             response = "value",
+             group_col = "iso3",
+             group_models = TRUE,
+             sort_col = "year") %>%
   dplyr::filter(year >= 2014, year <= 2017)
 ```
 Et voila, we have the same results for the USA and have also ran forecasting on Great Britain as well. However, you should be careful on the data that is supplied for forecasting. The `forecast` package functions default to using the longest, contiguous non-missing data for forecasting. `augury` instead automatically pulls the latest contiguous observed data to use for forecasting, to ensure that older data is not prioritized over new data. However, this means any break in a time series will prevent data before that from being used.

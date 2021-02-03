@@ -11,14 +11,16 @@ predict_general_mdl(
   ...,
   ret = c("df", "all", "error", "model"),
   test_col = NULL,
+  group_col = NULL,
+  group_models = FALSE,
+  sort_col = NULL,
+  sort_descending = FALSE,
   pred_col = "pred",
   upper_col = "upper",
   lower_col = "lower",
   filter_na = c("all", "response", "predictors", "none"),
   type_col = NULL,
   types = c("imputed", "imputed", "projected"),
-  type_group = "iso3",
-  type_sort = "year",
   source_col = NULL,
   source = NULL,
   replace_obs = c("missing", "all", "none"),
@@ -45,6 +47,21 @@ model itself or a list with all 3 as components.}
 \item{test_col}{Name of logical column specifying which response values to remove
 for testing the model's predictive accuracy. If \code{NULL}, ignored.}
 
+\item{group_col}{Column name(s) of group(s) to use in \code{\link[dplyr:group_by]{dplyr::group_by()}} when
+supplying type, calculating mean absolute scaled error on data involving
+time series, and if \code{group_models}, then fitting and predicting models too.}
+
+\item{group_models}{Logical, if \code{TRUE}, fits and predicts models individually onto
+each \code{group_col}. If \code{FALSE}, a general model is fit across the entire data
+frame.}
+
+\item{sort_col}{Column name(s) to use to \code{\link[dplyr:arrange]{dplyr::arrange()}} the data prior to
+supplying type and calculating mean absolute scaled error on data involving
+time series.}
+
+\item{sort_descending}{Logical value on whether the sorted values from \code{sort_col}
+should be sorted in descending order. Defaults to \code{FALSE}.}
+
 \item{pred_col}{Column name to store predicted value.}
 
 \item{upper_col}{Column name to store upper bound of confidence interval.}
@@ -64,12 +81,6 @@ produced in the model. These values are only used to fill in type values
 where the dependent variable is missing. The first value is given to missing
 observations that precede the first observation, the second to those after
 the last observation, and the third for those following the final observation.}
-
-\item{type_group}{Column name(s) of group(s) to use in \code{\link[dplyr:group_by]{dplyr::group_by()}} when
-supplying type.}
-
-\item{type_sort}{Column name to use to \code{\link[dplyr:arrange]{dplyr::arrange()}} the data prior to
-supplying type.}
 
 \item{source_col}{Column name containing source information for the data frame.
 If provided, the argument in \code{source} is used to fill in where predictions

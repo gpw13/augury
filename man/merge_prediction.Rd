@@ -7,13 +7,14 @@
 merge_prediction(
   df,
   response,
+  group_col,
+  sort_col,
+  sort_descending,
   pred_col,
   upper_col,
   lower_col,
   type_col,
   types,
-  type_group,
-  type_sort,
   source_col,
   source,
   replace_obs,
@@ -25,6 +26,17 @@ merge_prediction(
 \item{df}{Data frame of model data.}
 
 \item{response}{Column name of response variable.}
+
+\item{group_col}{Column name(s) of group(s) to use in \code{\link[dplyr:group_by]{dplyr::group_by()}} when
+supplying type, calculating mean absolute scaled error on data involving
+time series, and if \code{group_models}, then fitting and predicting models too.}
+
+\item{sort_col}{Column name(s) to use to \code{\link[dplyr:arrange]{dplyr::arrange()}} the data prior to
+supplying type and calculating mean absolute scaled error on data involving
+time series.}
+
+\item{sort_descending}{Logical value on whether the sorted values from \code{sort_col}
+should be sorted in descending order. Defaults to \code{FALSE}.}
 
 \item{pred_col}{Column name to store predicted value.}
 
@@ -39,12 +51,6 @@ produced in the model. These values are only used to fill in type values
 where the dependent variable is missing. The first value is given to missing
 observations that precede the first observation, the second to those after
 the last observation, and the third for those following the final observation.}
-
-\item{type_group}{Column name(s) of group(s) to use in \code{\link[dplyr:group_by]{dplyr::group_by()}} when
-supplying type.}
-
-\item{type_sort}{Column name to use to \code{\link[dplyr:arrange]{dplyr::arrange()}} the data prior to
-supplying type.}
 
 \item{source_col}{Column name containing source information for the data frame.
 If provided, the argument in \code{source} is used to fill in where predictions

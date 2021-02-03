@@ -57,15 +57,9 @@ single data frame in one pass.
 
 Given that models might need to be fit separately to different portions
 of a data frame, such as fitting time series models for each country
-individually, there are grouped versions of the above functions.
-
--   `grouped_predict_general_mdl()`
--   `grouped_predict_inla()`
--   `grouped_predict_forecast()`
-
-The grouped functions apply the modeling separately across each group
-before joining them back together into the original data frame and
-returning similar objects as the original functions.
+individually, these functions now accept the argument `group_models`
+that determines whether to fit separate models to each group in the data
+frame before joining them back together into the original data frame.
 
 ## Additional model wrappers
 
@@ -75,22 +69,23 @@ individual functions for `stats::lm()`, `stats::glm()`, and
 `lme4::lmer()` to fit linear models, generalized linear models, and
 linear mixed-effects models respectively. These wrappers are:
 
--   `predict_lm()` & `grouped_predict_lm()`
--   `predict_glm()` & `grouped_predict_glm()`
--   `predict_lmer()` & `grouped_predict_lmer()`
+-   `predict_lm()`
+-   `predict_glm()`
+-   \`predict\_lmer()
 
 As well, wrappers are provided around INLA for models currently in place
 for the Triple Billion framework. These are a time series model with no
 additional covariates (fit individually by country) and a mixed-effects
 model using covariates.
 
--   `predict_inla_me()` & `grouped_predict_inla_me()`
+-   `predict_inla_me()`
+-   `predict_inla_ts()`
 
 And for forecasting, generic functions are provided for simple
 exponential smoothing and Holt’s linear trend exponential smoothing.
 
--   `predict_inla_holt()` & `grouped_predict_inla_holt()`
--   `predict_inla_ses()` & `grouped_predict_inla_ses()`
+-   `predict_holt()`
+-   `predict_ses()`
 
 ## Covariates
 
@@ -182,14 +177,16 @@ Of course, the only “covariate” being used in this time series model is
 going to be `year_n`, but the rest are available if we want to expand to
 test other types of modeling. Let’s run the modeling now. We are going
 to scale the data and probit transform it before and after the modeling.
+We will use the `predict_inla_ts()` to fit a time series model to the
+data.
 
 ``` r
 modeled_df <- df %>%
   scale_transform("value") %>%
   probit_transform("value") %>%
-  grouped_predict_inla_ts(type_col = "type",
-                          source_col = "source",
-                          source = "augury modeling") %>%
+  predict_inla_ts(type_col = "type",
+                  source_col = "source",
+                  source = "augury modeling") %>%
   probit_transform(c("value", "pred", "upper", "lower"), inverse = TRUE) %>%
   scale_transform(c("value", "pred", "upper", "lower"), divide = FALSE)
 
@@ -284,11 +281,11 @@ modeling in INLA.
 ## Building further
 
 Building further on this work, you can tweak any of the arguments passed
-to these INLA models or use the base `predict_inla()` and
-`grouped_predict_inla()` and other covariates to test and compare other
-models. There is much more functionality to test modeling accuracy and
-iteratively develop methods available in this package not shown here, so
-please continue to explore and play around.
+to these INLA models or use the base `predict_inla()` and other
+covariates to test and compare other models. There is much more
+functionality to test modeling accuracy and iteratively develop methods
+available in this package not shown here, so please continue to explore
+and play around.
 
 ## Forecasting examples
 
@@ -306,6 +303,17 @@ df <- ghost::gho_data("BP_04", query = "$filter=SpatialDim in ('USA', 'GBR') and
   dplyr::right_join(tidyr::expand_grid(iso3 = c("USA", "GBR"),
                                        year = 1975:2017))
 #> Joining, by = c("iso3", "year")
+
+head(df)
+#> # A tibble: 6 x 9
+#>   iso3   year ind   value lower upper source type  other_detail
+#>   <chr> <int> <chr> <dbl> <dbl> <dbl> <lgl>  <chr> <lgl>       
+#> 1 GBR    1975 bp     37.8  26.7  49.1 NA     <NA>  NA          
+#> 2 GBR    1976 bp     37.6  27.4  48   NA     <NA>  NA          
+#> 3 GBR    1977 bp     37.3  27.9  46.8 NA     <NA>  NA          
+#> 4 GBR    1978 bp     37.1  28.4  45.9 NA     <NA>  NA          
+#> 5 GBR    1979 bp     36.9  28.8  45.2 NA     <NA>  NA          
+#> 6 GBR    1980 bp     36.7  29.2  44.4 NA     <NA>  NA
 ```
 
 With this data, we can now use the `predict_forecast()` function like we
@@ -319,7 +327,7 @@ usa_df <- dplyr::filter(df, iso3 == "USA")
 predict_forecast(usa_df,
                  forecast::holt,
                  "value",
-                 "year") %>%
+                 sort_col = "year") %>%
   dplyr::filter(year >= 2012)
 #> Registered S3 method overwritten by 'quantmod':
 #>   method            from
@@ -336,17 +344,17 @@ predict_forecast(usa_df,
 ```
 
 Of course, we might want to run these models all together for each
-country individually. In this case, we can use the
-`grouped_predict_forecast()` function to perform the forecast by
-country. To save a bit of limited time, let’s use the wrapper
-`grouped_predict_holt()` to automatically supply `forecast::holt` as the
-forecasting function.
+country individually. In this case, we can use the `group_models = TRUE`
+function to perform the forecast individually by country. To save a bit
+of limited time, let’s use the wrapper `predict_holt()` to automatically
+supply `forecast::holt` as the forecasting function.
 
 ``` r
-grouped_predict_holt(df,
-                     response = "value",
-                     group_col = "iso3",
-                     sort_col = "year") %>%
+predict_holt(df,
+             response = "value",
+             group_col = "iso3",
+             group_models = TRUE,
+             sort_col = "year") %>%
   dplyr::filter(year >= 2014, year <= 2017)
 #> # A tibble: 8 x 10
 #>   iso3   year ind   value lower upper source type  other_detail  pred

@@ -32,6 +32,17 @@
 #'     model itself or a list with all 3 as components.
 #' @param test_col Name of logical column specifying which response values to remove
 #'     for testing the model's predictive accuracy. If `NULL`, ignored.
+#' @param group_col Column name(s) of group(s) to use in [dplyr::group_by()] when
+#'     supplying type, calculating mean absolute scaled error on data involving
+#'     time series, and if `group_models`, then fitting and predicting models too.
+#' @param group_models Logical, if `TRUE`, fits and predicts models individually onto
+#'     each `group_col`. If `FALSE`, a general model is fit across the entire data
+#'     frame.
+#' @param sort_col Column name(s) to use to [dplyr::arrange()] the data prior to
+#'     supplying type and calculating mean absolute scaled error on data involving
+#'     time series.
+#' @param sort_descending Logical value on whether the sorted values from `sort_col`
+#'     should be sorted in descending order. Defaults to `FALSE`.
 #' @param pred_col Column name to store predicted value.
 #' @param upper_col Column name to store upper bound of confidence interval.
 #' @param lower_col Column name to store lower bound of confidence interval.
@@ -46,10 +57,6 @@
 #'     where the dependent variable is missing. The first value is given to missing
 #'     observations that precede the first observation, the second to those after
 #'     the last observation, and the third for those following the final observation.
-#' @param type_group Column name(s) of group(s) to use in [dplyr::group_by()] when
-#'     supplying type.
-#' @param type_sort Column name to use to [dplyr::arrange()] the data prior to
-#'     supplying type.
 #' @param source_col Column name containing source information for the data frame.
 #'     If provided, the argument in `source` is used to fill in where predictions
 #'     have filled in missing data.
@@ -75,14 +82,16 @@ predict_general_mdl <- function(df,
                                 ...,
                                 ret = c("df", "all", "error", "model"),
                                 test_col = NULL,
+                                group_col = NULL,
+                                group_models = FALSE,
+                                sort_col = NULL,
+                                sort_descending = FALSE,
                                 pred_col = "pred",
                                 upper_col = "upper",
                                 lower_col = "lower",
                                 filter_na = c("all", "response", "predictors", "none"),
                                 type_col = NULL,
                                 types = c("imputed", "imputed", "projected"),
-                                type_group = "iso3",
-                                type_sort = "year",
                                 source_col = NULL,
                                 source = NULL,
                                 replace_obs = c("missing", "all", "none"),
@@ -92,48 +101,50 @@ predict_general_mdl <- function(df,
   assert_df(df)
   assert_model(model)
   formula_vars <- parse_formula(formula)
-  assert_columns(df, formula_vars, test_col, type_col, source_col)
+  assert_columns(df, formula_vars, test_col, group_col, sort_col, type_col, source_col)
   ret <- rlang::arg_match(ret)
   assert_test_col(df, test_col)
-  assert_string_l1(pred_col)
-  assert_string_l1(upper_col)
-  assert_string_l1(lower_col)
+  assert_string(pred_col, 1)
+  assert_string(upper_col, 1)
+  assert_string(lower_col, 1)
   filter_na <- rlang::arg_match(filter_na)
-  assert_string_l1(type_col)
-  if (!is.null(type_col)) {
-    assert_columns(df, type_group, type_sort)
-  }
-  assert_string_l1(source)
+  assert_string(types, 3)
+  assert_string(source, 1)
   replace_obs <- rlang::arg_match(replace_obs)
 
-  # Filter data for modeling
-  data <- get_model_data(df = df,
-                         formula_vars = formula_vars,
-                         test_col = test_col,
-                         filter_na = filter_na)
+  mdl_df <- fit_general_model(df = df,
+                              model = model,
+                              formula = formula,
+                              ...,
+                              formula_vars = formula_vars,
+                              test_col = test_col,
+                              group_col = group_col,
+                              group_models = group_models,
+                              pred_col = pred_col,
+                              upper_col = upper_col,
+                              lower_col = lower_col,
+                              filter_na = filter_na,
+                              ret = ret)
 
-  # Build model
-  mdl <- model(formula = formula,
-               data = data,
-               ...)
+  mdl <- mdl_df[["mdl"]]
+  df <- mdl_df[["df"]]
 
-  if (ret == "model") {
+  # Return model now
+  if (ret == "mdl") {
     return(mdl)
   }
 
-  # Get model predictions
-  df <- predict_data(df,
-                     mdl,
-                     pred_col,
-                     upper_col,
-                     lower_col)
-
   # Get error if being returned
   if (ret %in% c("all", "error")) {
-    err <- model_error(df,
-                       formula_vars[1],
-                       pred_col,
-                       test_col)
+    err <- model_error(df = df,
+                       response = formula_vars[1],
+                       test_col = test_col,
+                       group_col = group_col,
+                       sort_col = sort_col,
+                       sort_descending = sort_descending,
+                       pred_col = pred_col,
+                       upper_col = upper_col,
+                       lower_col = lower_col)
 
     if (ret == "error") {
       return(err)
@@ -141,20 +152,21 @@ predict_general_mdl <- function(df,
   }
 
   # Merge predictions into observations
-  df <- merge_prediction(df,
-                         formula_vars[1],
-                         pred_col,
-                         upper_col,
-                         lower_col,
-                         type_col,
-                         types,
-                         type_group,
-                         type_sort,
-                         source_col,
-                         source,
-                         replace_obs,
-                         error_correct,
-                         error_correct_cols)
+  df <- merge_prediction(df = df,
+                         response = formula_vars[1],
+                         group_col = group_col,
+                         sort_col = sort_col,
+                         sort_descending = sort_descending,
+                         pred_col = pred_col,
+                         upper_col = upper_col,
+                         lower_col = lower_col,
+                         type_col = type_col,
+                         types = types,
+                         source_col = source_col,
+                         source = source,
+                         replace_obs = replace_obs,
+                         error_correct = error_correct,
+                         error_correct_cols = error_correct_cols)
 
   if (ret == "df") {
     return(df)
@@ -167,16 +179,16 @@ predict_general_mdl <- function(df,
 
 #' Generate prediction from model object
 #'
-#' `predict_data()` generates a prediction vector from a model object and full
+#' `predict_general_data()` generates a prediction vector from a model object and full
 #' data frame, putting this prediction back into the data frame.
 #'
 #' @inheritParams predict_general_mdl
 #' @return A data frame.
-predict_data <- function(df,
-                         model,
-                         pred_col,
-                         upper_col,
-                         lower_col) {
+predict_general_data <- function(df,
+                                 model,
+                                 pred_col,
+                                 upper_col,
+                                 lower_col) {
   inv_link <- stats::family(model)[["linkinv"]]
   pred <- stats::predict(model, newdata = df, se.fit = TRUE)
   x <- pred[["fit"]]
@@ -187,120 +199,83 @@ predict_data <- function(df,
   df
 }
 
-#' Use a generic R model to infill and project data by group
+#' Fit general model to data
 #'
-#' `grouped_predict_general_mdl()` works similar to [predict_general_mdl()], except
-#' the modeling is done separately based on a grouping variable or multiple
-#' grouping variables. It takes the same arguments as [predict_general_mdl()],
-#' and error terms and the returned data frame are the same, based on the entire
-#' data frame passed to the function, just that the infilling and forecasting are
-#' done individually based on the grouping variable, such as by country. See the
-#' [predict_general_mdl()] function for additional details on the methods applied.
+#' Used within `predict_general_mdl()`, this function fits the model to the data
+#' frame, workingw hether the model is being fit across the entire data frame or
+#' being fit to each group individually. Data is filtered prior to fitting,
+#' model(s) are fit, and then fitted values are generated on the original.
 #'
-#' @inherit predict_general_mdl params return
-#' @param group_col Column name to split data frame prior to model application.
-#' @param ret Character vector specifying what values the function returns. Defaults
-#'     to returning a data frame, but can return a vector of model error or a list
-#'     with the data frame and error together.
+#' If fitting models individually to each group, `mdl` will never be returned, as
+#' as these are instead a large group of models. Otherwise, a list of `mdl` and `df`
+#' is returned and used within `predict_general_mdl()`.
 #'
-#' @export
-grouped_predict_general_mdl <- function(df,
-                                        group_col = "iso3",
-                                        model,
-                                        formula,
-                                        ...,
-                                        ret = c("df", "all", "error"),
-                                        test_col = NULL,
-                                        pred_col = "pred",
-                                        upper_col = "upper",
-                                        lower_col = "lower",
-                                        filter_na = c("all", "response", "predictors", "none"),
-                                        type_col = NULL,
-                                        types = c("imputed", "imputed", "projected"),
-                                        type_group = "iso3",
-                                        type_sort = "year",
-                                        source_col = NULL,
-                                        source = NULL,
-                                        replace_obs = c("missing", "all", "none"),
-                                        error_correct = FALSE,
-                                        error_correct_cols = NULL) {
-  # Assertions and error checking
-  assert_df(df)
-  assert_model(model)
-  formula_vars <- parse_formula(formula)
-  assert_columns(df, group_col, formula_vars, test_col, type_col, source_col)
-  ret <- rlang::arg_match(ret)
-  assert_test_col(df, test_col)
-  assert_string_l1(pred_col)
-  assert_string_l1(upper_col)
-  assert_string_l1(lower_col)
-  filter_na <- rlang::arg_match(filter_na)
-  assert_string_l1(type_col)
-  if (!is.null(type_col)) {
-    assert_columns(df, type_group, type_sort)
-  }
-  assert_string_l1(source)
-  replace_obs <- rlang::arg_match(replace_obs)
-
+#' @inheritParams predict_general_mdl
+#' @param formula_vars Variables included in the model formula, generated by
+#'     `all.vars(formula)`.
+#'
+#' @return List of `mdl` (fitted model) and `df` (data frame with fitted values
+#'     and confidence bounds generated from the model).
+fit_general_model <- function(df,
+                              model,
+                              formula,
+                              ...,
+                              formula_vars,
+                              test_col,
+                              group_col,
+                              group_models,
+                              pred_col,
+                              upper_col,
+                              lower_col,
+                              filter_na,
+                              ret) {
   # Filter data for modeling
+  if (!group_models) group_col <- NULL
+
   data <- get_model_data(df = df,
                          formula_vars = formula_vars,
                          test_col = test_col,
                          group_col = group_col,
                          filter_na = filter_na)
 
-  # Split data frames
-  data <- dplyr::group_by(data, .data[[group_col]]) %>%
-    dplyr::group_split()
+  if (group_models) {
 
-  df <- dplyr::group_by(df, .data[[group_col]]) %>%
-    dplyr::group_split()
+    # Split data frames
+    data <- dplyr::group_by(data, .data[[group_col]]) %>%
+      dplyr::group_split()
 
-  # Build and apply model
+    df <- dplyr::group_by(df, .data[[group_col]]) %>%
+      dplyr::group_split()
 
-  df <- purrr::map2_dfr(data, df, function(x, y) {
+    # Build and apply models
+
+    df <- purrr::map2_dfr(data, df, function(x, y) {
+      mdl <- model(formula = formula,
+                   data = x,
+                   ...)
+      predict_general_data(df = y,
+                           model = mdl,
+                           pred_col = pred_col,
+                           upper_col = upper_col,
+                           lower_col = lower_col)
+    })
+
+    mdl <- NULL # not returning all models together for grouped models
+  } else { # single model fitting
     mdl <- model(formula = formula,
-                 data = x,
+                 data = data,
                  ...)
-    predict_data(y,
-                 mdl,
-                 pred_col,
-                 upper_col,
-                 lower_col)
-  })
 
-  # Get error if being returned
-  if (ret %in% c("all", "error")) {
-    err <- model_error(df,
-                       formula_vars[1],
-                       pred_col,
-                       test_col)
-
-    if (ret == "error") {
-      return(err)
+    # don't predict data if only returning model
+    if (ret == "mdl") {
+      df <- NULL
+    } else {
+      df <- predict_general_data(df = df,
+                                 model = mdl,
+                                 pred_col = pred_col,
+                                 upper_col = upper_col,
+                                 lower_col = lower_col)
     }
   }
-
-  # Merge predictions into observations
-  df <- merge_prediction(df,
-                         formula_vars[1],
-                         pred_col,
-                         upper_col,
-                         lower_col,
-                         type_col,
-                         types,
-                         type_group,
-                         type_sort,
-                         source_col,
-                         source,
-                         replace_obs,
-                         error_correct,
-                         error_correct_cols)
-
-  if (ret == "df") {
-    return(df)
-  } else if (ret == "all") {
-    list(df = df,
-         error = err)
-  }
+  list(df = df, mdl = mdl)
 }

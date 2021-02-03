@@ -43,15 +43,15 @@ df <- left_join(covariates_df,
 
 head(df)
 ```
-Of course, the only "covariate" being used in this time series model is going to be `year_n`, but the rest are available if we want to expand to test other types of modeling. Let's run the modeling now. We are going to scale the data and probit transform it before and after the modeling.
+Of course, the only "covariate" being used in this time series model is going to be `year_n`, but the rest are available if we want to expand to test other types of modeling. Let's run the modeling now. We are going to scale the data and probit transform it before and after the modeling. We will use the `predict_inla_ts()` to fit a time series model to the data. 
 
 ```{r modelling}
 modeled_df <- df %>%
   scale_transform("value") %>%
   probit_transform("value") %>%
-  grouped_predict_inla_ts(type_col = "type",
-                          source_col = "source",
-                          source = "augury modeling") %>%
+  predict_inla_ts(type_col = "type",
+                  source_col = "source",
+                  source = "augury modeling") %>%
   probit_transform(c("value", "pred", "upper", "lower"), inverse = TRUE) %>%
   scale_transform(c("value", "pred", "upper", "lower"), divide = FALSE)
 
@@ -99,4 +99,4 @@ And exactly as we were able to do with the time series modeling, we now have inf
 
 ## Building further
 
-Building further on this work, you can tweak any of the arguments passed to these INLA models or use the base `predict_inla()` and `grouped_predict_inla()` and other covariates to test and compare other models. There is much more functionality to test modeling accuracy and iteratively develop methods available in this package not shown here, so please continue to explore and play around.
+Building further on this work, you can tweak any of the arguments passed to these INLA models or use the base `predict_inla()` and other covariates to test and compare other models. There is much more functionality to test modeling accuracy and iteratively develop methods available in this package not shown here, so please continue to explore and play around.

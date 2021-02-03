@@ -62,16 +62,10 @@ in one pass.
     models on a response variable.
     
 Given that models might need to be fit separately to different portions of a data
-frame, such as fitting time series models for each country individually, there are
-grouped versions of the above functions.
-
-* `grouped_predict_general_mdl()`
-* `grouped_predict_inla()`
-* `grouped_predict_forecast()`
-
-The grouped functions apply the modeling separately across each group before
-joining them back together into the original data frame and returning similar
-objects as the original functions.
+frame, such as fitting time series models for each country individually, these
+functions now accept the argument `group_models` that determines whether to fit
+separate models to each group in the data frame before joining them back together
+into the original data frame.
 
 ## Additional model wrappers
 
@@ -81,22 +75,23 @@ for `stats::lm()`, `stats::glm()`, and `lme4::lmer()` to fit linear models,
 generalized linear models, and linear mixed-effects models respectively. These
 wrappers are:
 
-* `predict_lm()` & `grouped_predict_lm()`
-* `predict_glm()` & `grouped_predict_glm()`
-* `predict_lmer()` & `grouped_predict_lmer()`
+* `predict_lm()`
+* `predict_glm()`
+* `predict_lmer()
 
 As well, wrappers are provided around INLA for models currently in place for the
 Triple Billion framework. These are a time series model with no additional
 covariates (fit individually by country) and a mixed-effects model using
 covariates.
 
-* `predict_inla_me()` & `grouped_predict_inla_me()`
+* `predict_inla_me()`
+* `predict_inla_ts()`
 
 And for forecasting, generic functions are provided for simple exponential smoothing
 and Holt's linear trend exponential smoothing.
 
-* `predict_inla_holt()` & `grouped_predict_inla_holt()`
-* `predict_inla_ses()` & `grouped_predict_inla_ses()`
+* `predict_holt()`
+* `predict_ses()`
 
 ## Covariates
 

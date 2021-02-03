@@ -4,24 +4,62 @@
 \alias{model_error}
 \title{Get modeling error from a data frame}
 \usage{
-model_error(df, response, pred_col, test_col)
+model_error(
+  df,
+  response,
+  test_col = NULL,
+  group_col = NULL,
+  sort_col = NULL,
+  sort_descending = FALSE,
+  pred_col = "pred",
+  upper_col = "upper",
+  lower_col = "lower"
+)
 }
 \arguments{
 \item{df}{Data frame of model data.}
 
 \item{response}{Column name of response variable.}
 
-\item{pred_col}{Column name to store predicted value.}
-
 \item{test_col}{Name of logical column specifying which response values to remove
 for testing the model's predictive accuracy. If \code{NULL}, ignored.}
+
+\item{group_col}{Column name(s) of group(s) to use in \code{\link[dplyr:group_by]{dplyr::group_by()}} when
+supplying type, calculating mean absolute scaled error on data involving
+time series, and if \code{group_models}, then fitting and predicting models too.}
+
+\item{sort_col}{Column name(s) to use to \code{\link[dplyr:arrange]{dplyr::arrange()}} the data prior to
+supplying type and calculating mean absolute scaled error on data involving
+time series.}
+
+\item{sort_descending}{Logical value on whether the sorted values from \code{sort_col}
+should be sorted in descending order. Defaults to \code{FALSE}.}
+
+\item{pred_col}{Column name to store predicted value.}
+
+\item{upper_col}{Column name to store upper bound of confidence interval.}
+
+\item{lower_col}{Column name to store lower bound of confidence interval.}
 }
 \value{
-A named vector of errors: RMSE, MSE, and MASE.
+A named vector of errors: RMSE, MAE, MdAE, MASE, and CBA.
 }
 \description{
 \code{model_error()} calculates modeling error using observed and fitted values from
 the data frame. If \code{test_col} is provided, the error is only calculated on
 observations that were excluded from modeling for test purpose. Otherwise,
 the error is calculated for all non-missing values.
+}
+\details{
+The error metrics generated from \code{model_error()} are the following:
+\itemize{
+\item \href{https://en.wikipedia.org/wiki/Root-mean-square_deviation}{RMSE}: root mean squared error
+\item \href{https://en.wikipedia.org/wiki/Mean_absolute_error}{MAE}: mean absolute error
+\item \href{https://scikit-learn.org/stable/modules/model_evaluation.html#median-absolute-error}{MdAE}: median absolute error
+\item \href{https://en.wikipedia.org/wiki/Mean_absolute_scaled_error}{MASE}: mean absolute scaled error.
+Only calculated if \code{test_col} is provided, as it is test error scaled by in-sample error.
+\item CBA: confidence bound accuracy, \% of observations lying within the confidence bounds.
+Should be very near to 95\%. Only calculated if both \code{upper_col} and \code{lower_col}
+are provided.
+}
 }

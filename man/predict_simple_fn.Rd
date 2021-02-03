@@ -24,18 +24,23 @@ intervals. This includes \link[stats:lm]{stats::lm}, \link[stats:glm]{stats::glm
 
 \item{col}{Name of column to extrapolate/interpolate.}
 
-\item{group_col}{Column name to split data frame prior to model application.}
+\item{group_col}{Column name(s) of group(s) to use in \code{\link[dplyr:group_by]{dplyr::group_by()}} when
+supplying type, calculating mean absolute scaled error on data involving
+time series, and if \code{group_models}, then fitting and predicting models too.}
 
 \item{pred_col}{Column name to store predicted value.}
 
-\item{sort_col}{Name of column to arrange data frame by prior to interpolation. Defaults to \code{"year"}.}
+\item{sort_col}{Column name(s) to use to \code{\link[dplyr:arrange]{dplyr::arrange()}} the data prior to
+supplying type and calculating mean absolute scaled error on data involving
+time series.}
 
-\item{sort_descending}{Logical value on whether the sorted values should be descending. Defaults to \code{FALSE}.}
+\item{sort_descending}{Logical value on whether the sorted values from \code{sort_col}
+should be sorted in descending order. Defaults to \code{FALSE}.}
 }
 \value{
 A data frame.
 }
 \description{
-\code{linear_interpolation()} does simple linear interpolation on specified columns
-in a data frame using \code{\link[zoo:na.approx]{zoo::na.approx()}}.
+\code{predict_simple_fn()} does simple linear interpolation and flat extrapolation
+on specified columnn in a data frame using \code{\link[zoo:na.approx]{zoo::na.approx()}}.
 }

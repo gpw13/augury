@@ -1,7 +1,7 @@
 #' Linearly interpolate data
 #'
-#' `linear_interpolation()` does simple linear interpolation on specified columns
-#' in a data frame using [zoo::na.approx()].
+#' `predict_simple_fn()` does simple linear interpolation and flat extrapolation
+#' on specified columnn in a data frame using [zoo::na.approx()].
 #'
 #' @inherit predict_simple params
 #'
@@ -13,14 +13,14 @@ predict_simple_fn <- function(df,
                               pred_col = "pred",
                               sort_col = NULL,
                               sort_descending = FALSE) {
-  df <- dplyr::group_by(df, .dots = group_col)
+  df <- dplyr::group_by(df, dplyr::across(dplyr::all_of(group_col)))
   if (!is.null(sort_col)) {
     if (sort_descending) {
       fn <- dplyr::desc
     } else {
       fn <- NULL
     }
-    df <- dplyr::arrange(df, dplyr::across(sort_col, fn))
+    df <- dplyr::arrange(df, dplyr::across(sort_col, fn), .by_group = TRUE)
   }
 
   if (model %in% c("both", "linear_interp")) {
@@ -35,7 +35,7 @@ predict_simple_fn <- function(df,
   dplyr::ungroup(df)
 }
 
-#' Use linear interpolation to infill data
+#' Use linear interpolation and flat extrapolation to infill data
 #'
 #' `predict_simple()` does simple linear interpolation and/or flat extrapolation
 #' on a column using [zoo::na.approx()]. Similar to other predict functions, it also
@@ -46,22 +46,20 @@ predict_simple_fn <- function(df,
 #' Depending on the value of `model` passed to the function, linear interpolation,
 #' flat extrapolation, or both is used on the data.
 #'
-#' @inherit grouped_predict_general_mdl params return
+#' @inherit predict_general_mdl params return
 #' @param col Name of column to extrapolate/interpolate.
-#' @param sort_col Name of column to arrange data frame by prior to interpolation. Defaults to `"year"`.
-#' @param sort_descending Logical value on whether the sorted values should be descending. Defaults to `FALSE`.
 #' @param types Types to add to missing values. The first value is for imputed
 #'     values and the second is for extrapolated values.
 #' @param replace_obs Character value specifying how, if at all, observations should
 #'     be replaced by infilled values. By default, replaces missing values in `col`
-#'     but if set to `"none"` then `col` is not changed
+#'     but if set to `"none"` then `col` is not changed.
 #'
 #' @export
 predict_simple <- function(df,
                            model = c("both", "flat_extrap", "linear_interp"),
                            col = "value",
-                           group_col = "iso3",
-                           sort_col = "year",
+                           group_col = NULL,
+                           sort_col = NULL,
                            sort_descending = FALSE,
                            pred_col = "pred",
                            type_col = NULL,
@@ -73,8 +71,9 @@ predict_simple <- function(df,
   assert_df(df)
   model <- rlang::arg_match(model)
   assert_columns(df, col, group_col, type_col, source_col, type_col, source_col)
-  assert_string_l1(pred_col)
-  assert_string_l1(source)
+  assert_string(pred_col, 1)
+  assert_string(source, 1)
+  assert_string(types, 2)
   replace_obs <- rlang::arg_match(replace_obs)
 
   df <- predict_simple_fn(df = df,
@@ -88,13 +87,14 @@ predict_simple <- function(df,
   # Merge predictions into observations
   df <- merge_prediction(df = df,
                          response = col,
+                         group_col = group_col,
+                         sort_col = sort_col,
+                         sort_descending = sort_descending,
                          pred_col = pred_col,
                          upper_col = NULL,
                          lower_col = NULL,
                          type_col = type_col,
                          types = c(NA_character_, types),
-                         type_group = NULL,
-                         type_sort = sort_col,
                          source_col = source_col,
                          source = source,
                          replace_obs = replace_obs,
@@ -104,6 +104,9 @@ predict_simple <- function(df,
   df
 }
 
+#' Helper function to do flat extrapolation
+#'
+#' @param x Vector to do flat extrapolation on
 simple_extrap <- function(x) {
   missing_x <- is.na(x)
   if (!all(missing_x)) {

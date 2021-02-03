@@ -2,14 +2,14 @@
 % Please edit documentation in R/predict_simple.R
 \name{predict_simple}
 \alias{predict_simple}
-\title{Use linear interpolation to infill data}
+\title{Use linear interpolation and flat extrapolation to infill data}
 \usage{
 predict_simple(
   df,
   model = c("both", "flat_extrap", "linear_interp"),
   col = "value",
-  group_col = "iso3",
-  sort_col = "year",
+  group_col = NULL,
+  sort_col = NULL,
   sort_descending = FALSE,
   pred_col = "pred",
   type_col = NULL,
@@ -29,11 +29,16 @@ intervals. This includes \link[stats:lm]{stats::lm}, \link[stats:glm]{stats::glm
 
 \item{col}{Name of column to extrapolate/interpolate.}
 
-\item{group_col}{Column name to split data frame prior to model application.}
+\item{group_col}{Column name(s) of group(s) to use in \code{\link[dplyr:group_by]{dplyr::group_by()}} when
+supplying type, calculating mean absolute scaled error on data involving
+time series, and if \code{group_models}, then fitting and predicting models too.}
 
-\item{sort_col}{Name of column to arrange data frame by prior to interpolation. Defaults to \code{"year"}.}
+\item{sort_col}{Column name(s) to use to \code{\link[dplyr:arrange]{dplyr::arrange()}} the data prior to
+supplying type and calculating mean absolute scaled error on data involving
+time series.}
 
-\item{sort_descending}{Logical value on whether the sorted values should be descending. Defaults to \code{FALSE}.}
+\item{sort_descending}{Logical value on whether the sorted values from \code{sort_col}
+should be sorted in descending order. Defaults to \code{FALSE}.}
 
 \item{pred_col}{Column name to store predicted value.}
 
@@ -50,7 +55,7 @@ have filled in missing data.}
 
 \item{replace_obs}{Character value specifying how, if at all, observations should
 be replaced by infilled values. By default, replaces missing values in \code{col}
-but if set to \code{"none"} then \code{col} is not changed}
+but if set to \code{"none"} then \code{col} is not changed.}
 }
 \value{
 Depending on the value passed to \code{ret}, either a data frame with

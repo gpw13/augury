@@ -33,13 +33,13 @@ Imports:
     magrittr,
     lme4,
     zoo,
-    forecast
+    forecast,
+    tidyr
 Suggests:
     knitr,
     rmarkdown,
     billionaiRe,
-    ghost,
-    tidyr
+    ghost
 Remotes:
     caldwellst/billionaiRe,
     caldwellst/ghost,

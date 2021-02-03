@@ -48,15 +48,17 @@ assert_model <- function(x) {
   }
 }
 
-#' Assert that `x` is a character vector of length 1
+#' Assert that `x` is a character vector of length `n`
 #'
 #' @param x Supposed string to test
-assert_string_l1 <- function(x) {
+#' @param n Required length of vector
+assert_string <- function(x, n) {
   if (!is.null(x)) {
     lx <- length(x)
-    if (!(is.character(x) & (lx == 1))) {
-      stop(sprintf("`%s` must be a character vector of length 1, not %s of length %d.",
+    if (!(is.character(x) & (lx == n))) {
+      stop(sprintf("`%s` must be a character vector of length %d, not %s of length %d.",
                    deparse(substitute(x)),
+                   n,
                    class(x),
                    lx),
            call. = FALSE)

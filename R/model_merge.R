@@ -10,13 +10,14 @@
 #' @return A data frame.
 merge_prediction <- function(df,
                              response,
+                             group_col,
+                             sort_col,
+                             sort_descending,
                              pred_col,
                              upper_col,
                              lower_col,
                              type_col,
                              types,
-                             type_group,
-                             type_sort,
                              source_col,
                              source,
                              replace_obs,
@@ -24,18 +25,26 @@ merge_prediction <- function(df,
                              error_correct_cols) {
   if (replace_obs != "none") {
     if (!is.null(type_col)) {
-      df <- dplyr::group_by(df, dplyr::across(type_group))
+      df <- dplyr::group_by(df, dplyr::across(group_col))
     }
 
     # put types for missing values before, between, and after the included data (types 1, 2, 3)
 
     if (!is.null(type_col)) {
-      df <- dplyr::arrange(df, .data[[type_sort]], .by_group = TRUE) %>%
+      if (!is.null(sort_col)) {
+        if (sort_descending) {
+          fn <- dplyr::desc
+        } else {
+          fn <- NULL
+        }
+        df <- dplyr::arrange(df, dplyr::across(sort_col, fn), .by_group = TRUE)
+      }
+      df <- df %>%
         dplyr::mutate(
           !!sym(type_col) := dplyr::case_when(
             is.na(.data[[pred_col]]) ~ NA_character_,
-            is.na(.data[[response]]) & .data[[type_sort]] <= min(.data[[type_sort]][!is.na(.data[[response]])], Inf) ~ types[1],
-            is.na(.data[[response]]) & .data[[type_sort]] > max(.data[[type_sort]][!is.na(.data[[response]])], -Inf) ~ types[3],
+            is.na(.data[[response]]) & .data[[sort_col]] <= min(.data[[sort_col]][!is.na(.data[[response]])], Inf) ~ types[1],
+            is.na(.data[[response]]) & .data[[sort_col]] > max(.data[[sort_col]][!is.na(.data[[response]])], -Inf) ~ types[3],
             !is.na(.data[[response]]) ~ .data[[type_col]],
             TRUE ~ types[2]
           ))

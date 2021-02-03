@@ -1,4 +1,3 @@
-
 #' Minimizes dataset to data needed for modelling
 #'
 #' `get_model_data()` ensures that only variables necessary for the model
@@ -10,9 +9,10 @@
 #'
 #' @param formula_vars Character vector of variables used in the model. Can be
 #'     extracted from a formula using `all.vars(fmla)`.
-#' @inheritParams grouped_predict_general_mdl
+#' @inheritParams predict_general_mdl
 #' @param reduce_columns Logical on whether or not to reduce the number of columns
 #'     in the data to just those necessary for modelling.
+#'
 #' @return A data frame.
 get_model_data <- function(df,
                            formula_vars,
