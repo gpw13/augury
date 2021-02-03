@@ -142,8 +142,8 @@ predict_inla_data <- function(df,
                               lower_col) {
   fit <- model[["summary.fitted.values"]]
   df[[pred_col]] <- fit[["mean"]]
-  df[[upper_col]] <- fit[["0.025quant"]]
-  df[[lower_col]] <- fit[["0.975quant"]]
+  df[[lower_col]] <- fit[["0.025quant"]]
+  df[[upper_col]] <- fit[["0.975quant"]]
   df
 }
 
@@ -179,6 +179,8 @@ fit_inla_model <- function(df,
   # Filter data for modeling
   if (!group_models) group_col <- NULL
 
+  df[["augury_unique_id"]] <- 1:nrow(df)
+
   data <- get_model_data(df = df,
                          formula_vars = formula_vars,
                          test_col = test_col,
@@ -189,23 +191,22 @@ fit_inla_model <- function(df,
   if (group_models) {
 
     # Split data frames
-    # Split data frames
     data <- dplyr::group_by(data, .data[[group_col]]) %>%
       dplyr::group_split()
 
     # Map modeling behavior
-    df <- purrr::map_dfr(data,
-                         function(x) {
-                           mdl <- INLA::inla(formula = formula,
-                                             data = x,
-                                             control.predictor = control.predictor,
-                                             ...)
-                           predict_inla_data(x,
-                                             mdl,
-                                             pred_col,
-                                             upper_col,
-                                             lower_col)
-                         })
+    data <- purrr::map_dfr(data,
+                           function(x) {
+                             mdl <- INLA::inla(formula = formula,
+                                               data = x,
+                                               control.predictor = control.predictor,
+                                               ...)
+                             predict_inla_data(x,
+                                               mdl,
+                                               pred_col,
+                                               upper_col,
+                                               lower_col)
+                           })
 
     mdl <- NULL # not returning all models together for grouped models
   } else { # single model fitting
@@ -216,14 +217,31 @@ fit_inla_model <- function(df,
 
     # don't predict data if only returning model
     if (ret == "mdl") {
-      df <- NULL
+      data <- NULL
     } else {
-      df <- predict_inla_data(data,
-                              mdl,
-                              pred_col,
-                              upper_col,
-                              lower_col)
+      data <- predict_inla_data(data,
+                                mdl,
+                                pred_col,
+                                upper_col,
+                                lower_col)
     }
   }
+
+  # Merge predictions data with old df
+  # Ensures that response values dropped for testing are available for use
+  # in error calculations
+
+  if (is.null(data)) {
+    df <- NULL
+  } else {
+    df <- dplyr::left_join(df,
+                           dplyr::select(data, dplyr::all_of(c("augury_unique_id",
+                                                               pred_col,
+                                                               upper_col,
+                                                               lower_col))),
+                           by = "augury_unique_id") %>%
+      dplyr::select(-"augury_unique_id")
+  }
+
   list(df = df, mdl = mdl)
 }
