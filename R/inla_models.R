@@ -234,11 +234,13 @@ fit_inla_model <- function(df,
   if (is.null(data)) {
     df <- NULL
   } else {
-    df <- dplyr::left_join(df,
+    df <- dplyr::left_join(dplyr::select(df, -dplyr::any_of(c(pred_col,
+                                                              lower_col,
+                                                              upper_col))),
                            dplyr::select(data, dplyr::all_of(c("augury_unique_id",
                                                                pred_col,
-                                                               upper_col,
-                                                               lower_col))),
+                                                               lower_col,
+                                                               upper_col))),
                            by = "augury_unique_id") %>%
       dplyr::select(-"augury_unique_id")
   }
