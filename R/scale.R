@@ -14,6 +14,7 @@ scale_transform <- function(df,
                             scale = 100,
                             divide = TRUE) {
   assert_columns(df, cols)
+  assert_numeric(scale, 1)
   dplyr::mutate(df, dplyr::across(dplyr::all_of(cols), scale_vec, scale = scale, divide = divide))
 }
 

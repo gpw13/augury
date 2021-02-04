@@ -87,3 +87,21 @@ assert_h <- function(h) {
          call. = FALSE)
   }
 }
+
+#' Assert numeric value
+#'
+#' @param x Numeric value to check
+#' @param n Required length of vector
+assert_numeric <- function(x, n) {
+  if (!is.null(x)) {
+    lx <- length(x)
+    if (!(is.numeric(x) & (lx == n))) {
+      stop(sprintf("`%s` must be a numeric vector of length %d, not %s of length %d.",
+                   deparse(substitute(x)),
+                   n,
+                   class(x),
+                   lx),
+           call. = FALSE)
+    }
+  }
+}

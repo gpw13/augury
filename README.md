@@ -198,21 +198,53 @@ modeled_df %>%
 #> # A tibble: 10 x 8
 #>    iso3   year value  pred lower upper source          type     
 #>    <chr> <dbl> <dbl> <dbl> <dbl> <dbl> <chr>           <chr>    
-#>  1 ALB    2016  39.8  39.9  40.1  39.6 WHO GHO         estimated
-#>  2 ALB    2017  39.9  39.9  40.1  39.6 WHO GHO         estimated
-#>  3 ALB    2018  39.9  39.9  40.6  39.2 augury modeling projected
-#>  4 ALB    2019  39.9  39.9  41.1  38.7 augury modeling projected
-#>  5 ALB    2020  39.9  39.9  41.7  38.1 augury modeling projected
-#>  6 ALB    2021  39.9  39.9  42.4  37.4 augury modeling projected
-#>  7 ALB    2022  39.9  39.9  43.2  36.7 augury modeling projected
-#>  8 ALB    2023  39.9  39.9  44.0  35.8 augury modeling projected
-#>  9 ALB    2024  39.9  39.9  45.0  35.0 augury modeling projected
-#> 10 ALB    2025  39.9  39.9  46.0  34.0 augury modeling projected
+#>  1 ALB    2016  39.8  39.9  39.6  40.1 WHO GHO         estimated
+#>  2 ALB    2017  39.9  39.9  39.6  40.1 WHO GHO         estimated
+#>  3 ALB    2018  39.9  39.9  39.2  40.6 augury modeling projected
+#>  4 ALB    2019  39.9  39.9  38.7  41.1 augury modeling projected
+#>  5 ALB    2020  39.9  39.9  38.1  41.7 augury modeling projected
+#>  6 ALB    2021  39.9  39.9  37.4  42.4 augury modeling projected
+#>  7 ALB    2022  39.9  39.9  36.7  43.2 augury modeling projected
+#>  8 ALB    2023  39.9  39.9  35.8  44.0 augury modeling projected
+#>  9 ALB    2024  39.9  39.9  35.0  45.0 augury modeling projected
+#> 10 ALB    2025  39.9  39.9  34.0  46.0 augury modeling projected
 ```
 
 And there we go, we have now fit a time series model to our data,
 provided new type and source, and merged this into our existing data
-frame.
+frame. However, in this setup, the error calculations returned by
+`predict_inla_ts()` are calculated in the probit space. If we wanted to
+scale and probit transform the response variable prior to model fitting,
+but still calculate error metrics and automatically return the response
+and predicted values back in the original space, we can set
+`scale = 100` and `probit = TRUE` within `predict_inla_ts()`.
+
+``` r
+df %>%
+  predict_inla_ts(scale = 100,
+                  probit = TRUE,
+                  type_col = "type",
+                  source_col = "source",
+                  source = "augury modeling") %>%
+  filter(year > 2015) %>%
+  select(iso3, year, value, pred, lower, upper, source, type)
+#> # A tibble: 10 x 8
+#>    iso3   year value  pred lower upper source          type     
+#>    <chr> <dbl> <dbl> <dbl> <dbl> <dbl> <chr>           <chr>    
+#>  1 ALB    2016  39.8  39.9  39.6  40.1 WHO GHO         estimated
+#>  2 ALB    2017  39.9  39.9  39.6  40.1 WHO GHO         estimated
+#>  3 ALB    2018  39.9  39.9  39.2  40.6 augury modeling projected
+#>  4 ALB    2019  39.9  39.9  38.7  41.1 augury modeling projected
+#>  5 ALB    2020  39.9  39.9  38.1  41.7 augury modeling projected
+#>  6 ALB    2021  39.9  39.9  37.4  42.4 augury modeling projected
+#>  7 ALB    2022  39.9  39.9  36.7  43.2 augury modeling projected
+#>  8 ALB    2023  39.9  39.9  35.8  44.0 augury modeling projected
+#>  9 ALB    2024  39.9  39.9  35.0  45.0 augury modeling projected
+#> 10 ALB    2025  39.9  39.9  34.0  46.0 augury modeling projected
+```
+
+And we can see that the results here are the same as manually scaling
+and probit transforming the variables.
 
 ## Mixed-effects modeling
 
@@ -264,14 +296,14 @@ modeled_df %>%
 #> # A tibble: 8 x 8
 #>   iso3   year value  pred lower upper source                              type  
 #>   <chr> <dbl> <dbl> <dbl> <dbl> <dbl> <chr>                               <chr> 
-#> 1 AFG    2018  35    38.6  41.9  35.3 Electronic State Parties Self-Asse… repor…
-#> 2 AFG    2019  43    39.3  42.6  36.0 Electronic State Parties Self-Asse… repor…
-#> 3 AFG    2020  39.9  39.9  43.2  36.6 WHO DDI Preliminary infilling and … proje…
-#> 4 AFG    2021  40.5  40.5  43.9  37.2 WHO DDI Preliminary infilling and … proje…
-#> 5 AFG    2022  41.1  41.1  44.4  37.8 WHO DDI Preliminary infilling and … proje…
-#> 6 AFG    2023  41.7  41.7  45.0  38.4 WHO DDI Preliminary infilling and … proje…
-#> 7 AFG    2024  42.2  42.2  45.6  39.0 WHO DDI Preliminary infilling and … proje…
-#> 8 AFG    2025  42.8  42.8  46.1  39.6 WHO DDI Preliminary infilling and … proje…
+#> 1 AFG    2018  35    38.6  35.3  41.9 Electronic State Parties Self-Asse… repor…
+#> 2 AFG    2019  43    39.3  36.0  42.6 Electronic State Parties Self-Asse… repor…
+#> 3 AFG    2020  39.9  39.9  36.6  43.2 WHO DDI Preliminary infilling and … proje…
+#> 4 AFG    2021  40.5  40.5  37.2  43.9 WHO DDI Preliminary infilling and … proje…
+#> 5 AFG    2022  41.1  41.1  37.8  44.4 WHO DDI Preliminary infilling and … proje…
+#> 6 AFG    2023  41.7  41.7  38.4  45.0 WHO DDI Preliminary infilling and … proje…
+#> 7 AFG    2024  42.2  42.2  39.0  45.6 WHO DDI Preliminary infilling and … proje…
+#> 8 AFG    2025  42.8  42.8  39.6  46.1 WHO DDI Preliminary infilling and … proje…
 ```
 
 And exactly as we were able to do with the time series modeling, we now
@@ -333,14 +365,14 @@ predict_forecast(usa_df,
 #>   method            from
 #>   as.zoo.data.frame zoo
 #> # A tibble: 6 x 10
-#>   iso3   year ind   value lower upper source type  other_detail  pred
-#>   <chr> <int> <chr> <dbl> <dbl> <dbl> <lgl>  <chr> <lgl>        <dbl>
-#> 1 USA    2012 bp     15.7  NA    NA   NA     <NA>  NA            NA  
-#> 2 USA    2013 bp     15.5  NA    NA   NA     <NA>  NA            NA  
-#> 3 USA    2014 bp     15.4  NA    NA   NA     <NA>  NA            NA  
-#> 4 USA    2015 bp     15.3  NA    NA   NA     <NA>  NA            NA  
-#> 5 USA    2016 <NA>   15.2  15.0  15.3 NA     <NA>  NA            15.2
-#> 6 USA    2017 <NA>   15.1  14.9  15.2 NA     <NA>  NA            15.1
+#>   iso3   year ind   value  lower  upper source type  other_detail   pred
+#>   <chr> <int> <chr> <dbl>  <dbl>  <dbl> <lgl>  <chr> <lgl>         <dbl>
+#> 1 USA    2012 bp    0.999 NA     NA     NA     <NA>  NA           NA    
+#> 2 USA    2013 bp    0.999 NA     NA     NA     <NA>  NA           NA    
+#> 3 USA    2014 bp    0.999 NA     NA     NA     <NA>  NA           NA    
+#> 4 USA    2015 bp    0.999 NA     NA     NA     <NA>  NA           NA    
+#> 5 USA    2016 <NA>  0.999  0.999  0.999 NA     <NA>  NA            0.999
+#> 6 USA    2017 <NA>  0.999  0.999  0.999 NA     <NA>  NA            0.999
 ```
 
 Of course, we might want to run these models all together for each

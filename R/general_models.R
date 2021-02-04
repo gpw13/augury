@@ -30,6 +30,18 @@
 #' @param ret Character vector specifying what values the function returns. Defaults
 #'     to returning a data frame, but can return a vector of model error, the
 #'     model itself or a list with all 3 as components.
+#' @param scale Either `NULL` or a numeric value. If a numeric value is provided,
+#'     the response variable is scaled by the value passed to scale prior to model
+#'     fitting and prior to any probit transformation, so can be used to put the
+#'     response onto a 0 to 1 scale. Scaling is done by dividing the response by
+#'     the scale and using the [scale_transform()] function. The response, as well
+#'     as the fitted values and confidence bounds are unscaled prior to error
+#'     calculation and returning to the user.
+#' @param probit Logical value on whether or not to probit transform the response
+#'     prior to model fitting. Probit transformation is performed after any scaling
+#'     determined by `scale` but prior to model fitting. The response, as well as
+#'     the fitted values and confidence bounds are untransformed prior to error
+#'     calculation and returning to the user.
 #' @param test_col Name of logical column specifying which response values to remove
 #'     for testing the model's predictive accuracy. If `NULL`, ignored.
 #' @param group_col Column name(s) of group(s) to use in [dplyr::group_by()] when
@@ -81,6 +93,8 @@ predict_general_mdl <- function(df,
                                 formula,
                                 ...,
                                 ret = c("df", "all", "error", "model"),
+                                scale = NULL,
+                                probit = FALSE,
                                 test_col = NULL,
                                 group_col = NULL,
                                 group_models = FALSE,
@@ -112,6 +126,16 @@ predict_general_mdl <- function(df,
   assert_string(source, 1)
   replace_obs <- rlang::arg_match(replace_obs)
 
+  # Scale response variable
+  if (!is.null(scale)) {
+    df <- scale_transform(df, formula_vars[1], scale = scale)
+  }
+
+  # Transform response variable to probit space
+  if (probit) {
+    df <- probit_transform(df, formula_vars[1])
+  }
+
   mdl_df <- fit_general_model(df = df,
                               model = model,
                               formula = formula,
@@ -132,6 +156,27 @@ predict_general_mdl <- function(df,
   # Return model now
   if (ret == "mdl") {
     return(mdl)
+  }
+
+  # Untransform variables
+  if (probit) {
+    df <- probit_transform(df,
+                           c(formula_vars[1],
+                             pred_col,
+                             upper_col,
+                             lower_col),
+                           inverse = TRUE)
+  }
+
+  # Unscale variables
+  if (!is.null(scale)) {
+    df <- scale_transform(df,
+                          c(formula_vars[1],
+                            pred_col,
+                            upper_col,
+                            lower_col),
+                          scale = scale,
+                          divide = FALSE)
   }
 
   # Get error if being returned

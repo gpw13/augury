@@ -26,6 +26,8 @@ predict_forecast <- function(df,
                              response,
                              ...,
                              ret = c("df", "all", "error", "model"),
+                             scale = NULL,
+                             probit = TRUE,
                              test_col = NULL,
                              group_col = NULL,
                              group_models = FALSE,
@@ -54,6 +56,14 @@ predict_forecast <- function(df,
   assert_string(source, 1)
   replace_obs <- rlang::arg_match(replace_obs)
 
+  if (!is.null(scale)) {
+    df <- scale_transform(df, response, scale = scale)
+  }
+
+  if (probit) {
+    df <- probit_transform(df, response)
+  }
+
   mdl_df <- fit_forecast_model(df = df,
                                forecast_function = forecast_function,
                                response = response,
@@ -75,6 +85,28 @@ predict_forecast <- function(df,
   if (ret == "model") {
     return(mdl)
   }
+
+  # Untransform variables
+  if (probit) {
+    df <- probit_transform(df,
+                           c(response,
+                             pred_col,
+                             upper_col,
+                             lower_col),
+                           inverse = TRUE)
+  }
+
+  # Unscale variables
+  if (!is.null(scale)) {
+    df <- scale_transform(df,
+                          c(response,
+                            pred_col,
+                            upper_col,
+                            lower_col),
+                          scale = scale,
+                          divide = FALSE)
+  }
+
   # Get error if being returned
   if (ret %in% c("all", "error")) {
     err <- model_error(df = df,
