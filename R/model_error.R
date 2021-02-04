@@ -86,7 +86,8 @@ model_error <- function(df,
   x_cor <- df %>%
     dplyr::summarize("COR" := stats::cor(.data[[pred_col]], .data[[response]], use = "complete.obs"),
                      .groups = "drop") %>%
-    dplyr::summarize("COR" := mean(.data[["COR"]]))
+    dplyr::summarize("COR" := mean(.data[["COR"]]),
+                     .groups = "drop")
 
   c(unlist(x), unlist(x_cor))
 }
