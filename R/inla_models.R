@@ -29,6 +29,8 @@ predict_inla <- function(df,
                          control.predictor = list(compute = TRUE),
                          ...,
                          ret = c("df", "all", "error", "model"),
+                         scale = NULL,
+                         probit = FALSE,
                          test_col = NULL,
                          group_col = NULL,
                          group_models = FALSE,
@@ -60,6 +62,16 @@ predict_inla <- function(df,
   assert_string(source, 1)
   replace_obs <- rlang::arg_match(replace_obs)
 
+  # Scale response variable
+  if (!is.null(scale)) {
+    df <- scale_transform(df, formula_vars[1], scale = scale)
+  }
+
+  # Transform response variable to probit space
+  if (probit) {
+    df <- probit_transform(df, formula_vars[1])
+  }
+
   mdl_df <- fit_inla_model(df = df,
                            formula = formula,
                            control.predictor = control.predictor,
@@ -79,6 +91,27 @@ predict_inla <- function(df,
 
   if (ret == "model") {
     return(mdl)
+  }
+
+  # Untransform variables
+  if (probit) {
+    df <- probit_transform(df,
+                           c(formula_vars[1],
+                             pred_col,
+                             upper_col,
+                             lower_col),
+                           inverse = TRUE)
+  }
+
+  # Unscale variables
+  if (!is.null(scale)) {
+    df <- scale_transform(df,
+                          c(formula_vars[1],
+                            pred_col,
+                            upper_col,
+                            lower_col),
+                          scale = scale,
+                          divide = FALSE)
   }
 
   # Get error if being returned

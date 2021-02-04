@@ -61,7 +61,20 @@ modeled_df %>%
   filter(year > 2015) %>%
   select(iso3, year, value, pred, lower, upper, source, type)
 ```
-And there we go, we have now fit a time series model to our data, provided new type and source, and merged this into our existing data frame.
+And there we go, we have now fit a time series model to our data, provided new type and source, and merged this into our existing data frame. However, in this setup, the error calculations returned by `predict_inla_ts()` are calculated in the probit space. If we wanted to scale and probit transform the response variable prior to model fitting, but still calculate error metrics and automatically return the response and predicted values back in the original space, we can set `scale = 100` and `probit = TRUE` within `predict_inla_ts()`.
+
+```{r new_modelling_ts}
+df %>%
+  predict_inla_ts(scale = 100,
+                  probit = TRUE,
+                  type_col = "type",
+                  source_col = "source",
+                  source = "augury modeling") %>%
+  filter(year > 2015) %>%
+  select(iso3, year, value, pred, lower, upper, source, type)
+```
+
+And we can see that the results here are the same as manually scaling and probit transforming the variables.
 
 ## Mixed-effects modeling
 
