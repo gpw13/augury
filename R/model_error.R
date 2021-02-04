@@ -46,7 +46,9 @@ model_error <- function(df,
     } else {
       fn <- NULL
     }
-    df <- dplyr::arrange(df, dplyr::across(dplyr::all_of(sort_col), fn))
+    df <- dplyr::arrange(df,
+                         dplyr::across(dplyr::all_of(sort_col), fn),
+                         .by_group = TRUE)
   }
 
   # If test_col being used, filter to that and calculate in-sample MASE denominator
@@ -84,7 +86,9 @@ model_error <- function(df,
   x_cor <- df %>%
     dplyr::summarize("COR" := stats::cor(.data[[pred_col]], .data[[response]], use = "complete.obs"),
                      .groups = "drop") %>%
-    dplyr::summarize("COR" := mean(.data[["COR"]]))
+    dplyr::summarize("COR" := mean(.data[["COR"]],
+                                   na.rm = TRUE),
+                     .groups = "drop")
 
   c(unlist(x), unlist(x_cor))
 }

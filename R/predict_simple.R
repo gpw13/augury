@@ -23,13 +23,15 @@ predict_simple_fn <- function(df,
     df <- dplyr::arrange(df, dplyr::across(sort_col, fn), .by_group = TRUE)
   }
 
+  df <- dplyr::mutate(df, !!sym(pred_col) := .data[[col]])
+
   if (model %in% c("both", "linear_interp")) {
-    df <- dplyr::mutate(df, !!sym(pred_col) := zoo::na.approx(.data[[col]],
+    df <- dplyr::mutate(df, !!sym(pred_col) := zoo::na.approx(.data[[pred_col]],
                                                               na.rm = FALSE))
   }
 
   if (model %in% c("both", "flat_extrap")) {
-    df <- dplyr::mutate(df, !!sym(pred_col) := simple_extrap(.data[[col]]))
+    df <- dplyr::mutate(df, !!sym(pred_col) := simple_extrap(.data[[pred_col]]))
   }
 
   dplyr::ungroup(df)
