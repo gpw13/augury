@@ -15,11 +15,17 @@
 #' * CBA: confidence bound accuracy, % of observations lying within the confidence bounds.
 #'     Should be very near to 95%. Only calculated if both `upper_col` and `lower_col`
 #'     are provided.
+#' * [COR](https://en.wikipedia.org/wiki/Pearson_correlation_coefficient): Pearson
+#'     correlation coefficient of fitted values to observations. Useful as a measure
+#'     of general trend matching beyond the point error measurements used above. If
+#'     `group_col` provided, correlation coefficients are calculated within each
+#'     group and the average across all groups is returned. Calculated on all data,
+#'     but be careful in interpreting when applied to non-time series data.
 #'
 #' @inheritParams predict_general_mdl
 #' @param response Column name of response variable.
 #'
-#' @return A named vector of errors: RMSE, MAE, MdAE, MASE, and CBA.
+#' @return A named vector of errors: RMSE, MAE, MdAE, MASE, CBA, and COR.
 #'
 #' @export
 model_error <- function(df,
@@ -71,7 +77,14 @@ model_error <- function(df,
                      "MAE" := mean(.data[["diff_abs"]], na.rm = TRUE),
                      "MdAE" := stats::median(.data[["diff_abs"]], na.rm = TRUE),
                      "MASE" := if (!is.null(test_col)) .data[["MAE"]] / mase_norm else NA_real_,
-                     "CBA" := if (!is.null(upper_col) && !is.null(lower_col)) sum(.data[[response]] <= .data[[upper_col]] & .data[[response]] >= .data[[lower_col]], na.rm = TRUE) / dplyr::n() else NA_real_)
+                     "CBA" := if (!is.null(upper_col) && !is.null(lower_col)) sum(.data[[response]] <= .data[[upper_col]] & .data[[response]] >= .data[[lower_col]], na.rm = TRUE) / dplyr::n() else NA_real_,
+                     .groups = "drop")
 
-  unlist(x)
+  # Calculate COR separately in case it's by group
+  x_cor <- df %>%
+    dplyr::summarize("COR" := stats::cor(.data[[pred_col]], .data[[response]], use = "complete.obs"),
+                     .groups = "drop") %>%
+    dplyr::summarize("COR" := mean(.data[["COR"]]))
+
+  c(unlist(x), unlist(x_cor))
 }
