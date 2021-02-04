@@ -46,7 +46,9 @@ model_error <- function(df,
     } else {
       fn <- NULL
     }
-    df <- dplyr::arrange(df, dplyr::across(dplyr::all_of(sort_col), fn))
+    df <- dplyr::arrange(df,
+                         dplyr::across(dplyr::all_of(sort_col), fn),
+                         .by_group = TRUE)
   }
 
   # If test_col being used, filter to that and calculate in-sample MASE denominator
