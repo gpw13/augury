@@ -42,7 +42,7 @@ should be sorted in descending order. Defaults to \code{FALSE}.}
 \item{lower_col}{Column name to store lower bound of confidence interval.}
 }
 \value{
-A named vector of errors: RMSE, MAE, MdAE, MASE, and CBA.
+A named vector of errors: RMSE, MAE, MdAE, MASE, CBA, and COR.
 }
 \description{
 \code{model_error()} calculates modeling error using observed and fitted values from
@@ -61,5 +61,11 @@ Only calculated if \code{test_col} is provided, as it is test error scaled by in
 \item CBA: confidence bound accuracy, \% of observations lying within the confidence bounds.
 Should be very near to 95\%. Only calculated if both \code{upper_col} and \code{lower_col}
 are provided.
+\item \href{https://en.wikipedia.org/wiki/Pearson_correlation_coefficient}{COR}: Pearson
+correlation coefficient of fitted values to observations. Useful as a measure
+of general trend matching beyond the point error measurements used above. If
+\code{group_col} provided, correlation coefficients are calculated within each
+group and the average across all groups is returned. Calculated on all data,
+but be careful in interpreting when applied to non-time series data.
 }
 }
