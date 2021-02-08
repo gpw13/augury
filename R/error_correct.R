@@ -7,14 +7,21 @@ error_correct_fn <- function(df,
                              pred_col,
                              upper_col,
                              lower_col,
+                             test_col,
                              error_correct,
                              error_correct_cols) {
   if (error_correct) {
     df <- df %>%
       dplyr::ungroup() %>%
       dplyr::group_by(dplyr::across(dplyr::all_of(error_correct_cols))) %>%
-      dplyr::mutate("temp_error" := .data[[response]] - .data[[pred_col]],
-                    "temp_error" := mean(.data[["temp_error"]], na.rm = TRUE)) %>%
+      dplyr::mutate("temp_error" := .data[[response]] - .data[[pred_col]])
+
+    if (!is.null(test_col)) {
+      df[["temp_error"]][df[[test_col]]] <- NA_real_
+    }
+
+    df <- df %>%
+      dplyr::mutate("temp_error" := mean(.data[["temp_error"]], na.rm = TRUE)) %>%
       dplyr::ungroup() %>%
       dplyr::mutate("temp_error" := ifelse(is.na(.data[["temp_error"]]),
                                            mean(.data[["temp_error"]], na.rm = TRUE),
@@ -23,5 +30,6 @@ error_correct_fn <- function(df,
                     !!sym(upper_col) := .data[[upper_col]] + .data[["temp_error"]],
                     !!sym(lower_col) := .data[[lower_col]] + .data[["temp_error"]])
   }
+
   df
 }

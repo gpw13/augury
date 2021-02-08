@@ -13,6 +13,7 @@ merge_prediction(
   pred_col,
   upper_col,
   lower_col,
+  test_col,
   type_col,
   types,
   source_col,
@@ -43,6 +44,9 @@ should be sorted in descending order. Defaults to \code{FALSE}.}
 \item{upper_col}{Column name to store upper bound of confidence interval.}
 
 \item{lower_col}{Column name to store lower bound of confidence interval.}
+
+\item{test_col}{Name of logical column specifying which response values to remove
+for testing the model's predictive accuracy. If \code{NULL}, ignored.}
 
 \item{type_col}{Column name specifying data type.}
 

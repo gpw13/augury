@@ -10,6 +10,7 @@ error_correct_fn(
   pred_col,
   upper_col,
   lower_col,
+  test_col,
   error_correct,
   error_correct_cols
 )
@@ -24,6 +25,9 @@ error_correct_fn(
 \item{upper_col}{Column name to store upper bound of confidence interval.}
 
 \item{lower_col}{Column name to store lower bound of confidence interval.}
+
+\item{test_col}{Name of logical column specifying which response values to remove
+for testing the model's predictive accuracy. If \code{NULL}, ignored.}
 
 \item{error_correct}{Logical value indicating whether or not whether mean error
 should be used to adjust predicted values. If \code{TRUE}, the mean error between
