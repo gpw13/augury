@@ -147,7 +147,7 @@ predict_lmer <- function(df,
                          error_correct = FALSE,
                          error_correct_cols = NULL) {
   predict_general_mdl(df = df,
-                      model = stats::glm,
+                      model = lme4::lmer,
                       formula = formula,
                       ...,
                       ret = ret,
