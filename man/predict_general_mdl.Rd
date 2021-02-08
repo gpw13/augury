@@ -136,7 +136,7 @@ and returns confidence intervals.
 }
 }
 \details{
-As example, \code{\link[stats:lm]{stats::lm()}}, \code{\link[stats:glm]{stats::glm()}}, and \code{\link[lme4:lmer]{lme4::lmer()}} all fit the
+As example, \code{\link[stats:lm]{stats::lm()}} and \code{\link[stats:glm]{stats::glm()}}  fit the
 above criteria and convenient wrappers for those models are
 provided in augury, but additional model functions can be used in
 \code{predict_general_mdl()} if they fit the criteria.

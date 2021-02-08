@@ -11,7 +11,7 @@
 #' * Must have a `predict.model` generic that accepts the `se.fit = TRUE` argument
 #'     and returns confidence intervals.
 #'
-#' As example, [stats::lm()], [stats::glm()], and [lme4::lmer()] all fit the
+#' As example, [stats::lm()] and [stats::glm()]  fit the
 #' above criteria and convenient wrappers for those models are
 #' provided in augury, but additional model functions can be used in
 #' `predict_general_mdl()` if they fit the criteria.

@@ -34,7 +34,8 @@ Imports:
     lme4,
     zoo,
     forecast,
-    tidyr
+    tidyr,
+    merTools
 Suggests:
     knitr,
     rmarkdown,
