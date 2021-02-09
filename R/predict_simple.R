@@ -9,6 +9,7 @@
 predict_simple_fn <- function(df,
                               model,
                               col,
+                              test_col = NULL,
                               group_col = NULL,
                               pred_col = "pred",
                               sort_col = NULL,
@@ -23,7 +24,8 @@ predict_simple_fn <- function(df,
     df <- dplyr::arrange(df, dplyr::across(sort_col, fn), .by_group = TRUE)
   }
 
-  df <- dplyr::mutate(df, !!sym(pred_col) := .data[[col]])
+  df <- dplyr::mutate(df,
+                      !!sym(pred_col) := if (!is.null(test_col)) ifelse(.data[[test_col]], NA_real_, .data[[col]]) else .data[[col]])
 
   if (model %in% c("both", "linear_interp")) {
     df <- dplyr::mutate(df, !!sym(pred_col) := zoo::na.approx(.data[[pred_col]],
@@ -60,6 +62,8 @@ predict_simple_fn <- function(df,
 predict_simple <- function(df,
                            model = c("both", "flat_extrap", "linear_interp"),
                            col = "value",
+                           ret = c("df", "all", "error"),
+                           test_col = NULL,
                            group_col = NULL,
                            sort_col = NULL,
                            sort_descending = FALSE,
@@ -72,7 +76,8 @@ predict_simple <- function(df,
   # Assertions and error checking
   assert_df(df)
   model <- rlang::arg_match(model)
-  assert_columns(df, col, group_col, type_col, source_col, type_col, source_col)
+  ret <- rlang::arg_match(ret)
+  assert_columns(df, col, group_col, test_col, type_col, source_col, type_col, source_col)
   assert_string(pred_col, 1)
   assert_string(source, 1)
   assert_string(types, 2)
@@ -81,10 +86,28 @@ predict_simple <- function(df,
   df <- predict_simple_fn(df = df,
                           model = model,
                           col = col,
+                          test_col = test_col,
                           group_col = group_col,
                           pred_col = pred_col,
                           sort_col = sort_col,
                           sort_descending = sort_descending)
+
+  # Calculate error if necessary
+  if (ret %in% c("all", "error")) {
+    err <- model_error(df = df,
+                       response = col,
+                       test_col = test_col,
+                       group_col = group_col,
+                       sort_col = sort_col,
+                       sort_descending = sort_descending,
+                       pred_col = pred_col,
+                       upper_col = NULL,
+                       lower_col = NULL)
+
+    if (ret == "error") {
+      return(err)
+    }
+  }
 
   # Merge predictions into observations
   df <- merge_prediction(df = df,
@@ -104,7 +127,13 @@ predict_simple <- function(df,
                          error_correct = FALSE,
                          error_correct_cols = NULL)
 
-  df
+  # Return what we need
+  if (ret == "df") {
+    return(df)
+  } else if (ret == "all") {
+    list(df = df,
+         error = err)
+  }
 }
 
 #' Helper function to do flat extrapolation

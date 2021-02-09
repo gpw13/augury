@@ -8,6 +8,8 @@ predict_simple(
   df,
   model = c("both", "flat_extrap", "linear_interp"),
   col = "value",
+  ret = c("df", "all", "error"),
+  test_col = NULL,
   group_col = NULL,
   sort_col = NULL,
   sort_descending = FALSE,
@@ -28,6 +30,13 @@ where \code{\link[stats:family]{stats::family()}} contains an inverse link funct
 intervals. This includes \link[stats:lm]{stats::lm}, \link[stats:glm]{stats::glm}, and \link[lme4:lmer]{lme4::lmer}.}
 
 \item{col}{Name of column to extrapolate/interpolate.}
+
+\item{ret}{Character vector specifying what values the function returns. Defaults
+to returning a data frame, but can return a vector of model error, the
+model itself or a list with all 3 as components.}
+
+\item{test_col}{Name of logical column specifying which response values to remove
+for testing the model's predictive accuracy. If \code{NULL}, ignored.}
 
 \item{group_col}{Column name(s) of group(s) to use in \code{\link[dplyr:group_by]{dplyr::group_by()}} when
 supplying type, calculating mean absolute scaled error on data involving

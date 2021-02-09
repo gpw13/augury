@@ -1,0 +1,109 @@
+---
+title: "Simple prediction methods"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Simple predictions}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+The simple methods available in augury are easy to use, but provide the same
+functionality of allowing a test column and returning error metrics as the 
+more complex modeling functions available in the package. Let's use data on
+alcohol from the GHO to demonstrate the functionality.
+
+```{r simple_setup}
+library(augury)
+
+df <- ghost::gho_data("SA_0000001688",
+                      query = "$filter=Dim1 eq 'BTSX'") %>%
+  billionaiRe::wrangle_gho_data(source = "WHO GHO",
+                                type = "estimated") %>%
+  dplyr::arrange(iso3, year)
+
+head(df)
+```
+
+Here we can see that data has time series and gaps in years. We can use linear
+interpolation and flat extrapolation here to get data out to 2023.
+
+```{r simple_data_wrangling}
+df <- tidyr::expand_grid(iso3 = unique(df$iso3),
+                         year = 2000:2023) %>%
+  dplyr::left_join(df, by = c("iso3", "year"))
+
+df %>%
+  dplyr::filter(iso3 == "AFG",
+                year >= 2010,
+                year <= 2018) %>%
+  dplyr::select(iso3,
+                year,
+                value)
+```
+
+Let's now use our linear interpolation and flat extrapolation on this data.
+
+```{r linear_interp}
+pred_df <- predict_simple(df,
+                          group_col = "iso3",
+                          sort_col = "year") 
+
+pred_df %>%
+  dplyr::filter(iso3 == "AFG",
+                year >= 2010,
+                year <= 2018) %>%
+  dplyr::select(iso3, year, value)
+```
+
+And we can see our linear interpolation there. We can also see the flat extrapolation.
+
+```{r flat_extrap}
+pred_df %>%
+  dplyr::filter(iso3 == "AFG",
+                year > 2016) %>%
+  dplyr::select(iso3, year, value)
+```
+
+We can use the `predict_average()` function in much the same way, except it is
+most useful when we have robust series for a set of countries, and no data for others.
+We can then use something like the regional average to infill data for missing countries.
+
+```{r reg_avg_data}
+df <- ghost::gho_data("SDGPOLLUTINGFUELS") %>%
+  billionaiRe::wrangle_gho_data(source = "WHO GHO",
+                                type = "estimated") %>%
+  dplyr::filter(whoville::is_who_member(iso3))
+
+x <- whoville::who_member_states()
+x[!(x %in% df$iso3)]
+```
+
+Above, we have 4 missing WHO member states, Lebanon, Cuba, Bulgaria, and Libya.
+Let's use regional averaging to fill in this data. We can use the most recent 
+World Bank income groups from the [whoville package](https://github.com/caldwellst/whoville)
+as our relevant group.
+
+```{r reg_avg_wrangling}
+df <- tidyr::expand_grid(iso3 = x,
+                         year = 2000:2018) %>%
+  dplyr::left_join(df, by = c("iso3", "year")) %>%
+  dplyr::mutate(region = whoville::iso3_to_regions(iso3, region = "wb_ig"))
+
+predict_average(df,
+                average_cols = c("region", "year"),
+                group_col = "iso3",
+                sort_col = "year",
+                type_col = "type",
+                source_col = "source",
+                source = "WB IG regional averages") %>%
+  dplyr::filter(iso3 == "LBN")
+```
+
+Hope these examples have been clear and highlight some of the usefulness of these simple modelling functions.

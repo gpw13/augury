@@ -8,6 +8,7 @@ predict_simple_fn(
   df,
   model,
   col,
+  test_col = NULL,
   group_col = NULL,
   pred_col = "pred",
   sort_col = NULL,
@@ -23,6 +24,9 @@ where \code{\link[stats:family]{stats::family()}} contains an inverse link funct
 intervals. This includes \link[stats:lm]{stats::lm}, \link[stats:glm]{stats::glm}, and \link[lme4:lmer]{lme4::lmer}.}
 
 \item{col}{Name of column to extrapolate/interpolate.}
+
+\item{test_col}{Name of logical column specifying which response values to remove
+for testing the model's predictive accuracy. If \code{NULL}, ignored.}
 
 \item{group_col}{Column name(s) of group(s) to use in \code{\link[dplyr:group_by]{dplyr::group_by()}} when
 supplying type, calculating mean absolute scaled error on data involving
