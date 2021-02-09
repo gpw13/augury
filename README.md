@@ -105,7 +105,10 @@ functions are included in the package.
     and can inverse the scaling if specified.
 -   `predict_simple()` performs linear interpolation or flat
     extrapolation in the same manner as the other `predict_...`
-    functions, but without modelling or confidence bounds.
+    functions, but without modeling or confidence bounds.
+-   `predict_average()` performs averaging by groups of columns in the
+    same manner as the other `predict_...` functions, but without
+    modeling or confidence bounds.
 
 Together, they can be used to transform and scale data for better
 modeling, and then inverse these to get data back into the original
@@ -434,3 +437,170 @@ It’s advisable to consider if other data infilling or imputation methods
 should be used to generate a full time series prior to the use of
 forecasting methods to prevent issues like above from impacting the
 predictive accuracy.
+
+## Simple prediction methods
+
+The simple methods available in augury are easy to use, but provide the
+same functionality of allowing a test column and returning error metrics
+as the more complex modeling functions available in the package. Let’s
+use data on alcohol from the GHO to demonstrate the functionality.
+
+``` r
+library(augury)
+
+df <- ghost::gho_data("SA_0000001688",
+                      query = "$filter=Dim1 eq 'BTSX'") %>%
+  billionaiRe::wrangle_gho_data(source = "WHO GHO",
+                                type = "estimated") %>%
+  dplyr::arrange(iso3, year)
+
+head(df)
+#> # A tibble: 6 x 9
+#>   iso3   year ind     value lower upper source  type      other_detail
+#>   <chr> <int> <chr>   <dbl> <lgl> <lgl> <chr>   <chr>     <lgl>       
+#> 1 AFG    2010 alcohol 0.211 NA    NA    WHO GHO estimated NA          
+#> 2 AFG    2015 alcohol 0.209 NA    NA    WHO GHO estimated NA          
+#> 3 AFG    2018 alcohol 0.215 NA    NA    WHO GHO estimated NA          
+#> 4 AGO    2000 alcohol 2.76  NA    NA    WHO GHO estimated NA          
+#> 5 AGO    2005 alcohol 4.89  NA    NA    WHO GHO estimated NA          
+#> 6 AGO    2010 alcohol 8.16  NA    NA    WHO GHO estimated NA
+```
+
+Here we can see that data has time series and gaps in years. We can use
+linear interpolation and flat extrapolation here to get data out to
+2023.
+
+``` r
+df <- tidyr::expand_grid(iso3 = unique(df$iso3),
+                         year = 2000:2023) %>%
+  dplyr::left_join(df, by = c("iso3", "year"))
+
+df %>%
+  dplyr::filter(iso3 == "AFG",
+                year >= 2010,
+                year <= 2018) %>%
+  dplyr::select(iso3,
+                year,
+                value)
+#> # A tibble: 9 x 3
+#>   iso3   year  value
+#>   <chr> <int>  <dbl>
+#> 1 AFG    2010  0.211
+#> 2 AFG    2011 NA    
+#> 3 AFG    2012 NA    
+#> 4 AFG    2013 NA    
+#> 5 AFG    2014 NA    
+#> 6 AFG    2015  0.209
+#> 7 AFG    2016 NA    
+#> 8 AFG    2017 NA    
+#> 9 AFG    2018  0.215
+```
+
+Let’s now use our linear interpolation and flat extrapolation on this
+data.
+
+``` r
+pred_df <- predict_simple(df,
+                          group_col = "iso3",
+                          sort_col = "year") 
+
+pred_df %>%
+  dplyr::filter(iso3 == "AFG",
+                year >= 2010,
+                year <= 2018) %>%
+  dplyr::select(iso3, year, value)
+#> # A tibble: 9 x 3
+#>   iso3   year value
+#>   <chr> <int> <dbl>
+#> 1 AFG    2010 0.211
+#> 2 AFG    2011 0.211
+#> 3 AFG    2012 0.210
+#> 4 AFG    2013 0.210
+#> 5 AFG    2014 0.209
+#> 6 AFG    2015 0.209
+#> 7 AFG    2016 0.211
+#> 8 AFG    2017 0.213
+#> 9 AFG    2018 0.215
+```
+
+And we can see our linear interpolation there. We can also see the flat
+extrapolation.
+
+``` r
+pred_df %>%
+  dplyr::filter(iso3 == "AFG",
+                year > 2016) %>%
+  dplyr::select(iso3, year, value)
+#> # A tibble: 7 x 3
+#>   iso3   year value
+#>   <chr> <int> <dbl>
+#> 1 AFG    2017 0.213
+#> 2 AFG    2018 0.215
+#> 3 AFG    2019 0.215
+#> 4 AFG    2020 0.215
+#> 5 AFG    2021 0.215
+#> 6 AFG    2022 0.215
+#> 7 AFG    2023 0.215
+```
+
+We can use the `predict_average()` function in much the same way, except
+it is most useful when we have robust series for a set of countries, and
+no data for others. We can then use something like the regional average
+to infill data for missing countries.
+
+``` r
+df <- ghost::gho_data("SDGPOLLUTINGFUELS") %>%
+  billionaiRe::wrangle_gho_data(source = "WHO GHO",
+                                type = "estimated") %>%
+  dplyr::filter(whoville::is_who_member(iso3))
+
+x <- whoville::who_member_states()
+x[!(x %in% df$iso3)]
+#> [1] "LBN" "CUB" "BGR" "LBY"
+```
+
+Above, we have 4 missing WHO member states, Lebanon, Cuba, Bulgaria, and
+Libya. Let’s use regional averaging to fill in this data. We can use the
+most recent World Bank income groups from the [whoville
+package](https://github.com/caldwellst/whoville) as our relevant group.
+
+``` r
+df <- tidyr::expand_grid(iso3 = x,
+                         year = 2000:2018) %>%
+  dplyr::left_join(df, by = c("iso3", "year")) %>%
+  dplyr::mutate(region = whoville::iso3_to_regions(iso3, region = "wb_ig"))
+
+predict_average(df,
+                average_cols = c("region", "year"),
+                group_col = "iso3",
+                sort_col = "year",
+                type_col = "type",
+                source_col = "source",
+                source = "WB IG regional averages") %>%
+  dplyr::filter(iso3 == "LBN")
+#> # A tibble: 19 x 11
+#>    iso3   year ind   value lower upper source    type  other_detail region  pred
+#>    <chr> <int> <chr> <dbl> <lgl> <lgl> <chr>     <chr> <lgl>        <chr>  <dbl>
+#>  1 LBN    2000 <NA>   65.9 NA    NA    WB IG re… impu… NA           UMC     65.9
+#>  2 LBN    2001 <NA>   66.9 NA    NA    WB IG re… impu… NA           UMC     66.9
+#>  3 LBN    2002 <NA>   67.8 NA    NA    WB IG re… impu… NA           UMC     67.8
+#>  4 LBN    2003 <NA>   68.8 NA    NA    WB IG re… impu… NA           UMC     68.8
+#>  5 LBN    2004 <NA>   69.6 NA    NA    WB IG re… impu… NA           UMC     69.6
+#>  6 LBN    2005 <NA>   70.6 NA    NA    WB IG re… impu… NA           UMC     70.6
+#>  7 LBN    2006 <NA>   71.5 NA    NA    WB IG re… impu… NA           UMC     71.5
+#>  8 LBN    2007 <NA>   72.3 NA    NA    WB IG re… impu… NA           UMC     72.3
+#>  9 LBN    2008 <NA>   73.2 NA    NA    WB IG re… impu… NA           UMC     73.2
+#> 10 LBN    2009 <NA>   73.9 NA    NA    WB IG re… impu… NA           UMC     73.9
+#> 11 LBN    2010 <NA>   74.6 NA    NA    WB IG re… impu… NA           UMC     74.6
+#> 12 LBN    2011 <NA>   75.3 NA    NA    WB IG re… impu… NA           UMC     75.3
+#> 13 LBN    2012 <NA>   75.8 NA    NA    WB IG re… impu… NA           UMC     75.8
+#> 14 LBN    2013 <NA>   76.2 NA    NA    WB IG re… impu… NA           UMC     76.2
+#> 15 LBN    2014 <NA>   76.6 NA    NA    WB IG re… impu… NA           UMC     76.6
+#> 16 LBN    2015 <NA>   77.1 NA    NA    WB IG re… impu… NA           UMC     77.1
+#> 17 LBN    2016 <NA>   77.4 NA    NA    WB IG re… impu… NA           UMC     77.4
+#> 18 LBN    2017 <NA>   77.6 NA    NA    WB IG re… impu… NA           UMC     77.6
+#> 19 LBN    2018 <NA>   78.0 NA    NA    WB IG re… impu… NA           UMC     78.0
+```
+
+Hope these examples have been clear and highlight some of the usefulness
+of these simple modelling functions.
