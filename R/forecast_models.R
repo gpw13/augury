@@ -161,9 +161,20 @@ predict_forecast <- function(df,
 #' @return A data frame.
 predict_forecast_data <- function(df,
                                   forecast_obj,
+                                  sort_col,
+                                  sort_descending,
                                   pred_col,
                                   upper_col,
                                   lower_col) {
+  if (!is.null(sort_col)) {
+    if (sort_descending) {
+      fn <- dplyr::desc
+    } else {
+      fn <- NULL
+    }
+    df <- dplyr::arrange(df, dplyr::across(dplyr::all_of(sort_col), fn), .by_group = TRUE)
+  }
+
   x <- as.numeric(forecast_obj[["mean"]])
   x_len <- length(x)
   na_len <- nrow(df) - x_len # fill in NA for "pred" prior to the forecast
@@ -297,6 +308,8 @@ fit_forecast_model <- function(df,
       # Get model predictions
       df <- predict_forecast_data(df = df,
                                   forecast_obj = mdl,
+                                  sort_col = sort_col,
+                                  sort_descending = sort_descending,
                                   pred_col = pred_col,
                                   upper_col = upper_col,
                                   lower_col = lower_col)
@@ -317,6 +330,8 @@ fit_forecast_model <- function(df,
                              ...)
       predict_forecast_data(df = df,
                             forecast_obj = mdl,
+                            sort_col = sort_col,
+                            sort_descending = sort_descending,
                             pred_col = pred_col,
                             upper_col = upper_col,
                             lower_col = lower_col)

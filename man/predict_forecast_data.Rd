@@ -4,13 +4,28 @@
 \alias{predict_forecast_data}
 \title{Generate prediction from model object}
 \usage{
-predict_forecast_data(df, forecast_obj, pred_col, upper_col, lower_col)
+predict_forecast_data(
+  df,
+  forecast_obj,
+  sort_col,
+  sort_descending,
+  pred_col,
+  upper_col,
+  lower_col
+)
 }
 \arguments{
 \item{df}{Data frame of model data.}
 
 \item{forecast_obj}{Object of class \code{forecast} that is output from the \verb{forecast::}
 family of functions.}
+
+\item{sort_col}{Column name(s) to use to \code{\link[dplyr:arrange]{dplyr::arrange()}} the data prior to
+supplying type and calculating mean absolute scaled error on data involving
+time series.}
+
+\item{sort_descending}{Logical value on whether the sorted values from \code{sort_col}
+should be sorted in descending order. Defaults to \code{FALSE}.}
 
 \item{pred_col}{Column name to store predicted value.}
 
