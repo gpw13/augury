@@ -123,9 +123,7 @@ predict_simple <- function(df,
                          types = c(NA_character_, types),
                          source_col = source_col,
                          source = source,
-                         replace_obs = replace_obs,
-                         error_correct = FALSE,
-                         error_correct_cols = NULL)
+                         replace_obs = replace_obs)
 
   # Return what we need
   if (ret == "df") {

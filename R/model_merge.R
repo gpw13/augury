@@ -21,9 +21,7 @@ merge_prediction <- function(df,
                              types,
                              source_col,
                              source,
-                             replace_obs,
-                             error_correct,
-                             error_correct_cols) {
+                             replace_obs) {
   if (replace_obs != "none") {
     if (!is.null(type_col)) {
       df <- dplyr::group_by(df, dplyr::across(group_col))
@@ -55,16 +53,6 @@ merge_prediction <- function(df,
     if (!is.null(source_col)) {
       df[[source_col]] <- ifelse(is.na(df[[response]]) & !is.na(df[[pred_col]]), source, df[[source_col]])
     }
-
-    # use error correction if applicable
-    df <- error_correct_fn(df,
-                           response,
-                           pred_col,
-                           upper_col,
-                           lower_col,
-                           test_col,
-                           error_correct,
-                           error_correct_cols)
 
     # replace data with predicted values
     if (replace_obs == "missing") {

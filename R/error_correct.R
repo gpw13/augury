@@ -26,9 +26,9 @@ error_correct_fn <- function(df,
       dplyr::mutate("temp_error" := ifelse(is.na(.data[["temp_error"]]),
                                            mean(.data[["temp_error"]], na.rm = TRUE),
                                            .data[["temp_error"]]),
-                    !!sym(pred_col) := .data[[pred_col]] + .data[["temp_error"]],
-                    !!sym(upper_col) := .data[[upper_col]] + .data[["temp_error"]],
-                    !!sym(lower_col) := .data[[lower_col]] + .data[["temp_error"]])
+                    dplyr::across(dplyr::any_of(c(pred_col, upper_col, lower_col)),
+                                                ~ .x + .data[["temp_error"]])) %>%
+      dplyr::select(-"temp_error")
   }
 
   df

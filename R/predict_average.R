@@ -14,7 +14,9 @@ predict_average_fn <- function(df,
                                group_col = NULL,
                                pred_col = "pred",
                                sort_col = NULL,
-                               sort_descending = FALSE) {
+                               sort_descending = FALSE,
+                               error_correct = FALSE,
+                               error_correct_cols = NULL) {
 
   # Calculate averages for each row
   df <- df %>%
@@ -45,6 +47,16 @@ predict_average_fn <- function(df,
 
     df <- dplyr::mutate(df, !!sym(pred_col) := simple_extrap(.data[[pred_col]]))
   }
+
+  # Error correction if applicable
+  df <- error_correct_fn(df = df,
+                         response = col,
+                         pred_col = pred_col,
+                         upper_col = NULL,
+                         lower_col = NULL,
+                         test_col = test_col,
+                         error_correct = error_correct,
+                         error_correct_cols = error_correct_cols)
 
   dplyr::ungroup(df)
 }
@@ -88,7 +100,9 @@ predict_average <- function(df,
                             types = c("imputed", "imputed", "projected"),
                             source_col = NULL,
                             source = NULL,
-                            replace_obs = c("missing", "all", "none")) {
+                            replace_obs = c("missing", "all", "none"),
+                            error_correct = FALSE,
+                            error_correct_cols = NULL) {
   # Assertions and error checking
   assert_df(df)
   assert_columns(df, col, average_cols, group_col, type_col, source_col, type_col, source_col)
@@ -107,7 +121,9 @@ predict_average <- function(df,
                            group_col = group_col,
                            pred_col = pred_col,
                            sort_col = sort_col,
-                           sort_descending = sort_descending)
+                           sort_descending = sort_descending,
+                           error_correct = error_correct,
+                           error_correct_cols = error_correct_cols)
 
   # Calculate error if necessary
   if (ret %in% c("all", "error")) {
@@ -140,9 +156,7 @@ predict_average <- function(df,
                          types = types,
                          source_col = source_col,
                          source = source,
-                         replace_obs = replace_obs,
-                         error_correct = FALSE,
-                         error_correct_cols = NULL)
+                         replace_obs = replace_obs)
 
   # Return what we need
   if (ret == "df") {

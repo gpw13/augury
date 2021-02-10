@@ -17,7 +17,9 @@ fit_lme4_model(
   upper_col,
   lower_col,
   filter_na,
-  ret
+  ret,
+  error_correct,
+  error_correct_cols
 )
 }
 \arguments{
@@ -60,6 +62,15 @@ filtering at all.}
 \item{ret}{Character vector specifying what values the function returns. Defaults
 to returning a data frame, but can return a vector of model error, the
 model itself or a list with all 3 as components.}
+
+\item{error_correct}{Logical value indicating whether or not whether mean error
+should be used to adjust predicted values. If \code{TRUE}, the mean error between
+observed and predicted data points will be used to adjust predictions. If
+\code{error_correct_cols} is not \code{NULL}, mean error will be used within those
+groups instead of overall mean error.}
+
+\item{error_correct_cols}{Column names of data frame to group by when applying
+error correction to the predicted values.}
 }
 \value{
 List of \code{mdl} (fitted model) and \code{df} (data frame with fitted values

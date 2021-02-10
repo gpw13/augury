@@ -2,7 +2,7 @@
 title: "Simple prediction methods"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Simple predictions}
+  %\VignetteIndexEntry{Simple prediction methods}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

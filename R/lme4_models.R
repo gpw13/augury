@@ -76,7 +76,9 @@ predict_lme4 <- function(df,
                            upper_col = upper_col,
                            lower_col = lower_col,
                            filter_na = filter_na,
-                           ret = ret)
+                           ret = ret,
+                           error_correct = error_correct,
+                           error_correct_cols = error_correct_cols)
 
   mdl <- mdl_df[["mdl"]]
   df <- mdl_df[["df"]]
@@ -138,9 +140,7 @@ predict_lme4 <- function(df,
                          types = types,
                          source_col = source_col,
                          source = source,
-                         replace_obs = replace_obs,
-                         error_correct = error_correct,
-                         error_correct_cols = error_correct_cols)
+                         replace_obs = replace_obs)
 
   if (ret == "df") {
     return(df)
@@ -201,7 +201,9 @@ fit_lme4_model <- function(df,
                            upper_col,
                            lower_col,
                            filter_na,
-                           ret) {
+                           ret,
+                           error_correct,
+                           error_correct_cols) {
   # Filter data for modeling
   if (!group_models) group_col <- NULL
 
@@ -250,5 +252,18 @@ fit_lme4_model <- function(df,
                               lower_col = lower_col)
     }
   }
+
+  # use error correction if applicable
+  if (ret != "mdl") {
+    df <- error_correct_fn(df = df,
+                           response = formula_vars[1],
+                           pred_col = pred_col,
+                           upper_col = upper_col,
+                           lower_col = lower_col,
+                           test_col = test_col,
+                           error_correct = error_correct,
+                           error_correct_cols = error_correct_cols)
+  }
+
   list(df = df, mdl = mdl)
 }

@@ -19,7 +19,9 @@ predict_average(
   types = c("imputed", "imputed", "projected"),
   source_col = NULL,
   source = NULL,
-  replace_obs = c("missing", "all", "none")
+  replace_obs = c("missing", "all", "none"),
+  error_correct = FALSE,
+  error_correct_cols = NULL
 )
 }
 \arguments{
@@ -70,6 +72,15 @@ have filled in missing data.}
 \item{replace_obs}{Character value specifying how, if at all, observations should
 be replaced by infilled values. By default, replaces missing values in \code{col}
 but if set to \code{"none"} then \code{col} is not changed.}
+
+\item{error_correct}{Logical value indicating whether or not whether mean error
+should be used to adjust predicted values. If \code{TRUE}, the mean error between
+observed and predicted data points will be used to adjust predictions. If
+\code{error_correct_cols} is not \code{NULL}, mean error will be used within those
+groups instead of overall mean error.}
+
+\item{error_correct_cols}{Column names of data frame to group by when applying
+error correction to the predicted values.}
 }
 \value{
 Depending on the value passed to \code{ret}, either a data frame with

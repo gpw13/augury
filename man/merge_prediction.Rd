@@ -18,9 +18,7 @@ merge_prediction(
   types,
   source_col,
   source,
-  replace_obs,
-  error_correct,
-  error_correct_cols
+  replace_obs
 )
 }
 \arguments{
@@ -65,15 +63,6 @@ have filled in missing data.}
 \item{replace_obs}{Character value specifying how, if at all, observations should
 be replaced by fitted values. Defaults to replacing only missing values,
 but can be used to replace all values or none.}
-
-\item{error_correct}{Logical value indicating whether or not whether mean error
-should be used to adjust predicted values. If \code{TRUE}, the mean error between
-observed and predicted data points will be used to adjust predictions. If
-\code{error_correct_cols} is not \code{NULL}, mean error will be used within those
-groups instead of overall mean error.}
-
-\item{error_correct_cols}{Column names of data frame to group by when applying
-error correction to the predicted values.}
 }
 \value{
 A data frame.

@@ -13,7 +13,9 @@ predict_average_fn(
   group_col = NULL,
   pred_col = "pred",
   sort_col = NULL,
-  sort_descending = FALSE
+  sort_descending = FALSE,
+  error_correct = FALSE,
+  error_correct_cols = NULL
 )
 }
 \arguments{
@@ -42,6 +44,15 @@ time series.}
 
 \item{sort_descending}{Logical value on whether the sorted values from \code{sort_col}
 should be sorted in descending order. Defaults to \code{FALSE}.}
+
+\item{error_correct}{Logical value indicating whether or not whether mean error
+should be used to adjust predicted values. If \code{TRUE}, the mean error between
+observed and predicted data points will be used to adjust predictions. If
+\code{error_correct_cols} is not \code{NULL}, mean error will be used within those
+groups instead of overall mean error.}
+
+\item{error_correct_cols}{Column names of data frame to group by when applying
+error correction to the predicted values.}
 }
 \value{
 A data frame.
