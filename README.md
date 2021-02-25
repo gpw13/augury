@@ -5,8 +5,6 @@
 
 <!-- badges: start -->
 
-[![R build
-status](https://github.com/caldwellst/augury/workflows/R-CMD-check/badge.svg)](https://github.com/caldwellst/augury/actions)
 [![Travis build
 status](https://travis-ci.com/caldwellst/augury.svg?branch=master)](https://travis-ci.com/caldwellst/augury)
 <!-- badges: end -->
@@ -165,13 +163,13 @@ df <- left_join(covariates_df,
 head(df)
 #> # A tibble: 6 x 15
 #>   iso3   year year_n region   sdi sdi_scaled    e0 e0_scaled ind   value lower
-#>   <chr> <dbl>  <dbl> <chr>  <dbl>      <dbl> <dbl>     <dbl> <chr> <dbl> <lgl>
-#> 1 ALB    2000      1 Europ… 0.242      0.272  74.0     0.752 hpop…  38.6 NA   
-#> 2 ALB    2001      2 Europ… 0.255      0.287  74.3     0.759 hpop…  38.4 NA   
-#> 3 ALB    2002      3 Europ… 0.242      0.272  74.6     0.766 hpop…  38.3 NA   
-#> 4 ALB    2003      4 Europ… 0.243      0.274  74.8     0.771 hpop…  38.1 NA   
-#> 5 ALB    2004      5 Europ… 0.254      0.285  75.0     0.776 hpop…  37.9 NA   
-#> 6 ALB    2005      6 Europ… 0.261      0.293  75.2     0.780 hpop…  37.8 NA   
+#>   <chr> <int>  <dbl> <chr>  <dbl>      <dbl> <dbl>     <dbl> <chr> <dbl> <lgl>
+#> 1 ALB    2000      1 South… 0.604      0.650  74.0     0.752 hpop…  38.6 NA   
+#> 2 ALB    2001      2 South… 0.61       0.657  74.3     0.759 hpop…  38.4 NA   
+#> 3 ALB    2002      3 South… 0.614      0.661  74.6     0.766 hpop…  38.3 NA   
+#> 4 ALB    2003      4 South… 0.619      0.667  74.8     0.771 hpop…  38.1 NA   
+#> 5 ALB    2004      5 South… 0.625      0.673  75.0     0.776 hpop…  37.9 NA   
+#> 6 ALB    2005      6 South… 0.632      0.681  75.2     0.780 hpop…  37.8 NA   
 #> # … with 4 more variables: upper <lgl>, source <chr>, type <chr>,
 #> #   other_detail <lgl>
 ```
@@ -200,7 +198,7 @@ modeled_df %>%
   select(iso3, year, value, pred, lower, upper, source, type)
 #> # A tibble: 10 x 8
 #>    iso3   year value  pred lower upper source          type     
-#>    <chr> <dbl> <dbl> <dbl> <dbl> <dbl> <chr>           <chr>    
+#>    <chr> <int> <dbl> <dbl> <dbl> <dbl> <chr>           <chr>    
 #>  1 ALB    2016  39.8  39.9  39.6  40.1 WHO GHO         estimated
 #>  2 ALB    2017  39.9  39.9  39.6  40.1 WHO GHO         estimated
 #>  3 ALB    2018  39.9  39.9  39.2  40.6 augury modeling projected
@@ -233,7 +231,7 @@ df %>%
   select(iso3, year, value, pred, lower, upper, source, type)
 #> # A tibble: 10 x 8
 #>    iso3   year value  pred lower upper source          type     
-#>    <chr> <dbl> <dbl> <dbl> <dbl> <dbl> <chr>           <chr>    
+#>    <chr> <int> <dbl> <dbl> <dbl> <dbl> <chr>           <chr>    
 #>  1 ALB    2016  39.8  39.9  39.6  40.1 WHO GHO         estimated
 #>  2 ALB    2017  39.9  39.9  39.6  40.1 WHO GHO         estimated
 #>  3 ALB    2018  39.9  39.9  39.2  40.6 augury modeling projected
@@ -298,15 +296,15 @@ modeled_df %>%
   select(iso3, year, value, pred, lower, upper, source, type)
 #> # A tibble: 8 x 8
 #>   iso3   year value  pred lower upper source                              type  
-#>   <chr> <dbl> <dbl> <dbl> <dbl> <dbl> <chr>                               <chr> 
-#> 1 AFG    2018  35    38.6  35.3  41.9 Electronic State Parties Self-Asse… repor…
-#> 2 AFG    2019  43    39.3  36.0  42.6 Electronic State Parties Self-Asse… repor…
-#> 3 AFG    2020  39.9  39.9  36.6  43.2 WHO DDI Preliminary infilling and … proje…
-#> 4 AFG    2021  40.5  40.5  37.2  43.9 WHO DDI Preliminary infilling and … proje…
-#> 5 AFG    2022  41.1  41.1  37.8  44.4 WHO DDI Preliminary infilling and … proje…
-#> 6 AFG    2023  41.7  41.7  38.4  45.0 WHO DDI Preliminary infilling and … proje…
-#> 7 AFG    2024  42.2  42.2  39.0  45.6 WHO DDI Preliminary infilling and … proje…
-#> 8 AFG    2025  42.8  42.8  39.6  46.1 WHO DDI Preliminary infilling and … proje…
+#>   <chr> <int> <dbl> <dbl> <dbl> <dbl> <chr>                               <chr> 
+#> 1 AFG    2018  35    38.4  30.7  46.6 Electronic State Parties Self-Asse… repor…
+#> 2 AFG    2019  43    39.4  31.6  47.6 Electronic State Parties Self-Asse… repor…
+#> 3 AFG    2020  40.3  40.3  32.5  48.5 WHO DDI Preliminary infilling and … proje…
+#> 4 AFG    2021  41.3  41.3  33.4  49.4 WHO DDI Preliminary infilling and … proje…
+#> 5 AFG    2022  42.1  42.1  34.3  50.2 WHO DDI Preliminary infilling and … proje…
+#> 6 AFG    2023  43.1  43.1  35.2  51.1 WHO DDI Preliminary infilling and … proje…
+#> 7 AFG    2024  43.9  43.9  36.0  52.0 WHO DDI Preliminary infilling and … proje…
+#> 8 AFG    2025  44.8  44.8  36.9  52.8 WHO DDI Preliminary infilling and … proje…
 ```
 
 And exactly as we were able to do with the time series modeling, we now

@@ -1,9 +1,0 @@
-# R for travis: see documentation at https://docs.travis-ci.com/user/languages/r
-
-language: R
-sudo: required
-cache: packages
-install: travis_wait 20
-  - R -e "install.packages('INLA',repos=c(getOption('repos'),INLA='https://inla.r-inla-download.org/R/stable'), dep = TRUE)"
-  - R -e "install.packages('remotes')"
-  - R -e "remotes::install_deps(dependencies = TRUE)"
