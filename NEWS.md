@@ -1,3 +1,7 @@
+# augury 0.2.1
+
+* Weighted averaging option added to `predict_average()`.
+
 # augury 0.2.0
 
 * Added in mean absolute scaled error, median absolute error, and confidence

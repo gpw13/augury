@@ -8,6 +8,7 @@ predict_average(
   df,
   col = "value",
   average_cols = NULL,
+  weight_col = NULL,
   flat_extrap = TRUE,
   ret = c("df", "all", "error"),
   test_col = NULL,
@@ -31,6 +32,9 @@ predict_average(
 
 \item{average_cols}{Column name(s) of column(s) for use in grouping data for averaging,
 such as regions. If missing, uses global average of the data for infilling.}
+
+\item{weight_col}{Column name of column of weights to be used in averaging, such
+as country population.}
 
 \item{flat_extrap}{Logical value determining whether or not to flat extrapolate
 using the latest average for missing rows with no data available.}

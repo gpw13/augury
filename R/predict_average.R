@@ -9,6 +9,7 @@
 predict_average_fn <- function(df,
                                col,
                                average_cols = NULL,
+                               weight_col = NULL,
                                flat_extrap = TRUE,
                                test_col = NULL,
                                group_col = NULL,
@@ -18,17 +19,31 @@ predict_average_fn <- function(df,
                                error_correct = FALSE,
                                error_correct_cols = NULL) {
 
-  # Calculate averages for each row
+  # Calculate averages by groupings
   df <- df %>%
     dplyr::group_by(dplyr::across(dplyr::all_of(average_cols)))
 
   # Calculate average with test set or not
   if (!is.null(test_col)) {
-    df <- df %>%
-      dplyr::mutate(!!sym(pred_col) := mean(.data[[col]][!.data[[test_col]]], na.rm = TRUE))
+    if (!is.null(weight_col)) { # Calculate weighted average
+      df <- df %>%
+        dplyr::mutate(!!sym(pred_col) := stats::weighted.mean(.data[[col]][!.data[[test_col]]],
+                                                              .data[[weight_col]][!.data[[test_col]]],
+                                                              na.rm = TRUE))
+    } else {
+      df <- df %>%
+        dplyr::mutate(!!sym(pred_col) := mean(.data[[col]][!.data[[test_col]]], na.rm = TRUE))
+    }
   } else {
-    df <- df %>%
-      dplyr::mutate(!!sym(pred_col) := mean(.data[[col]], na.rm = TRUE))
+    if (!is.null(weight_col)) { # Calculate weighted average
+      df <- df %>%
+        dplyr::mutate(!!sym(pred_col) := stats::weighted.mean(.data[[col]],
+                                                              .data[[weight_col]],
+                                                              na.rm = TRUE))
+    } else {
+      df <- df %>%
+        dplyr::mutate(!!sym(pred_col) := mean(.data[[col]], na.rm = TRUE))
+    }
   }
 
   # Flat extrap from latest averages if required
@@ -79,6 +94,8 @@ predict_average_fn <- function(df,
 #' @inherit predict_simple params return
 #' @param average_cols Column name(s) of column(s) for use in grouping data for averaging,
 #'     such as regions. If missing, uses global average of the data for infilling.
+#' @param weight_col Column name of column of weights to be used in averaging, such
+#'     as country population.
 #' @param flat_extrap Logical value determining whether or not to flat extrapolate
 #'     using the latest average for missing rows with no data available.
 #' @param replace_obs Character value specifying how, if at all, observations should
@@ -89,6 +106,7 @@ predict_average_fn <- function(df,
 predict_average <- function(df,
                             col = "value",
                             average_cols = NULL,
+                            weight_col = NULL,
                             flat_extrap = TRUE,
                             ret = c("df", "all", "error"),
                             test_col = NULL,
@@ -105,7 +123,7 @@ predict_average <- function(df,
                             error_correct_cols = NULL) {
   # Assertions and error checking
   assert_df(df)
-  assert_columns(df, col, average_cols, group_col, type_col, source_col, type_col, source_col)
+  assert_columns(df, col, average_cols, weight_col, group_col, type_col, source_col, type_col, source_col)
   ret <- rlang::arg_match(ret)
   assert_string(pred_col, 1)
   assert_string(types, 3)
@@ -116,6 +134,7 @@ predict_average <- function(df,
   df <- predict_average_fn(df = df,
                            col = col,
                            average_cols = average_cols,
+                           weight_col = weight_col,
                            flat_extrap = flat_extrap,
                            test_col = test_col,
                            group_col = group_col,
