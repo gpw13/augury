@@ -1,6 +1,6 @@
 Package: augury
 Title: Provides Streamlined Methods for Data Imputation and Forecasting for WHO Global Statistics
-Version: 0.2.0
+Version: 0.2.1
 Authors@R: 
     c(person(given = "Seth",
              family = "Caldwell",
