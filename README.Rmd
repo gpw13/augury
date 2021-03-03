@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 # augury
 
 <!-- badges: start -->
-[![Travis build status](https://travis-ci.com/caldwellst/augury.svg?branch=master)](https://travis-ci.com/caldwellst/augury)
+[![R-CMD-check](https://github.com/caldwellst/augury/workflows/R-CMD-check/badge.svg)](https://github.com/caldwellst/augury/actions)
 <!-- badges: end -->
 
 The goal of augury is to streamline the process of fitting models to infill and

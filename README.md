@@ -5,8 +5,7 @@
 
 <!-- badges: start -->
 
-[![Travis build
-status](https://travis-ci.com/caldwellst/augury.svg?branch=master)](https://travis-ci.com/caldwellst/augury)
+[![R-CMD-check](https://github.com/caldwellst/augury/workflows/R-CMD-check/badge.svg)](https://github.com/caldwellst/augury/actions)
 <!-- badges: end -->
 
 The goal of augury is to streamline the process of fitting models to
@@ -162,14 +161,14 @@ df <- left_join(covariates_df,
 
 head(df)
 #> # A tibble: 6 x 15
-#>   iso3   year year_n region   sdi sdi_scaled    e0 e0_scaled ind   value lower
-#>   <chr> <int>  <dbl> <chr>  <dbl>      <dbl> <dbl>     <dbl> <chr> <dbl> <lgl>
-#> 1 ALB    2000      1 South… 0.604      0.650  74.0     0.752 hpop…  38.6 NA   
-#> 2 ALB    2001      2 South… 0.61       0.657  74.3     0.759 hpop…  38.4 NA   
-#> 3 ALB    2002      3 South… 0.614      0.661  74.6     0.766 hpop…  38.3 NA   
-#> 4 ALB    2003      4 South… 0.619      0.667  74.8     0.771 hpop…  38.1 NA   
-#> 5 ALB    2004      5 South… 0.625      0.673  75.0     0.776 hpop…  37.9 NA   
-#> 6 ALB    2005      6 South… 0.632      0.681  75.2     0.780 hpop…  37.8 NA   
+#>   iso3   year year_n region    sdi sdi_scaled    e0 e0_scaled ind    value lower
+#>   <chr> <int>  <dbl> <chr>   <dbl>      <dbl> <dbl>     <dbl> <chr>  <dbl> <lgl>
+#> 1 ALB    2000      1 Southe… 0.604      0.650  74.0     0.752 hpop_…  38.6 NA   
+#> 2 ALB    2001      2 Southe… 0.61       0.657  74.3     0.759 hpop_…  38.4 NA   
+#> 3 ALB    2002      3 Southe… 0.614      0.661  74.6     0.766 hpop_…  38.3 NA   
+#> 4 ALB    2003      4 Southe… 0.619      0.667  74.8     0.771 hpop_…  38.1 NA   
+#> 5 ALB    2004      5 Southe… 0.625      0.673  75.0     0.776 hpop_…  37.9 NA   
+#> 6 ALB    2005      6 Southe… 0.632      0.681  75.2     0.780 hpop_…  37.8 NA   
 #> # … with 4 more variables: upper <lgl>, source <chr>, type <chr>,
 #> #   other_detail <lgl>
 ```
