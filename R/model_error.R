@@ -21,9 +21,15 @@
 #'     `group_col` provided, correlation coefficients are calculated within each
 #'     group and the average across all groups is returned. Calculated on all data,
 #'     but be careful in interpreting when applied to non-time series data.
+#' * [R2](https://en.wikipedia.org/wiki/Coefficient_of_determination): R-squared
+#'     or coefficient of determination. Calculated only on test values if `test_col`
+#'     is provided. Due to the variety of models available within augury, as well
+#'     as the `predict_..._avg_trend()` functions, adjusted R-squared is not
+#'     currently available.
 #'
 #' @inheritParams predict_general_mdl
 #' @param response Column name of response variable.
+#' @param k Number of predictors in the model.
 #'
 #' @return A named vector of errors: RMSE, MAE, MdAE, MASE, CBA, and COR.
 #'
@@ -73,13 +79,16 @@ model_error <- function(df,
   x <- df %>%
     dplyr::ungroup() %>%
     dplyr::mutate("diff" := .data[[pred_col]] - .data[[response]],
+                  "diff_mean" := .data[[response]] - mean(.data[[response]], na.rm = T),
                   "diff_sqr" := .data[["diff"]] ^ 2,
+                  "diff_mean_sqr" := .data[["diff_mean"]] ^ 2,
                   "diff_abs" := abs(.data[["diff"]])) %>%
     dplyr::summarize("RMSE" := sqrt(mean(.data[["diff_sqr"]], na.rm = TRUE)),
                      "MAE" := mean(.data[["diff_abs"]], na.rm = TRUE),
                      "MdAE" := stats::median(.data[["diff_abs"]], na.rm = TRUE),
                      "MASE" := if (!is.null(test_col)) .data[["MAE"]] / mase_norm else NA_real_,
                      "CBA" := if (!is.null(upper_col) && !is.null(lower_col)) sum(.data[[response]] <= .data[[upper_col]] & .data[[response]] >= .data[[lower_col]], na.rm = TRUE) / dplyr::n() else NA_real_,
+                     "R2" := 1 - (sum(.data[["diff_sqr"]]) / sum(.data[["diff_sqr_mean"]])),
                      .groups = "drop")
 
   # Calculate COR separately in case it's by group

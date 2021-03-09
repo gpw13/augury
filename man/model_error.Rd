@@ -40,6 +40,8 @@ should be sorted in descending order. Defaults to \code{FALSE}.}
 \item{upper_col}{Column name to store upper bound of confidence interval.}
 
 \item{lower_col}{Column name to store lower bound of confidence interval.}
+
+\item{k}{Number of predictors in the model.}
 }
 \value{
 A named vector of errors: RMSE, MAE, MdAE, MASE, CBA, and COR.
@@ -67,5 +69,10 @@ of general trend matching beyond the point error measurements used above. If
 \code{group_col} provided, correlation coefficients are calculated within each
 group and the average across all groups is returned. Calculated on all data,
 but be careful in interpreting when applied to non-time series data.
+\item \href{https://en.wikipedia.org/wiki/Coefficient_of_determination}{R2}: R-squared
+or coefficient of determination. Calculated only on test values if \code{test_col}
+is provided. Due to the variety of models available within augury, as well
+as the \code{predict_..._avg_trend()} functions, adjusted R-squared is not
+currently available.
 }
 }
