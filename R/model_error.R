@@ -87,7 +87,7 @@ model_error <- function(df,
                      "MdAE" := stats::median(.data[["diff_abs"]], na.rm = TRUE),
                      "MASE" := if (!is.null(test_col)) .data[["MAE"]] / mase_norm else NA_real_,
                      "CBA" := if (!is.null(upper_col) && !is.null(lower_col)) sum(.data[[response]] <= .data[[upper_col]] & .data[[response]] >= .data[[lower_col]], na.rm = TRUE) / dplyr::n() else NA_real_,
-                     "R2" := 1 - (sum(.data[["diff_sqr"]]) / sum(.data[["diff_sqr_mean"]])),
+                     "R2" := 1 - (sum(.data[["diff_sqr"]]) / sum(.data[["diff_mean_sqr"]])),
                      .groups = "drop")
 
   # Calculate COR separately in case it's by group
