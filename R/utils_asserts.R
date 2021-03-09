@@ -105,3 +105,73 @@ assert_numeric <- function(x, n) {
     }
   }
 }
+
+#' Assert columns in `df` are numeric, for use with average trend functions
+#'
+#' Checks that columns are numeric in `df`, and returns error message specifying that
+#' they must either be numeric or explicitly included in the `average_cols` grouping
+#' to be used for averaging.
+#'
+#' @param cols Columns to check
+#' @param df Data frame with columns
+assert_numeric_cols_avg <- function(cols, df) {
+  nms <- sapply(df[,cols], is.numeric)
+  if (!all(nms)) {
+    stop(sprintf("%s must be numeric columns for use in averaging, or included in `average_cols` for grouping.",
+                 paste(cols[!nms], collapse = ", ")),
+         call. = FALSE)
+  }
+}
+
+
+#' Assert columns in `df` are numeric
+#'
+#' @inheritParams assert_numeric_cols_avg
+assert_numeric_cols <- function(cols, df) {
+  nms <- sapply(df[,cols], is.numeric)
+  if (!all(nms)) {
+    stop(sprintf("%s must be numeric columns.",
+                 paste(cols[!nms], collapse = ", ")),
+         call. = FALSE)
+  }
+}
+
+#' If using `error_correct`, then check that the columns are either in the
+#' `formula_vars` or `average_cols`, otherwise produce an error.
+#'
+#' @inheritParams predict_inla_avg_trend
+#' @inheritParams fit_general_model
+assert_error_correct_avg_trend <- function(formula_vars,
+                                           average_cols,
+                                           error_correct,
+                                           error_correct_cols) {
+  if (error_correct) {
+    if (!(error_correct_cols %in% c(formula_vars, average_cols))) {
+      stop("`error_correct_cols` must be in either `formula` or `average_cols` for use with average trend functions.",
+           call. = FALSE)
+    }
+  }
+}
+
+#' Assert sort column for use in average trend functions
+#'
+#' Takes in formula variables and average columns, as well as sort column argument.
+#' If `sort_col` is provided, an error is generated if it is not
+#' in `formula_vars` or `average_cols`. If `sort_col` is not provided, then
+#' warnings are generated that no average trend can be generated.
+#'
+#' @inheritParams predict_inla_avg_trend
+#' @inheritParams fit_general_model
+#'
+#' @return Column name for sorting averaged data to generate trend.
+assert_group_sort_col <- function(formula_vars,
+                                  average_cols,
+                                  sort_col) {
+  if (is.null(sort_col)) {
+    warning("`sort_col` is NULL, so no average trend will be generated.",
+            call. = FALSE)
+  } else if (!(sort_col %in% c(formula_vars, average_cols))) {
+    warning("`sort_col` not in `formula` or `average_cols`, so no average trend will be generated.",
+            call. = FALSE)
+  }
+}
