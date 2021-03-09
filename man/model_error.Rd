@@ -40,8 +40,6 @@ should be sorted in descending order. Defaults to \code{FALSE}.}
 \item{upper_col}{Column name to store upper bound of confidence interval.}
 
 \item{lower_col}{Column name to store lower bound of confidence interval.}
-
-\item{k}{Number of predictors in the model.}
 }
 \value{
 A named vector of errors: RMSE, MAE, MdAE, MASE, CBA, and COR.

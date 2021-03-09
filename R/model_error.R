@@ -29,7 +29,6 @@
 #'
 #' @inheritParams predict_general_mdl
 #' @param response Column name of response variable.
-#' @param k Number of predictors in the model.
 #'
 #' @return A named vector of errors: RMSE, MAE, MdAE, MASE, CBA, and COR.
 #'
