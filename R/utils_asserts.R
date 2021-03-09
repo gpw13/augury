@@ -175,3 +175,24 @@ assert_group_sort_col <- function(formula_vars,
             call. = FALSE)
   }
 }
+
+#' Assert that column names are not identical
+#'
+#' Takes in any number of column name variables, asserts they are not the same.
+#'
+#' @param ... Column names
+assert_columns_unique <- function(...) {
+  nms <- sapply(substitute(list(...))[-1], deparse)
+  x <- list(...)
+  nms <- nms[!sapply(x, is.null)]
+  x <- unlist(x)
+  ux <- unique(x)
+  if (length(ux) != length(x)) {
+    tbl <- table(match(x, ux))
+    dup <- as.integer(names(tbl[tbl > 1][1]))
+    stop(sprintf("%s are duplicated column names, both set to '%s'.",
+                 paste(nms[x == ux[dup]], collapse = ", "),
+                 ux[dup]),
+         call. = FALSE)
+  }
+}

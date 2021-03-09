@@ -78,6 +78,7 @@ predict_simple <- function(df,
   model <- rlang::arg_match(model)
   ret <- rlang::arg_match(ret)
   assert_columns(df, col, group_col, test_col, type_col, source_col, type_col, source_col)
+  assert_columns_unique(col, group_col, pred_col, test_col, type_col, source_col)
   assert_string(pred_col, 1)
   assert_string(source, 1)
   assert_string(types, 2)
