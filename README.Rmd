@@ -131,3 +131,8 @@ then inverse these to get data back into the original feature space.
 
 ```{r child = "vignettes/simple-methods.Rmd"}
 ```
+
+## Average trend modeling
+
+```{r child = "vignettes/average-trend.Rmd"}
+```
