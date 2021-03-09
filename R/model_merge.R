@@ -42,8 +42,8 @@ merge_prediction <- function(df,
         dplyr::mutate(
           !!sym(type_col) := dplyr::case_when(
             is.na(.data[[pred_col]]) ~ NA_character_,
-            is.na(.data[[response]]) & .data[[sort_col]] <= min(.data[[sort_col]][!is.na(.data[[response]])], Inf) ~ types[1],
-            is.na(.data[[response]]) & .data[[sort_col]] > max(.data[[sort_col]][!is.na(.data[[response]])], -Inf) ~ types[3],
+            is.na(.data[[response]]) & dplyr::row_number() <= min(which(!is.na(.data[[response]])), Inf) ~ types[1],
+            is.na(.data[[response]]) & dplyr::row_number() > max(which(!is.na(.data[[response]])), -Inf) ~ types[3],
             !is.na(.data[[response]]) ~ .data[[type_col]],
             TRUE ~ types[2]
           ))
