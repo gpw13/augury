@@ -122,7 +122,8 @@ predict_inla_avg_trend <- function(df,
                          sort_col = sort_col,
                          pred_col = pred_col,
                          upper_col = upper_col,
-                         lower_col = lower_col)
+                         lower_col = lower_col,
+                         test_col = test_col)
 
   # Untransform variables
   if (probit) {

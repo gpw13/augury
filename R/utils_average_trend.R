@@ -56,7 +56,8 @@ merge_average_df <- function(avg_df,
                              sort_col,
                              pred_col,
                              upper_col,
-                             lower_col) {
+                             lower_col,
+                             test_col) {
   # group average data
   # don't use sort_col in grouping for wrangling
   avg_df <- dplyr::group_by(avg_df,
@@ -81,7 +82,7 @@ merge_average_df <- function(avg_df,
       dplyr::left_join(avg_df, by = average_cols) %>%
       dplyr::group_by(dplyr::across(group_col)) %>%
       dplyr::arrange(.data[[sort_col]], .by_group = TRUE) %>%
-      dplyr::mutate("temp_fill_response" := temp_fill(.data[[response]]),
+      dplyr::mutate("temp_fill_response" := temp_fill(.data[[response]], if (!is.null(test_col)) .data[[test_col]] else NULL),
                     "temp_forward_trend" := forward_trend(.data[[response]], .data[["temp_fill_response"]], .data[[paste0(pred_col, "_trend")]]),
                     "temp_backward_trend" := backward_trend(.data[[response]], .data[["temp_fill_response"]], .data[[paste0(pred_col, "_trend")]]),
                     !!sym(pred_col) := dplyr::case_when(
@@ -121,7 +122,11 @@ merge_average_df <- function(avg_df,
 #' Fills vector backwards and forward, for use prior to applying average trend
 #'
 #' @param x Vector to fill, typically response vector
-temp_fill <- function(x) {
+#' @param test Vector of test values
+temp_fill <- function(x, test = NULL) {
+  if (!is.null(test)) {
+    x[test] <- NA_real_
+  }
   if (all(is.na(x))) {
     x
   } else {
