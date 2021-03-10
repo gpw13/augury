@@ -82,25 +82,26 @@ merge_average_df <- function(avg_df,
       dplyr::left_join(avg_df, by = average_cols) %>%
       dplyr::group_by(dplyr::across(group_col)) %>%
       dplyr::arrange(.data[[sort_col]], .by_group = TRUE) %>%
-      dplyr::mutate("temp_fill_response" := temp_fill(.data[[response]], if (!is.null(test_col)) .data[[test_col]] else NULL),
-                    "temp_forward_trend" := forward_trend(.data[[response]], .data[["temp_fill_response"]], .data[[paste0(pred_col, "_trend")]]),
-                    "temp_backward_trend" := backward_trend(.data[[response]], .data[["temp_fill_response"]], .data[[paste0(pred_col, "_trend")]]),
+      dplyr::mutate("temp_response" := if (!is.null(test_col)) ifelse(.data[[test_col]], NA, .data[[response]]) else .data[[response]],
+                    "temp_fill_response" := temp_fill(.data[["temp_response"]]),
+                    "temp_forward_trend" := forward_trend(.data[["temp_response"]], .data[["temp_fill_response"]], .data[[paste0(pred_col, "_trend")]]),
+                    "temp_backward_trend" := backward_trend(.data[["temp_response"]], .data[["temp_fill_response"]], .data[[paste0(pred_col, "_trend")]]),
                     !!sym(pred_col) := dplyr::case_when(
-                      all(is.na(.data[[response]])) ~ .data[[pred_col]],     # use entire pred for groups with no data
-                      !is.na(.data[[response]]) ~ .data[[response]],         # use observed values where available
-                      dplyr::row_number() > min(which(!is.na(.data[[response]])), Inf) ~ .data[["temp_forward_trend"]],
-                      dplyr::row_number() < min(which(!is.na(.data[[response]])), Inf) ~ .data[["temp_backward_trend"]]
+                      all(is.na(.data[["temp_response"]])) ~ .data[[pred_col]],     # use entire pred for groups with no data
+                      !is.na(.data[["temp_response"]]) ~ .data[["temp_response"]],         # use observed values where available
+                      dplyr::row_number() > min(which(!is.na(.data[["temp_response"]])), Inf) ~ .data[["temp_forward_trend"]],
+                      dplyr::row_number() < min(which(!is.na(.data[["temp_response"]])), Inf) ~ .data[["temp_backward_trend"]]
                     ),
                     !!sym(upper_col) := dplyr::case_when(
-                      !is.na(.data[[response]]) ~ .data[[pred_col]],         # no bounds if value already present
+                      !is.na(.data[["temp_response"]]) ~ .data[[pred_col]],         # no bounds if value already present
                       TRUE ~ .data[[pred_col]] + .data[[paste0(upper_col, "_trend")]]          # otherwise, add to prediction column
                     ),
                     !!sym(lower_col) := dplyr::case_when(
-                      !is.na(.data[[response]]) ~ .data[[pred_col]],         # no bounds if value already present
+                      !is.na(.data[["temp_response"]]) ~ .data[[pred_col]],         # no bounds if value already present
                       TRUE ~ .data[[pred_col]] - .data[[paste0(lower_col, "_trend")]]          # otherwise, subtract from prediction column
                     )) %>%
       dplyr::select(-c(paste0(c(pred_col, upper_col, lower_col), "_trend"),  # drop temporary columns
-                       "temp_fill_response", "temp_forward_trend", "temp_backward_trend"))
+                       "temp_fill_response", "temp_forward_trend", "temp_backward_trend", "temp_response"))
 
   } else {
 
@@ -122,11 +123,7 @@ merge_average_df <- function(avg_df,
 #' Fills vector backwards and forward, for use prior to applying average trend
 #'
 #' @param x Vector to fill, typically response vector
-#' @param test Vector of test values
-temp_fill <- function(x, test = NULL) {
-  if (!is.null(test)) {
-    x[test] <- NA_real_
-  }
+temp_fill <- function(x) {
   if (all(is.na(x))) {
     x
   } else {
