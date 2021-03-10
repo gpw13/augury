@@ -40,7 +40,8 @@ predict_inla_ts <- function(df,
                             source = NULL,
                             replace_obs = c("missing", "all", "none"),
                             error_correct = FALSE,
-                            error_correct_cols = NULL) {
+                            error_correct_cols = NULL,
+                            shift_trend = FALSE) {
   predict_inla(df = df,
                formula = formula,
                control.predictor = control.predictor,
@@ -65,7 +66,8 @@ predict_inla_ts <- function(df,
                source = source,
                replace_obs = replace_obs,
                error_correct = error_correct,
-               error_correct_cols = error_correct_cols)
+               error_correct_cols = error_correct_cols,
+               shift_trend = shift_trend)
 }
 
 #' Use INLA for mixed effects modeling for prediction
@@ -108,7 +110,8 @@ predict_inla_me <- function(df,
                             source = NULL,
                             replace_obs = c("missing", "all", "none"),
                             error_correct = TRUE,
-                            error_correct_cols = "iso3") {
+                            error_correct_cols = "iso3",
+                            shift_trend = FALSE) {
   predict_inla(df = df,
                formula = formula,
                control.predictor = control.predictor,
@@ -133,5 +136,6 @@ predict_inla_me <- function(df,
                source = source,
                replace_obs = replace_obs,
                error_correct = error_correct,
-               error_correct_cols = error_correct_cols)
+               error_correct_cols = error_correct_cols,
+               shift_trend = shift_trend)
 }

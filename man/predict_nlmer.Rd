@@ -26,7 +26,8 @@ predict_nlmer(
   source = NULL,
   replace_obs = c("missing", "all", "none"),
   error_correct = FALSE,
-  error_correct_cols = NULL
+  error_correct_cols = NULL,
+  shift_trend = FALSE
 )
 }
 \arguments{
@@ -111,6 +112,10 @@ groups instead of overall mean error.}
 
 \item{error_correct_cols}{Column names of data frame to group by when applying
 error correction to the predicted values.}
+
+\item{shift_trend}{Logical value specifying whether or not to shift predictions
+so that the trend matches up to the last observation. If \code{error_correct} and
+\code{shift_trend} are both \code{TRUE}, \code{shift_trend} takes precedence.}
 }
 \value{
 Depending on the value passed to \code{ret}, either a data frame with

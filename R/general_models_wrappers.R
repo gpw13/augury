@@ -29,7 +29,8 @@ predict_lm <- function(df,
                        source = NULL,
                        replace_obs = c("missing", "all", "none"),
                        error_correct = FALSE,
-                       error_correct_cols = NULL) {
+                       error_correct_cols = NULL,
+                       shift_trend = FALSE) {
   predict_general_mdl(df = df,
                       model = stats::lm,
                       formula = formula,
@@ -52,7 +53,8 @@ predict_lm <- function(df,
                       source = source,
                       replace_obs = replace_obs,
                       error_correct = error_correct,
-                      error_correct_cols = error_correct_cols)
+                      error_correct_cols = error_correct_cols,
+                      shift_trend = shift_trend)
 }
 
 #' Use a generalized linear model to infill and project data
@@ -87,7 +89,8 @@ predict_glm <- function(df,
                         source = NULL,
                         replace_obs = c("missing", "all", "none"),
                         error_correct = FALSE,
-                        error_correct_cols = NULL) {
+                        error_correct_cols = NULL,
+                        shift_trend = FALSE) {
   predict_general_mdl(df = df,
                       model = stats::glm,
                       formula = formula,
@@ -110,5 +113,6 @@ predict_glm <- function(df,
                       source = source,
                       replace_obs = replace_obs,
                       error_correct = error_correct,
-                      error_correct_cols = error_correct_cols)
+                      error_correct_cols = error_correct_cols,
+                      shift_trend = shift_trend)
 }

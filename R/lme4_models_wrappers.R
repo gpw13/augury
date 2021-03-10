@@ -30,7 +30,8 @@ predict_lmer <- function(df,
                          source = NULL,
                          replace_obs = c("missing", "all", "none"),
                          error_correct = FALSE,
-                         error_correct_cols = NULL) {
+                         error_correct_cols = NULL,
+                         shift_trend = FALSE) {
   predict_lme4(df = df,
                model = lme4::lmer,
                formula = formula,
@@ -53,7 +54,8 @@ predict_lmer <- function(df,
                source = source,
                replace_obs = replace_obs,
                error_correct = error_correct,
-               error_correct_cols = error_correct_cols)
+               error_correct_cols = error_correct_cols,
+               shift_trend = shift_trend)
 }
 
 #' Use a linear mixed-effects model to infill and project data
@@ -88,7 +90,8 @@ predict_glmer <- function(df,
                          source = NULL,
                          replace_obs = c("missing", "all", "none"),
                          error_correct = FALSE,
-                         error_correct_cols = NULL) {
+                         error_correct_cols = NULL,
+                         shift_trend = FALSE) {
   predict_lme4(df = df,
                model = lme4::glmer,
                formula = formula,
@@ -111,7 +114,8 @@ predict_glmer <- function(df,
                source = source,
                replace_obs = replace_obs,
                error_correct = error_correct,
-               error_correct_cols = error_correct_cols)
+               error_correct_cols = error_correct_cols,
+               shift_trend = shift_trend)
 }
 
 #' Use a linear mixed-effects model to infill and project data
@@ -146,7 +150,8 @@ predict_nlmer <- function(df,
                           source = NULL,
                           replace_obs = c("missing", "all", "none"),
                           error_correct = FALSE,
-                          error_correct_cols = NULL) {
+                          error_correct_cols = NULL,
+                          shift_trend = FALSE) {
   predict_lme4(df = df,
                model = lme4::nlmer,
                formula = formula,
@@ -169,5 +174,6 @@ predict_nlmer <- function(df,
                source = source,
                replace_obs = replace_obs,
                error_correct = error_correct,
-               error_correct_cols = error_correct_cols)
+               error_correct_cols = error_correct_cols,
+               shift_trend = shift_trend)
 }
