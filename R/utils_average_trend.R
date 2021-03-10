@@ -71,7 +71,7 @@ merge_average_df <- function(avg_df,
       dplyr::arrange(.data[[sort_col]], .by_group = TRUE) %>%
       dplyr::mutate(!!sym(paste0(pred_col, "_trend")) := .data[[pred_col]] - dplyr::lag(.data[[pred_col]]),
                     !!sym(paste0(upper_col, "_trend")) := .data[[upper_col]] - .data[[pred_col]],
-                    !!sym(paste0(lower_col, "_trend")) := .data[[lower_col]] - .data[[pred_col]]) %>%
+                    !!sym(paste0(lower_col, "_trend")) := .data[[pred_col]] - .data[[lower_col]]) %>%
       dplyr::select(average_cols,
                     pred_col,
                     upper_col,
