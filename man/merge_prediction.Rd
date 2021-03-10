@@ -44,7 +44,8 @@ should be sorted in descending order. Defaults to \code{FALSE}.}
 \item{lower_col}{Column name to store lower bound of confidence interval.}
 
 \item{test_col}{Name of logical column specifying which response values to remove
-for testing the model's predictive accuracy. If \code{NULL}, ignored.}
+for testing the model's predictive accuracy. If \code{NULL}, ignored. See \code{\link[=model_error]{model_error()}}
+for details on the methods and metrics returned.}
 
 \item{type_col}{Column name specifying data type.}
 

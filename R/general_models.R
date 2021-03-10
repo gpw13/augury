@@ -43,7 +43,15 @@
 #'     the fitted values and confidence bounds are untransformed prior to error
 #'     calculation and returning to the user.
 #' @param test_col Name of logical column specifying which response values to remove
-#'     for testing the model's predictive accuracy. If `NULL`, ignored.
+#'     for testing the model's predictive accuracy. If `NULL`, ignored. See [model_error()]
+#'     for details on the methods and metrics returned.
+#' @param test_period Length of period to test for RMChE. If `NULL`, beginning and end
+#'     points of each group in `group_col` are compared. Otherwise, `test_period` must
+#'     be set to an integer `n` and for each group, comparisons are made between
+#'     the end point and `n` periods prior.
+#' @param test_period_flex Logical value indicating if `test_period` is less than
+#'    the full length of the series, should change error still be calculated for that
+#'    point. Defaults to `FALSE`.
 #' @param group_col Column name(s) of group(s) to use in [dplyr::group_by()] when
 #'     supplying type, calculating mean absolute scaled error on data involving
 #'     time series, and if `group_models`, then fitting and predicting models too.
@@ -85,7 +93,7 @@
 #'     error correction to the predicted values.
 #'
 #' @return Depending on the value passed to `ret`, either a data frame with
-#'     predicted data, a vector of errors, a fitted model, or a list with all 3.
+#'     predicted data, a vector of errors from [model_error()], a fitted model, or a list with all 3.
 #'
 #' @export
 predict_general_mdl <- function(df,
@@ -96,6 +104,8 @@ predict_general_mdl <- function(df,
                                 scale = NULL,
                                 probit = FALSE,
                                 test_col = NULL,
+                                test_period = NULL,
+                                test_period_flex = NULL,
                                 group_col = NULL,
                                 group_models = FALSE,
                                 sort_col = NULL,
@@ -188,6 +198,8 @@ predict_general_mdl <- function(df,
     err <- model_error(df = df,
                        response = formula_vars[1],
                        test_col = test_col,
+                       test_period = test_period,
+                       test_period_flex = test_period_flex,
                        group_col = group_col,
                        sort_col = sort_col,
                        sort_descending = sort_descending,

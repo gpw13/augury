@@ -34,7 +34,8 @@ as country population.}
 using the latest average for missing rows with no data available.}
 
 \item{test_col}{Name of logical column specifying which response values to remove
-for testing the model's predictive accuracy. If \code{NULL}, ignored.}
+for testing the model's predictive accuracy. If \code{NULL}, ignored. See \code{\link[=model_error]{model_error()}}
+for details on the methods and metrics returned.}
 
 \item{group_col}{Column name(s) of group(s) to use in \code{\link[dplyr:group_by]{dplyr::group_by()}} when
 supplying type, calculating mean absolute scaled error on data involving

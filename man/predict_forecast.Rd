@@ -13,6 +13,8 @@ predict_forecast(
   scale = NULL,
   probit = TRUE,
   test_col = NULL,
+  test_period = NULL,
+  test_period_flex = NULL,
   group_col = NULL,
   group_models = FALSE,
   sort_col = NULL,
@@ -60,7 +62,17 @@ the fitted values and confidence bounds are untransformed prior to error
 calculation and returning to the user.}
 
 \item{test_col}{Name of logical column specifying which response values to remove
-for testing the model's predictive accuracy. If \code{NULL}, ignored.}
+for testing the model's predictive accuracy. If \code{NULL}, ignored. See \code{\link[=model_error]{model_error()}}
+for details on the methods and metrics returned.}
+
+\item{test_period}{Length of period to test for RMChE. If \code{NULL}, beginning and end
+points of each group in \code{group_col} are compared. Otherwise, \code{test_period} must
+be set to an integer \code{n} and for each group, comparisons are made between
+the end point and \code{n} periods prior.}
+
+\item{test_period_flex}{Logical value indicating if \code{test_period} is less than
+the full length of the series, should change error still be calculated for that
+point. Defaults to \code{FALSE}.}
 
 \item{group_col}{Column name(s) of group(s) to use in \code{\link[dplyr:group_by]{dplyr::group_by()}} when
 supplying type, calculating mean absolute scaled error on data involving
@@ -109,7 +121,7 @@ but can be used to replace all values or none.}
 }
 \value{
 Depending on the value passed to \code{ret}, either a data frame with
-predicted data, a vector of errors, a fitted model, or a list with all 3.
+predicted data, a vector of errors from \code{\link[=model_error]{model_error()}}, a fitted model, or a list with all 3.
 }
 \description{
 \code{predict_forecast()} uses the forecast package's \code{\link[forecast:forecast]{forecast::forecast()}} methods

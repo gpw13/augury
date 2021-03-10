@@ -54,7 +54,8 @@ the fitted values and confidence bounds are untransformed prior to error
 calculation and returning to the user.}
 
 \item{test_col}{Name of logical column specifying which response values to remove
-for testing the model's predictive accuracy. If \code{NULL}, ignored.}
+for testing the model's predictive accuracy. If \code{NULL}, ignored. See \code{\link[=model_error]{model_error()}}
+for details on the methods and metrics returned.}
 
 \item{group_col}{Column name(s) of group(s) to use in \code{\link[dplyr:group_by]{dplyr::group_by()}} when
 supplying type, calculating mean absolute scaled error on data involving
@@ -103,7 +104,7 @@ but can be used to replace all values or none.}
 }
 \value{
 Depending on the value passed to \code{ret}, either a data frame with
-predicted data, a vector of errors, a fitted model, or a list with all 3.
+predicted data, a vector of errors from \code{\link[=model_error]{model_error()}}, a fitted model, or a list with all 3.
 }
 \description{
 \code{predict_ses()} is a simple wrapper that uses simple exponential smoothing to

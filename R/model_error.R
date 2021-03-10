@@ -15,27 +15,39 @@
 #' * CBA: confidence bound accuracy, % of observations lying within the confidence bounds.
 #'     Should be very near to 95%. Only calculated if both `upper_col` and `lower_col`
 #'     are provided.
+#' * [R2](https://en.wikipedia.org/wiki/Coefficient_of_determination): R-squared
+#'     or coefficient of determination. Calculated only on test values if `test_col`
+#'     is provided. Due to the variety of models available within augury, as well
+#'     as the `predict_..._avg_trend()` functions, adjusted R-squared is not
+#'     currently available.
 #' * [COR](https://en.wikipedia.org/wiki/Pearson_correlation_coefficient): Pearson
 #'     correlation coefficient of fitted values to observations. Useful as a measure
 #'     of general trend matching beyond the point error measurements used above. If
 #'     `group_col` provided, correlation coefficients are calculated within each
 #'     group and the average across all groups is returned. Calculated on all data,
 #'     but be careful in interpreting when applied to non-time series data.
-#' * [R2](https://en.wikipedia.org/wiki/Coefficient_of_determination): R-squared
-#'     or coefficient of determination. Calculated only on test values if `test_col`
-#'     is provided. Due to the variety of models available within augury, as well
-#'     as the `predict_..._avg_trend()` functions, adjusted R-squared is not
-#'     currently available.
+#' * RMChE: root mean change error. Since the GPW13 infilling and projections are designed
+#'     to estimate change over time, RMChE measures the accuracy of this change. It is
+#'     calculated as the difference between observed change between two time periods and
+#'     predicted change across those same time periods. If `test_period` is `NULL`, this is
+#'     the beginning and end of each group from `group_col`, sorted by `sort_col`. If
+#'     `test_period` is provided as an integer `n`, then instead it is calculated comparing
+#'     change between the end and `n` periods prior. `test_period_flexibility` says
+#'     whether or not to calculate the change if the full length of the series is less
+#'     than `test_period`. If `TRUE`, then it again compares change between the beginning
+#'     and end of the series for that group.
 #'
 #' @inheritParams predict_general_mdl
 #' @param response Column name of response variable.
 #'
-#' @return A named vector of errors: RMSE, MAE, MdAE, MASE, CBA, and COR.
+#' @return A named vector of errors: RMSE, MAE, MdAE, MASE, CBA, R2, COR and RMChE.
 #'
 #' @export
 model_error <- function(df,
                         response,
                         test_col = NULL,
+                        test_period = NULL,
+                        test_period_flex = FALSE,
                         group_col = NULL,
                         sort_col = NULL,
                         sort_descending = FALSE,
@@ -90,13 +102,39 @@ model_error <- function(df,
                      "R2" := 1 - (sum(.data[["diff_sqr"]]) / sum(.data[["diff_mean_sqr"]])),
                      .groups = "drop")
 
-  # Calculate COR separately in case it's by group
-  x_cor <- df %>%
+  # Calculate COR and RMChE separately in case it's by group
+  x_grped <- df %>%
     dplyr::summarize("COR" := stats::cor(.data[[pred_col]], .data[[response]], use = "complete.obs"),
+                     "RMChE" := calculate_sq_ch(.data[[response]], .data[[pred_col]], test_period, test_period_flex),
                      .groups = "drop") %>%
     dplyr::summarize("COR" := mean(.data[["COR"]],
                                    na.rm = TRUE),
+                     "RMChE" := sqrt(mean(.data[["RMChE"]],
+                                          na.rm = T)),
                      .groups = "drop")
 
-  c(unlist(x), unlist(x_cor))
+  c(unlist(x), unlist(x_grped))
 }
+
+#' Calculate change error
+#'
+#' For use to calculate RMChE, this calculates the squared change error between observed and predicted columns.
+#'
+#' @inheritParams model_error
+#' @param response Observations to test.
+#' @param pred Predictions to test.
+calculate_sq_ch <- function(response, pred, test_period, test_period_flex) {
+  b <- length(response)
+  if (is.null(test_period)) {
+    a <- 1
+  } else if (test_period < b) {
+    a <- b - test_period
+  } else if (test_period_flex) {
+    a <- 1
+  } else {
+    return(NA_real_)
+  }
+  chg_er <- (response[b] - response[a]) - (pred[b] - pred[a])
+  chg_er^2
+}
+

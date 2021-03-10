@@ -8,6 +8,8 @@ model_error(
   df,
   response,
   test_col = NULL,
+  test_period = NULL,
+  test_period_flex = FALSE,
   group_col = NULL,
   sort_col = NULL,
   sort_descending = FALSE,
@@ -22,7 +24,17 @@ model_error(
 \item{response}{Column name of response variable.}
 
 \item{test_col}{Name of logical column specifying which response values to remove
-for testing the model's predictive accuracy. If \code{NULL}, ignored.}
+for testing the model's predictive accuracy. If \code{NULL}, ignored. See \code{\link[=model_error]{model_error()}}
+for details on the methods and metrics returned.}
+
+\item{test_period}{Length of period to test for RMChE. If \code{NULL}, beginning and end
+points of each group in \code{group_col} are compared. Otherwise, \code{test_period} must
+be set to an integer \code{n} and for each group, comparisons are made between
+the end point and \code{n} periods prior.}
+
+\item{test_period_flex}{Logical value indicating if \code{test_period} is less than
+the full length of the series, should change error still be calculated for that
+point. Defaults to \code{FALSE}.}
 
 \item{group_col}{Column name(s) of group(s) to use in \code{\link[dplyr:group_by]{dplyr::group_by()}} when
 supplying type, calculating mean absolute scaled error on data involving
@@ -42,7 +54,7 @@ should be sorted in descending order. Defaults to \code{FALSE}.}
 \item{lower_col}{Column name to store lower bound of confidence interval.}
 }
 \value{
-A named vector of errors: RMSE, MAE, MdAE, MASE, CBA, and COR.
+A named vector of errors: RMSE, MAE, MdAE, MASE, CBA, R2, COR and RMChE.
 }
 \description{
 \code{model_error()} calculates modeling error using observed and fitted values from
@@ -61,16 +73,26 @@ Only calculated if \code{test_col} is provided, as it is test error scaled by in
 \item CBA: confidence bound accuracy, \% of observations lying within the confidence bounds.
 Should be very near to 95\%. Only calculated if both \code{upper_col} and \code{lower_col}
 are provided.
+\item \href{https://en.wikipedia.org/wiki/Coefficient_of_determination}{R2}: R-squared
+or coefficient of determination. Calculated only on test values if \code{test_col}
+is provided. Due to the variety of models available within augury, as well
+as the \code{predict_..._avg_trend()} functions, adjusted R-squared is not
+currently available.
 \item \href{https://en.wikipedia.org/wiki/Pearson_correlation_coefficient}{COR}: Pearson
 correlation coefficient of fitted values to observations. Useful as a measure
 of general trend matching beyond the point error measurements used above. If
 \code{group_col} provided, correlation coefficients are calculated within each
 group and the average across all groups is returned. Calculated on all data,
 but be careful in interpreting when applied to non-time series data.
-\item \href{https://en.wikipedia.org/wiki/Coefficient_of_determination}{R2}: R-squared
-or coefficient of determination. Calculated only on test values if \code{test_col}
-is provided. Due to the variety of models available within augury, as well
-as the \code{predict_..._avg_trend()} functions, adjusted R-squared is not
-currently available.
+\item RMChE: root mean change error. Since the GPW13 infilling and projections are designed
+to estimate change over time, RMChE measures the accuracy of this change. It is
+calculated as the difference between observed change between two time periods and
+predicted change across those same time periods. If \code{test_period} is \code{NULL}, this is
+the beginning and end of each group from \code{group_col}, sorted by \code{sort_col}. If
+\code{test_period} is provided as an integer \code{n}, then instead it is calculated comparing
+change between the end and \code{n} periods prior. \code{test_period_flexibility} says
+whether or not to calculate the change if the full length of the series is less
+than \code{test_period}. If \code{TRUE}, then it again compares change between the beginning
+and end of the series for that group.
 }
 }

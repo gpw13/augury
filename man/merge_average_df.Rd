@@ -13,7 +13,8 @@ merge_average_df(
   sort_col,
   pred_col,
   upper_col,
-  lower_col
+  lower_col,
+  test_col
 )
 }
 \arguments{
@@ -39,6 +40,10 @@ time series.}
 \item{upper_col}{Column name to store upper bound of confidence interval.}
 
 \item{lower_col}{Column name to store lower bound of confidence interval.}
+
+\item{test_col}{Name of logical column specifying which response values to remove
+for testing the model's predictive accuracy. If \code{NULL}, ignored. See \code{\link[=model_error]{model_error()}}
+for details on the methods and metrics returned.}
 }
 \value{
 Original data frame with new trend joined up.

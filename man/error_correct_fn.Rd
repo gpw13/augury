@@ -27,7 +27,8 @@ error_correct_fn(
 \item{lower_col}{Column name to store lower bound of confidence interval.}
 
 \item{test_col}{Name of logical column specifying which response values to remove
-for testing the model's predictive accuracy. If \code{NULL}, ignored.}
+for testing the model's predictive accuracy. If \code{NULL}, ignored. See \code{\link[=model_error]{model_error()}}
+for details on the methods and metrics returned.}
 
 \item{error_correct}{Logical value indicating whether or not whether mean error
 should be used to adjust predicted values. If \code{TRUE}, the mean error between
@@ -40,7 +41,7 @@ error correction to the predicted values.}
 }
 \value{
 Depending on the value passed to \code{ret}, either a data frame with
-predicted data, a vector of errors, a fitted model, or a list with all 3.
+predicted data, a vector of errors from \code{\link[=model_error]{model_error()}}, a fitted model, or a list with all 3.
 }
 \description{
 Use mean error to correct predictions

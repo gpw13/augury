@@ -10,7 +10,8 @@ assert_test_col(df, test_col)
 \item{df}{Data frame of model data.}
 
 \item{test_col}{Name of logical column specifying which response values to remove
-for testing the model's predictive accuracy. If \code{NULL}, ignored.}
+for testing the model's predictive accuracy. If \code{NULL}, ignored. See \code{\link[=model_error]{model_error()}}
+for details on the methods and metrics returned.}
 }
 \description{
 Assert that test_col is of logical type
