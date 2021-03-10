@@ -4,12 +4,10 @@
 \alias{temp_fill}
 \title{Fills vector backwards and forward, for use prior to applying average trend}
 \usage{
-temp_fill(x, test = NULL)
+temp_fill(x)
 }
 \arguments{
 \item{x}{Vector to fill, typically response vector}
-
-\item{test}{Vector of test values}
 }
 \description{
 Fills vector backwards and forward, for use prior to applying average trend

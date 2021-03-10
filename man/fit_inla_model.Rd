@@ -13,13 +13,15 @@ fit_inla_model(
   test_col,
   group_col,
   group_models,
+  sort_col,
   pred_col,
   upper_col,
   lower_col,
   filter_na,
   ret,
   error_correct,
-  error_correct_cols
+  error_correct_cols,
+  shift_trend
 )
 }
 \arguments{
@@ -50,6 +52,10 @@ time series, and if \code{group_models}, then fitting and predicting models too.
 each \code{group_col}. If \code{FALSE}, a general model is fit across the entire data
 frame.}
 
+\item{sort_col}{Column name(s) to use to \code{\link[dplyr:arrange]{dplyr::arrange()}} the data prior to
+supplying type and calculating mean absolute scaled error on data involving
+time series.}
+
 \item{pred_col}{Column name to store predicted value.}
 
 \item{upper_col}{Column name to store upper bound of confidence interval.}
@@ -76,6 +82,10 @@ groups instead of overall mean error.}
 
 \item{error_correct_cols}{Column names of data frame to group by when applying
 error correction to the predicted values.}
+
+\item{shift_trend}{Logical value specifying whether or not to shift predictions
+so that the trend matches up to the last observation. If \code{error_correct} and
+\code{shift_trend} are both \code{TRUE}, \code{shift_trend} takes precedence.}
 }
 \value{
 List of \code{mdl} (fitted model) and \code{df} (data frame with fitted values

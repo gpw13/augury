@@ -47,7 +47,8 @@ predict_inla_avg_trend <- function(df,
                                    source = NULL,
                                    replace_obs = c("missing", "all", "none"),
                                    error_correct = FALSE,
-                                   error_correct_cols = NULL) {
+                                   error_correct_cols = NULL,
+                                   shift_trend = FALSE) {
 
   # Assertions and error checking
   assert_df(df)
@@ -106,7 +107,8 @@ predict_inla_avg_trend <- function(df,
                                    filter_na = filter_na,
                                    ret = ret,
                                    error_correct = error_correct,
-                                   error_correct_cols = error_correct_cols)
+                                   error_correct_cols = error_correct_cols,
+                                   shift_trend = shift_trend)
 
   mdl <- mdl_df[["mdl"]]
   avg_df <- mdl_df[["df"]]
@@ -225,7 +227,8 @@ fit_inla_average_model <- function(df,
                                    filter_na,
                                    ret,
                                    error_correct,
-                                   error_correct_cols) {
+                                   error_correct_cols,
+                                   shift_trend) {
 
   # filter data and minimize
   data <- get_model_data(df = df,
@@ -246,14 +249,16 @@ fit_inla_average_model <- function(df,
                              average_cols,
                              weight_col)
 
-
+  if (!is.null(sort_col)) {
+    average_cols <- average_cols[!(average_cols %in% sort_col)]
+  }
 
   if (group_models) {
 
     # Split data frames
 
     if (!is.null(sort_col))
-    data <- dplyr::group_by(grp_data, dplyr::across(average_cols[average_cols != sort_col])) %>%
+    data <- dplyr::group_by(grp_data, dplyr::across(average_cols)) %>%
       dplyr::group_split()
 
     # Map modeling behavior
@@ -291,12 +296,15 @@ fit_inla_average_model <- function(df,
 
   df <- error_correct_fn(df = data,
                          response = formula_vars[1],
+                         group_col = average_cols,
+                         sort_col = sort_col,
                          pred_col = pred_col,
                          upper_col = upper_col,
                          lower_col = lower_col,
                          test_col = NULL,
                          error_correct = error_correct,
-                         error_correct_cols = error_correct_cols)
+                         error_correct_cols = error_correct_cols,
+                         shift_trend = shift_trend)
 
   list(df = df, mdl = mdl)
 }

@@ -48,7 +48,8 @@ predict_inla <- function(df,
                          source = NULL,
                          replace_obs = c("missing", "all", "none"),
                          error_correct = FALSE,
-                         error_correct_cols = NULL) {
+                         error_correct_cols = NULL,
+                         shift_trend = FALSE) {
 
   # Assertions and error checking
   assert_df(df)
@@ -84,13 +85,15 @@ predict_inla <- function(df,
                            test_col = test_col,
                            group_col = group_col,
                            group_models = group_models,
+                           sort_col = sort_col,
                            pred_col = pred_col,
                            upper_col = upper_col,
                            lower_col = lower_col,
                            filter_na = filter_na,
                            ret = ret,
                            error_correct = error_correct,
-                           error_correct_cols = error_correct_cols)
+                           error_correct_cols = error_correct_cols,
+                           shift_trend = shift_trend)
 
   mdl <- mdl_df[["mdl"]]
   df <- mdl_df[["df"]]
@@ -211,13 +214,15 @@ fit_inla_model <- function(df,
                            test_col,
                            group_col,
                            group_models,
+                           sort_col,
                            pred_col,
                            upper_col,
                            lower_col,
                            filter_na,
                            ret,
                            error_correct,
-                           error_correct_cols) {
+                           error_correct_cols,
+                           shift_trend) {
   # Filter data for modeling
   if (!group_models) group_col <- NULL
 
@@ -289,12 +294,15 @@ fit_inla_model <- function(df,
     # Error correction if necessary
     df <- error_correct_fn(df = df,
                            response = formula_vars[1],
+                           group_col = group_col,
+                           sort_col = sort_col,
                            pred_col = pred_col,
                            upper_col = upper_col,
                            lower_col = lower_col,
                            test_col = test_col,
                            error_correct = error_correct,
-                           error_correct_cols = error_correct_cols)
+                           error_correct_cols = error_correct_cols,
+                           shift_trend = shift_trend)
   }
 
   list(df = df, mdl = mdl)

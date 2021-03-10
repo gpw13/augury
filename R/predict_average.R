@@ -17,7 +17,8 @@ predict_average_fn <- function(df,
                                sort_col = NULL,
                                sort_descending = FALSE,
                                error_correct = FALSE,
-                               error_correct_cols = NULL) {
+                               error_correct_cols = NULL,
+                               shift_trend = FALSE) {
 
   # Calculate averages by groupings
   df <- df %>%
@@ -66,12 +67,15 @@ predict_average_fn <- function(df,
   # Error correction if applicable
   df <- error_correct_fn(df = df,
                          response = col,
+                         group_col = group_col,
+                         sort_col = sort_col,
                          pred_col = pred_col,
                          upper_col = NULL,
                          lower_col = NULL,
                          test_col = test_col,
                          error_correct = error_correct,
-                         error_correct_cols = error_correct_cols)
+                         error_correct_cols = error_correct_cols,
+                         shift_trend = shift_trend)
 
   dplyr::ungroup(df)
 }
@@ -122,7 +126,8 @@ predict_average <- function(df,
                             source = NULL,
                             replace_obs = c("missing", "all", "none"),
                             error_correct = FALSE,
-                            error_correct_cols = NULL) {
+                            error_correct_cols = NULL,
+                            shift_trend = FALSE) {
   # Assertions and error checking
   assert_df(df)
   assert_columns(df, col, average_cols, weight_col, group_col, type_col, source_col, type_col, source_col)
@@ -145,7 +150,8 @@ predict_average <- function(df,
                            sort_col = sort_col,
                            sort_descending = sort_descending,
                            error_correct = error_correct,
-                           error_correct_cols = error_correct_cols)
+                           error_correct_cols = error_correct_cols,
+                           shift_trend = shift_trend)
 
   # Calculate error if necessary
   if (ret %in% c("all", "error")) {

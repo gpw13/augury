@@ -4,13 +4,16 @@
 #' @param response Column name of response variable.
 error_correct_fn <- function(df,
                              response,
+                             group_col,
+                             sort_col,
                              pred_col,
                              upper_col,
                              lower_col,
                              test_col,
                              error_correct,
-                             error_correct_cols) {
-  if (error_correct) {
+                             error_correct_cols,
+                             shift_trend) {
+  if (error_correct & !shift_trend) {
     df <- df %>%
       dplyr::ungroup() %>%
       dplyr::group_by(dplyr::across(dplyr::all_of(error_correct_cols))) %>%
@@ -31,5 +34,33 @@ error_correct_fn <- function(df,
       dplyr::select(-"temp_error")
   }
 
+  if (shift_trend) {
+    df <- dplyr::group_by(df, dplyr::across(group_col))
+
+    if (!is.null(sort_col)) {
+      df <- dplyr::arrange(df, .data[[sort_col]], .by_group = TRUE)
+    }
+
+    df <- df %>%
+      dplyr::mutate("temp_error" := if (is.null(test_col)) .data[[response]] else ifelse(.data[[test_col]], NA_real_, .data[[response]]),
+                    "temp_error" := match_trend(.data[["temp_error"]], .data[[pred_col]]),
+                    dplyr::across(dplyr::any_of(c(pred_col, upper_col, lower_col)),
+                                  ~ .x + .data[["temp_error"]]))
+  }
+
   df
 }
+
+#' @noRd
+match_trend <- function(response, pred) {
+  nonmissing <- !is.na(response)
+  if (all(!nonmissing)) {
+    return(0)
+  }
+
+  last_obs_idx <- max(which(nonmissing))
+  last_obs <- response[last_obs_idx]
+  last_pred <- pred[last_obs_idx]
+  last_obs - last_pred
+}
+

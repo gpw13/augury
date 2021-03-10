@@ -91,6 +91,9 @@
 #'     groups instead of overall mean error.
 #' @param error_correct_cols Column names of data frame to group by when applying
 #'     error correction to the predicted values.
+#' @param shift_trend Logical value specifying whether or not to shift predictions
+#'     so that the trend matches up to the last observation. If `error_correct` and
+#'     `shift_trend` are both `TRUE`, `shift_trend` takes precedence.
 #'
 #' @return Depending on the value passed to `ret`, either a data frame with
 #'     predicted data, a vector of errors from [model_error()], a fitted model, or a list with all 3.
@@ -120,7 +123,8 @@ predict_general_mdl <- function(df,
                                 source = NULL,
                                 replace_obs = c("missing", "all", "none"),
                                 error_correct = FALSE,
-                                error_correct_cols = NULL) {
+                                error_correct_cols = NULL,
+                                shift_trend = FALSE) {
   # Assertions and error checking
   assert_df(df)
   assert_model(model)
@@ -156,13 +160,15 @@ predict_general_mdl <- function(df,
                               test_col = test_col,
                               group_col = group_col,
                               group_models = group_models,
+                              sort_col = sort_col,
                               pred_col = pred_col,
                               upper_col = upper_col,
                               lower_col = lower_col,
                               filter_na = filter_na,
                               ret = ret,
                               error_correct = error_correct,
-                              error_correct_cols = error_correct_cols)
+                              error_correct_cols = error_correct_cols,
+                              shift_trend = shift_trend)
 
   mdl <- mdl_df[["mdl"]]
   df <- mdl_df[["df"]]
@@ -284,13 +290,15 @@ fit_general_model <- function(df,
                               test_col,
                               group_col,
                               group_models,
+                              sort_col,
                               pred_col,
                               upper_col,
                               lower_col,
                               filter_na,
                               ret,
                               error_correct,
-                              error_correct_cols) {
+                              error_correct_cols,
+                              shift_trend) {
   # Filter data for modeling
   if (!group_models) group_col <- NULL
 
@@ -344,12 +352,15 @@ fit_general_model <- function(df,
   if (ret != "mdl") {
     df <- error_correct_fn(df = df,
                            response = formula_vars[1],
+                           group_col = group_col,
+                           sort_col = sort_col,
                            pred_col = pred_col,
                            upper_col = upper_col,
                            lower_col = lower_col,
                            test_col = test_col,
                            error_correct = error_correct,
-                           error_correct_cols = error_correct_cols)
+                           error_correct_cols = error_correct_cols,
+                           shift_trend = shift_trend)
   }
 
   list(df = df, mdl = mdl)

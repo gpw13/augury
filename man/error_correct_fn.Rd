@@ -7,18 +7,29 @@
 error_correct_fn(
   df,
   response,
+  group_col,
+  sort_col,
   pred_col,
   upper_col,
   lower_col,
   test_col,
   error_correct,
-  error_correct_cols
+  error_correct_cols,
+  shift_trend
 )
 }
 \arguments{
 \item{df}{Data frame of model data.}
 
 \item{response}{Column name of response variable.}
+
+\item{group_col}{Column name(s) of group(s) to use in \code{\link[dplyr:group_by]{dplyr::group_by()}} when
+supplying type, calculating mean absolute scaled error on data involving
+time series, and if \code{group_models}, then fitting and predicting models too.}
+
+\item{sort_col}{Column name(s) to use to \code{\link[dplyr:arrange]{dplyr::arrange()}} the data prior to
+supplying type and calculating mean absolute scaled error on data involving
+time series.}
 
 \item{pred_col}{Column name to store predicted value.}
 
@@ -38,6 +49,10 @@ groups instead of overall mean error.}
 
 \item{error_correct_cols}{Column names of data frame to group by when applying
 error correction to the predicted values.}
+
+\item{shift_trend}{Logical value specifying whether or not to shift predictions
+so that the trend matches up to the last observation. If \code{error_correct} and
+\code{shift_trend} are both \code{TRUE}, \code{shift_trend} takes precedence.}
 }
 \value{
 Depending on the value passed to \code{ret}, either a data frame with

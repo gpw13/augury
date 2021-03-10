@@ -22,7 +22,8 @@ fit_inla_average_model(
   filter_na,
   ret,
   error_correct,
-  error_correct_cols
+  error_correct_cols,
+  shift_trend
 )
 }
 \arguments{
@@ -93,6 +94,10 @@ groups instead of overall mean error.}
 
 \item{error_correct_cols}{Column names of data frame to group by when applying
 error correction to the predicted values.}
+
+\item{shift_trend}{Logical value specifying whether or not to shift predictions
+so that the trend matches up to the last observation. If \code{error_correct} and
+\code{shift_trend} are both \code{TRUE}, \code{shift_trend} takes precedence.}
 }
 \value{
 List of \code{mdl} (fitted model) and \code{df} (data frame with fitted values
