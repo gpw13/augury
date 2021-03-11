@@ -8,25 +8,8 @@
 #' directly into the data frame if the `type_col` and `source_col` are specified
 #' respectively.
 #'
-#' `predict_..._avg_trend()` functions need to be used carefully. Ensure that `average_cols`
-#' and variables in the `formula` match, and any `formula` variables not in `average_cols`
-#' are numeric that can be averaged. Even though the modeling won't use the `group_col`,
-#' it should be provided if necessary to be used in error metric calculations, and provision
-#' of `types` into `type_col`. Similarly, the `sort_col` is necessary for `types`, but
-#' **also needs to be in `average_cols`** if `error_correct`, `group_models`, or `shift_trend` is
-#' going to be used.
-#'
 #' @inherit predict_inla params return
-#' @inheritParams predict_average
-#'
-#' @param formula A formula that will be supplied to the model, such as `y~x`.
-#'     Variables defined in the formula will be used in the averaging. If the
-#'     variable is defined as part of `average_cols`, then it will be used within
-#'     [dplyr::group_by()] prior to averaging. If it is not a part of `average_cols`,
-#'     then it must be a numeric column whose average will be taken.
-#' @param group_models Logical, whether or not to run separate models for each group
-#'     defined by `average_cols`. If the `sort_col` is part of `average_cols`, then
-#'     it is not used to group models.
+#' @inherit predict_general_mdl_avg_trend params details
 #'
 #' @export
 predict_inla_avg_trend <- function(df,
@@ -265,7 +248,6 @@ fit_inla_average_model <- function(df,
 
     # Split data frames
 
-    if (!is.null(sort_col))
     data <- dplyr::group_by(grp_data, dplyr::across(average_cols)) %>%
       dplyr::group_split()
 
@@ -301,18 +283,19 @@ fit_inla_average_model <- function(df,
                                 lower_col)
     }
   }
-
-  df <- error_correct_fn(df = data,
-                         response = formula_vars[1],
-                         group_col = average_cols,
-                         sort_col = sort_col,
-                         pred_col = pred_col,
-                         upper_col = upper_col,
-                         lower_col = lower_col,
-                         test_col = NULL,
-                         error_correct = error_correct,
-                         error_correct_cols = error_correct_cols,
-                         shift_trend = shift_trend)
+  if (ret != "mdl") {
+    df <- error_correct_fn(df = data,
+                           response = formula_vars[1],
+                           group_col = average_cols,
+                           sort_col = sort_col,
+                           pred_col = pred_col,
+                           upper_col = upper_col,
+                           lower_col = lower_col,
+                           test_col = NULL,
+                           error_correct = error_correct,
+                           error_correct_cols = error_correct_cols,
+                           shift_trend = shift_trend)
+  }
 
   list(df = df, mdl = mdl)
 }
