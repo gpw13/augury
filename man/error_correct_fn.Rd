@@ -9,6 +9,7 @@ error_correct_fn(
   response,
   group_col,
   sort_col,
+  sort_descending,
   pred_col,
   upper_col,
   lower_col,
@@ -30,6 +31,9 @@ time series, and if \code{group_models}, then fitting and predicting models too.
 \item{sort_col}{Column name(s) to use to \code{\link[dplyr:arrange]{dplyr::arrange()}} the data prior to
 supplying type and calculating mean absolute scaled error on data involving
 time series.}
+
+\item{sort_descending}{Logical value on whether the sorted values from \code{sort_col}
+should be sorted in descending order. Defaults to \code{FALSE}.}
 
 \item{pred_col}{Column name to store predicted value.}
 

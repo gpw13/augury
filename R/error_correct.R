@@ -6,6 +6,7 @@ error_correct_fn <- function(df,
                              response,
                              group_col,
                              sort_col,
+                             sort_descending,
                              pred_col,
                              upper_col,
                              lower_col,
@@ -38,7 +39,12 @@ error_correct_fn <- function(df,
     df <- dplyr::group_by(df, dplyr::across(group_col))
 
     if (!is.null(sort_col)) {
-      df <- dplyr::arrange(df, .data[[sort_col]], .by_group = TRUE)
+      if (sort_descending) {
+        fn <- dplyr::desc
+      } else {
+        fn <- NULL
+      }
+      df <- dplyr::arrange(df, dplyr::across(dplyr::all_of(sort_col), fn), .by_group = TRUE)
     }
 
     df <- df %>%
