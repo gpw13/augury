@@ -171,7 +171,7 @@ assert_group_sort_col <- function(formula_vars,
     warning("`sort_col` is NULL, so no average trend will be generated.",
             call. = FALSE)
   } else if (!(sort_col %in% c(formula_vars, average_cols))) {
-    warning("`sort_col` not in `formula` or `average_cols`, so no average trend will be generated.",
+    warning("`sort_col` not in `formula` or `response` or `average_cols`, so no average trend will be generated.",
             call. = FALSE)
   }
 }

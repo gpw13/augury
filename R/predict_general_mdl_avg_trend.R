@@ -215,7 +215,7 @@ predict_general_mdl_avg_trend <- function(df,
 #'
 #' @inheritParams predict_general_mdl_avg_trend
 #' @inheritParams fit_general_model
-
+#'
 #' @return List of `mdl` (fitted model) and `df` (data frame with fitted values
 #'     and confidence bounds generated from the model).
 fit_general_average_model <- function(df,
