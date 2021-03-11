@@ -162,3 +162,12 @@ The function also allows for inputting of data type and source information
 directly into the data frame if the \code{type_col} and \code{source_col} are specified
 respectively.
 }
+\details{
+\code{predict_..._avg_trend()} functions need to be used carefully. Ensure that \code{average_cols}
+and variables in the \code{formula} match, and any \code{formula} variables not in \code{average_cols}
+are numeric that can be averaged. Even though the modeling won't use the \code{group_col},
+it should be provided if necessary to be used in error metric calculations, and provision
+of \code{types} into \code{type_col}. Similarly, the \code{sort_col} is necessary for \code{types}, but
+\strong{also needs to be in \code{average_cols}} if \code{error_correct}, \code{group_models}, or \code{shift_trend} is
+going to be used.
+}

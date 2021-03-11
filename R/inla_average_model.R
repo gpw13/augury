@@ -8,6 +8,14 @@
 #' directly into the data frame if the `type_col` and `source_col` are specified
 #' respectively.
 #'
+#' `predict_..._avg_trend()` functions need to be used carefully. Ensure that `average_cols`
+#' and variables in the `formula` match, and any `formula` variables not in `average_cols`
+#' are numeric that can be averaged. Even though the modeling won't use the `group_col`,
+#' it should be provided if necessary to be used in error metric calculations, and provision
+#' of `types` into `type_col`. Similarly, the `sort_col` is necessary for `types`, but
+#' **also needs to be in `average_cols`** if `error_correct`, `group_models`, or `shift_trend` is
+#' going to be used.
+#'
 #' @inherit predict_inla params return
 #' @inheritParams predict_average
 #'
