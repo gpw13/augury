@@ -278,7 +278,7 @@ fit_inla_average_model <- function(df,
     mdl <- NULL # not returning all models together for grouped models
   } else { # single model fitting
     mdl <- INLA::inla(formula = formula,
-                      data = data,
+                      data = grp_data,
                       control.predictor = control.predictor,
                       ...)
 
