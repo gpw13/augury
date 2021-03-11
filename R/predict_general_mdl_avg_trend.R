@@ -295,7 +295,7 @@ fit_general_average_model <- function(df,
     if (ret == "mdl") {
       df <- NULL
     } else {
-      df <- predict_general_data(df = df,
+      df <- predict_general_data(df = grp_data,
                                  model = mdl,
                                  pred_col = pred_col,
                                  upper_col = upper_col,
@@ -303,7 +303,7 @@ fit_general_average_model <- function(df,
     }
   }
   if (ret != "mdl") {
-    df <- error_correct_fn(df = data,
+    df <- error_correct_fn(df = df,
                            response = formula_vars[1],
                            group_col = average_cols,
                            sort_col = sort_col,
