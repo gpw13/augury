@@ -43,7 +43,7 @@ predict_forecast_avg_trend <- function(df,
   assert_df(df)
   assert_columns(df, average_cols, weight_col, response,
                  test_col, group_col, sort_col, type_col,
-                 source_col, error_correct_cols)
+                 source_col)
 
   assert_columns_unique(response, pred_col, upper_col, lower_col, test_col, group_col, sort_col, type_col, source_col)
 
@@ -81,11 +81,11 @@ predict_forecast_avg_trend <- function(df,
                                        average_cols = average_cols,
                                        weight_col = weight_col,
                                        ...,
-                                       formula_vars = formula_vars,
                                        test_col = test_col,
                                        group_col = group_col,
                                        group_models = group_models,
                                        sort_col = sort_col,
+                                       sort_descending = sort_descending,
                                        pred_col = pred_col,
                                        upper_col = upper_col,
                                        lower_col = lower_col,
@@ -135,7 +135,7 @@ predict_forecast_avg_trend <- function(df,
   # Get error if being returned
   if (ret %in% c("all", "error")) {
     err <- model_error(df = df,
-                       response = formula_vars[1],
+                       response = response,
                        test_col = test_col,
                        test_period = test_period,
                        test_period_flex = test_period_flex,
@@ -188,7 +188,7 @@ predict_forecast_avg_trend <- function(df,
 #' is returned and used within `predict_forecast()`.
 #'
 #' @inheritParams predict_forecast_avg_trend
-#' @inheritParams fit_general_model
+#' @inheritParams fit_forecast_model
 
 #' @return List of `mdl` (fitted model) and `df` (data frame with fitted values
 #'     and confidence bounds generated from the model).
@@ -198,11 +198,11 @@ fit_forecast_average_model <- function(df,
                                        average_cols,
                                        weight_col,
                                        ...,
-                                       formula_vars,
                                        test_col,
                                        group_col,
                                        group_models,
                                        sort_col,
+                                       sort_descending,
                                        pred_col,
                                        upper_col,
                                        lower_col,

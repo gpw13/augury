@@ -16,7 +16,7 @@
 #' **also needs to be in `average_cols`** if `error_correct`, `group_models`, or `shift_trend` is
 #' going to be used.
 #'
-#' @inherit predict_inla params return
+#' @inherit predict_general_mdl params return
 #' @inheritParams predict_average
 #'
 #' @param formula A formula that will be supplied to the model, such as `y~x`.

@@ -38,6 +38,11 @@ predict_general_mdl_avg_trend(
 \arguments{
 \item{df}{Data frame of model data.}
 
+\item{model}{An R function that outputs a model object with a \code{predict.model} generic,
+where \code{\link[stats:family]{stats::family()}} contains an inverse link function \code{linkinv} and
+\code{predict.model()} accepts the \code{se.fit = TRUE} argument and returns confidence
+intervals. This includes \link[stats:lm]{stats::lm}, \link[stats:glm]{stats::glm}, and \link[lme4:lmer]{lme4::lmer}.}
+
 \item{formula}{A formula that will be supplied to the model, such as \code{y~x}.
 Variables defined in the formula will be used in the averaging. If the
 variable is defined as part of \code{average_cols}, then it will be used within
@@ -54,7 +59,7 @@ as country population.}
 defined by \code{average_cols}. If the \code{sort_col} is part of \code{average_cols}, then
 it is not used to group models.}
 
-\item{...}{Additional arguments passed to \code{\link[INLA:inla]{INLA::inla()}}.}
+\item{...}{Other arguments passed to the model function.}
 
 \item{ret}{Character vector specifying what values the function returns. Defaults
 to returning a data frame, but can return a vector of model error, the
@@ -105,12 +110,10 @@ should be sorted in descending order. Defaults to \code{FALSE}.}
 \item{lower_col}{Column name to store lower bound of confidence interval.}
 
 \item{filter_na}{Character value specifying how, if at all, to filter \code{NA}
-values from the dataset prior to applying the model. By default, only
-observations with missing predictors are removed, although it can also remove
+values from the dataset prior to applying the model.  By default, all
+observations with missing values are removed, although it can also remove
 rows only if they have missing dependent or independent variables, or no
-filtering at all. Model prediction and fitting are done in one pass with
-\code{\link[INLA:inla]{INLA::inla()}}, so there will be no predictions if observations with
-missing dependent variables are removed.}
+filtering at all.}
 
 \item{type_col}{Column name specifying data type.}
 
