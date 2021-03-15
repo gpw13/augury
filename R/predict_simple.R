@@ -15,6 +15,7 @@ predict_simple_fn <- function(df,
                               sort_col = NULL,
                               sort_descending = FALSE) {
   df <- dplyr::group_by(df, dplyr::across(dplyr::all_of(group_col)))
+
   if (!is.null(sort_col)) {
     if (sort_descending) {
       fn <- dplyr::desc

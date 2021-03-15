@@ -302,12 +302,12 @@ fit_general_model <- function(df,
                               error_correct_cols,
                               shift_trend) {
   # Filter data for modeling
-  if (!group_models) group_col <- NULL
+  if (!group_models) group_col_mdl <- NULL else group_col_mdl <- group_col
 
   data <- get_model_data(df = df,
                          formula_vars = formula_vars,
                          test_col = test_col,
-                         group_col = group_col,
+                         group_col = group_col_mdl,
                          filter_na = filter_na)
 
   if (group_models) {
