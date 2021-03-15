@@ -656,14 +656,14 @@ pred_df %>%
 #>  1 AFG    2013     14  30.4 EMR         30.4  30.4  30.4
 #>  2 AFG    2014     15  30.4 EMR         30.4  30.4  30.4
 #>  3 AFG    2015     16  30.4 EMR         30.4  30.4  30.4
-#>  4 AFG    2016     17  30.2 EMR         30.2  30.2  30.2
-#>  5 AFG    2017     18  29.9 EMR         29.9  30.0  30.0
-#>  6 AFG    2018     19  29.7 EMR         29.7  29.8  29.8
-#>  7 AFG    2019     20  29.4 EMR         29.4  29.6  29.6
-#>  8 AFG    2020     21  29.2 EMR         29.2  29.3  29.3
-#>  9 AFG    2021     22  29.0 EMR         29.0  29.1  29.1
-#> 10 AFG    2022     23  28.7 EMR         28.7  28.9  28.9
-#> 11 AFG    2023     24  28.5 EMR         28.5  28.8  28.8
+#>  4 AFG    2016     17  30.2 EMR         30.2  30.2  30.1
+#>  5 AFG    2017     18  29.9 EMR         29.9  30.0  29.9
+#>  6 AFG    2018     19  29.7 EMR         29.7  29.8  29.6
+#>  7 AFG    2019     20  29.4 EMR         29.4  29.6  29.3
+#>  8 AFG    2020     21  29.2 EMR         29.2  29.3  29.0
+#>  9 AFG    2021     22  29.0 EMR         29.0  29.1  28.8
+#> 10 AFG    2022     23  28.7 EMR         28.7  28.9  28.5
+#> 11 AFG    2023     24  28.5 EMR         28.5  28.8  28.2
 ```
 
 Above, we can see we have a generated a model using 2nd order random
@@ -683,7 +683,54 @@ others:
 -   `group_col` is the groupings used on the *original data frame*,
     which is still necessary here when applying the trend back to the
     original data.
+-   If a variable is in `formula`, it must either be in `average_cols`
+    or it must be a numeric column that can be averaged. This is because
+    the formula is applied to the data frame *after* `dplyr::group_by()`
+    and `dplyr::summarize()` have reduced it.
 
-While slightly more complex, ensuring you follow the above means you
-should easily and successfully get out meaningfull trend predictions for
-your data frames using trends generated on grouped data.
+To highlight this point, in the above example, what’s actually happening
+is we are actually fitting the model on the summarized data:
+
+``` r
+df %>%
+  dplyr::group_by(who_region, year_n) %>%
+  dplyr::summarize(value = mean(value, na.rm = T)) %>%
+  head()
+#> `summarise()` has grouped output by 'who_region'. You can override using the `.groups` argument.
+#> # A tibble: 6 x 3
+#> # Groups:   who_region [1]
+#>   who_region year_n value
+#>   <chr>       <dbl> <dbl>
+#> 1 AFR             1  29.7
+#> 2 AFR             2  29.6
+#> 3 AFR             3  29.5
+#> 4 AFR             4  29.4
+#> 5 AFR             5  29.3
+#> 6 AFR             6  29.2
+```
+
+Since `average_cols = c("who_region", "year_n")`, we took the mean of
+all values in `formula` not in `average_cols`, in this case just
+`value`. If for instance, we tried to specify a model using `iso3` in
+the `formula`:
+
+``` r
+predict_inla_avg_trend(df,
+                       formula = value ~ iso3 + f(year_n, model = "rw2"),
+                       average_cols = c("who_region", "year_n"),
+                       group_models = TRUE,
+                       group_col = "iso3",
+                       sort_col = "year_n")
+#> Error: iso3 must be numeric columns for use in averaging, or included in `average_cols` for grouping.
+```
+
+We get an error message indicating that iso3 must be numeric or included
+in `average_cols` for grouping. This is because without it being numeric
+or in the `average_cols`, there’s no way
+`dplyr::group_by() %>% dplyr::summarize()` a non-numeric column
+automatically (how would we reduce country-level ISO3 codes to the
+regional level?).
+
+While slightly complex, ensuring you follow the above means you should
+easily and successfully get out meaningful trend predictions for your
+data frames using trends generated on grouped data.

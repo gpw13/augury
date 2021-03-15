@@ -51,5 +51,26 @@ Above, we can see we have a generated a model using 2nd order random walk with I
 * `average_cols` must contain the `sort_col`. So, since we use `year_n` in the time series rather than `year`, we will sort by that this time.
 * `average_cols` refers to the groupings used for averaging (we take the average for each WHO region and year in this case). Then, the model is fit to `average_cols` that are NOT the `sort_col`.
 * `group_col` is the groupings used on the *original data frame*, which is still necessary here when applying the trend back to the original data.
+* If a variable is in `formula`, it must either be in `average_cols` or it must be a numeric column that can be averaged. This is because the formula is applied to the data frame *after* `dplyr::group_by()` and `dplyr::summarize()` have reduced it.
 
-While slightly more complex, ensuring you follow the above means you should easily and successfully get out meaningfull trend predictions for your data frames using trends generated on grouped data.
+To highlight this point, in the above example, what's actually happening is we are actually fitting the model on the summarized data:
+```{r inla-groupby-sum}
+df %>%
+  dplyr::group_by(who_region, year_n) %>%
+  dplyr::summarize(value = mean(value, na.rm = T)) %>%
+  head()
+```
+
+Since `average_cols = c("who_region", "year_n")`, we took the mean of all values in `formula` not in `average_cols`, in this case just `value`. If for instance, we tried to specify a model using `iso3` in the `formula`:
+
+```{r inla-error, error = TRUE}
+predict_inla_avg_trend(df,
+                       formula = value ~ iso3 + f(year_n, model = "rw2"),
+                       average_cols = c("who_region", "year_n"),
+                       group_models = TRUE,
+                       group_col = "iso3",
+                       sort_col = "year_n")
+```
+We get an error message indicating that iso3 must be numeric or included in `average_cols` for grouping. This is because without it being numeric or in the `average_cols`, there's no way `dplyr::group_by() %>% dplyr::summarize()` a non-numeric column automatically (how would we reduce country-level ISO3 codes to the regional level?).
+
+While slightly complex, ensuring you follow the above means you should easily and successfully get out meaningful trend predictions for your data frames using trends generated on grouped data.
