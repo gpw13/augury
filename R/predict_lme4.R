@@ -43,7 +43,7 @@ predict_lme4 <- function(df,
                          error_correct_cols = NULL,
                          shift_trend = FALSE) {
   # Assertions and error checking
-  assert_df(df)
+  df <- assert_df(df)
   assert_model(model)
   formula_vars <- parse_formula(formula)
   assert_columns(df, formula_vars, test_col, group_col, sort_col, type_col, source_col)

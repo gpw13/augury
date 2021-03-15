@@ -1,6 +1,6 @@
 #' Use `predict_general_mdl` on groups to generate average trend and apply to original data
 #'
-#' `predict_general_mdl_avg_trend()` uses a a general model object from R to fit a model
+#' `predict_general_mdl_avg_trend()` uses a general model object from R to fit a model
 #' to groups within the data, and then bring that fitted prediction back to the
 #' original data. The function uses any general modelling function from R for model fitting
 #' and prediction, with full details on requirements available from [predict_general_mdl()].
@@ -59,7 +59,7 @@ predict_general_mdl_avg_trend <- function(df,
                                           shift_trend = FALSE) {
 
   # Assertions and error checking
-  assert_df(df)
+  df <- assert_df(df)
   formula_vars <- parse_formula(formula)
   assert_columns(df, average_cols, weight_col, formula_vars,
                  test_col, group_col, sort_col, type_col,

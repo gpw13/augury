@@ -151,7 +151,7 @@ Depending on the value passed to \code{ret}, either a data frame with
 predicted data, a vector of errors from \code{\link[=model_error]{model_error()}}, a fitted model, or a list with all 3.
 }
 \description{
-\code{predict_general_mdl_avg_trend()} uses a a general model object from R to fit a model
+\code{predict_general_mdl_avg_trend()} uses a general model object from R to fit a model
 to groups within the data, and then bring that fitted prediction back to the
 original data. The function uses any general modelling function from R for model fitting
 and prediction, with full details on requirements available from \code{\link[=predict_general_mdl]{predict_general_mdl()}}.

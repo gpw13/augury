@@ -130,7 +130,7 @@ predict_average <- function(df,
                             error_correct_cols = NULL,
                             shift_trend = FALSE) {
   # Assertions and error checking
-  assert_df(df)
+  df <- assert_df(df)
   assert_columns(df, col, average_cols, weight_col, group_col, type_col, source_col, type_col, source_col)
   assert_columns_unique(col, pred_col, group_col, type_col, source_col)
   ret <- rlang::arg_match(ret)

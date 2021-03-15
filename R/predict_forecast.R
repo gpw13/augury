@@ -45,7 +45,7 @@ predict_forecast <- function(df,
                              source = NULL,
                              replace_obs = c("missing", "all", "none")) {
   # Assertions and error checking
-  assert_df(df)
+  df <- assert_df(df)
   assert_function(forecast_function)
   assert_columns(df, response, test_col, group_col, sort_col, type_col, source_col)
   assert_columns_unique(response, pred_col, upper_col, lower_col, test_col, group_col, sort_col, type_col, source_col)

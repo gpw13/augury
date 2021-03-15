@@ -35,6 +35,8 @@ assert_df <- function(df) {
                  class(df)[1]),
          call. = FALSE)
   }
+  df <- remove_groups(df)
+  df
 }
 
 #' Assert that `x` is a function

@@ -40,7 +40,7 @@ predict_forecast_avg_trend <- function(df,
                                        replace_obs = c("missing", "all", "none")) {
 
   # Assertions and error checking
-  assert_df(df)
+  df <- assert_df(df)
   assert_columns(df, average_cols, weight_col, response,
                  test_col, group_col, sort_col, type_col,
                  source_col)

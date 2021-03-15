@@ -77,7 +77,7 @@ predict_simple <- function(df,
                            source = NULL,
                            replace_obs = c("missing", "none")) {
   # Assertions and error checking
-  assert_df(df)
+  df <- assert_df(df)
   model <- rlang::arg_match(model)
   ret <- rlang::arg_match(ret)
   assert_columns(df, col, group_col, test_col, type_col, source_col, type_col, source_col)
