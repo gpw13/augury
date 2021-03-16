@@ -2,7 +2,7 @@
 % Please edit documentation in R/predict_lme4_wrappers.R
 \name{predict_nlmer}
 \alias{predict_nlmer}
-\title{Use a linear mixed-effects model to infill and project data}
+\title{Use a non-linear mixed-effects model to infill and project data}
 \usage{
 predict_nlmer(
   df,

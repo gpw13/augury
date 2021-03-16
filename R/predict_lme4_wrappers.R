@@ -58,7 +58,7 @@ predict_lmer <- function(df,
                shift_trend = shift_trend)
 }
 
-#' Use a linear mixed-effects model to infill and project data
+#' Use a generalized linear mixed-effects model to infill and project data
 #'
 #' `predict_lmer()` is a simple wrapper that fits a generalized linear mixed-effects
 #' model (GLMM) to infill and project data. For details surrounding the GLMM fitting,
@@ -118,7 +118,7 @@ predict_glmer <- function(df,
                shift_trend = shift_trend)
 }
 
-#' Use a linear mixed-effects model to infill and project data
+#' Use a non-linear mixed-effects model to infill and project data
 #'
 #' `predict_nlmer()` is a simple wrapper that fits a non-linear mixed-effects
 #' model (GLMM) to infill and project data. For details surrounding the GLMM fitting,
