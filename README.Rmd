@@ -76,7 +76,7 @@ wrappers are:
 
 * `predict_lm()`
 * `predict_glm()`
-* `predict_lmer()
+* `predict_lmer()`
 
 As well, wrappers are provided around INLA for models currently in place for the
 Triple Billion framework. These are a time series model with no additional
@@ -97,6 +97,21 @@ and Holt's linear trend exponential smoothing.
 For convenience, the covariates used within the default INLA modeling are exported
 from the package and can be easily joined up to a data frame for use in modeling.
 These are available through `augury::covariates_df`.
+
+## Grouped trend development
+
+While we typically want to fit a model to a data set directly, augury has a set of
+`predict_..._avg_trend()` functions that allows you to average data by group (e.g.
+by region), fit the model to the grouped and averaged data, and extract that trend
+to apply to the original dataset. See the section below on **Average trend modeling**
+for more details.
+
+## Error metrics
+
+When doing model selection, it is always important to use metrics to evaluate
+model fit and predictive accuracy. All `predict_...` functions in augury use the
+same evaluation framework, implemented through `model_error()`. If a `test` column
+is defined, then the evaluation framework is only applied to this set
 
 ## Additional functionality
 
