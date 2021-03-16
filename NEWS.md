@@ -1,5 +1,8 @@
-# augury 0.2.1
+# augury 0.3.0
 
+* `predict_..._avg_trend()` functions implemented to allow the fitting of models
+   by group and application of that trend to base data.
+* Added in R-squared and root mean change error metrics to `model_error`.
 * Weighted averaging option added to `predict_average()`.
 
 # augury 0.2.0
