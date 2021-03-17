@@ -104,7 +104,7 @@ model_error <- function(df,
 
   # Calculate COR and RMChE separately in case it's by group
   x_grped <- df %>%
-    dplyr::summarize("COR" := stats::cor(.data[[pred_col]], .data[[response]], use = "complete.obs"),
+    dplyr::summarize("COR" := suppressWarnings(stats::cor(.data[[pred_col]], .data[[response]], use = "na.or.complete")),
                      "RMChE" := calculate_sq_ch(.data[[response]], .data[[pred_col]], test_period, test_period_flex),
                      .groups = "drop") %>%
     dplyr::summarize("COR" := mean(.data[["COR"]],
