@@ -153,6 +153,7 @@ predict_simple <- function(df,
 #' Helper function to do flat extrapolation
 #'
 #' @param x Vector to do flat extrapolation on
+#' @param model Type of extrapolation to do (backward or forward)
 simple_extrap <- function(x, model) {
   missing_x <- is.na(x)
   if (!all(missing_x)) {

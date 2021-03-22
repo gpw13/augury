@@ -61,7 +61,7 @@ predict_average_fn <- function(df,
       df <- dplyr::arrange(df, dplyr::across(sort_col, fn), .by_group = TRUE)
     }
 
-    df <- dplyr::mutate(df, !!sym(pred_col) := simple_extrap(.data[[pred_col]]))
+    df <- dplyr::mutate(df, !!sym(pred_col) := simple_extrap(.data[[pred_col]], "flat_extrap"))
   }
 
   # Error correction if applicable

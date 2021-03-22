@@ -8,6 +8,8 @@ simple_extrap(x, model)
 }
 \arguments{
 \item{x}{Vector to do flat extrapolation on}
+
+\item{model}{Type of extrapolation to do (backward or forward)}
 }
 \description{
 Helper function to do flat extrapolation
