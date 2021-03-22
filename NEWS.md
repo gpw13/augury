@@ -4,6 +4,7 @@
    by group and application of that trend to base data.
 * Added in R-squared and root mean change error metrics to `model_error`.
 * Weighted averaging option added to `predict_average()`.
+* Add back extrapolation (flat) to `predict_simple()`.
 
 # augury 0.2.0
 

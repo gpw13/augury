@@ -4,7 +4,7 @@
 \alias{simple_extrap}
 \title{Helper function to do flat extrapolation}
 \usage{
-simple_extrap(x)
+simple_extrap(x, model)
 }
 \arguments{
 \item{x}{Vector to do flat extrapolation on}

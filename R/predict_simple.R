@@ -28,13 +28,13 @@ predict_simple_fn <- function(df,
   df <- dplyr::mutate(df,
                       !!sym(pred_col) := if (!is.null(test_col)) ifelse(.data[[test_col]], NA_real_, .data[[col]]) else .data[[col]])
 
-  if (model %in% c("both", "linear_interp")) {
+  if (model %in% c("forward", "all", "linear_interp")) {
     df <- dplyr::mutate(df, !!sym(pred_col) := zoo::na.approx(.data[[pred_col]],
                                                               na.rm = FALSE))
   }
 
-  if (model %in% c("both", "flat_extrap")) {
-    df <- dplyr::mutate(df, !!sym(pred_col) := simple_extrap(.data[[pred_col]]))
+  if (model %in% c("all", "flat_extrap", "back_extrap", "both_extrap", "forward")) {
+    df <- dplyr::mutate(df, !!sym(pred_col) := simple_extrap(.data[[pred_col]], model = model))
   }
 
   dplyr::ungroup(df)
@@ -52,6 +52,16 @@ predict_simple_fn <- function(df,
 #' flat extrapolation, or both is used on the data.
 #'
 #' @inherit predict_general_mdl params return
+#'
+#' @param model Type of simple extrapolation or interpolation to perform:
+#' \itemize{
+#'   \item{`forward`: }{Just `flat_extrap` and `linear_interp`. (default)}
+#'   \item{`all`: }{All of `flat_extrap`, `linear_interp`, and `back_extrap`}
+#'   \item{`flat_extrap`: }{Flat extrapolation from latest observed point.}
+#'   \item{`linear_interp`: }{Linear interpolation between observed data points.}
+#'   \item{`back_extrap`: }{Flat extrapolation from first observed data point backwards.}
+#'   \item{`both_extrap`: }{Both `flat_extrap` and `back_extrap`.}
+#' }
 #' @param col Name of column to extrapolate/interpolate.
 #' @param types Types to add to missing values. The first value is for imputed
 #'     values and the second is for extrapolated values.
@@ -61,7 +71,7 @@ predict_simple_fn <- function(df,
 #'
 #' @export
 predict_simple <- function(df,
-                           model = c("both", "flat_extrap", "linear_interp"),
+                           model = c("forward", "all", "flat_extrap", "linear_interp", "back_extrap", "both_extrap"),
                            col = "value",
                            ret = c("df", "all", "error"),
                            test_col = NULL,
@@ -143,11 +153,17 @@ predict_simple <- function(df,
 #' Helper function to do flat extrapolation
 #'
 #' @param x Vector to do flat extrapolation on
-simple_extrap <- function(x) {
+simple_extrap <- function(x, model) {
   missing_x <- is.na(x)
   if (!all(missing_x)) {
-    whr <- max(which(!missing_x))
-    x[whr:length(x)] <- x[whr]
+    if (model %in% c("all", "flat_extrap", "both_extrap", "forward")) {
+      whr <- max(which(!missing_x))
+      x[whr:length(x)] <- x[whr]
+    }
+    if (model %in% c("all", "both_extrap", "back_extrap")) {
+      whr <- min(which(!missing_x))
+      x[1:whr] <- x[whr]
+    }
   }
   x
 }

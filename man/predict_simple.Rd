@@ -6,7 +6,8 @@
 \usage{
 predict_simple(
   df,
-  model = c("both", "flat_extrap", "linear_interp"),
+  model = c("forward", "all", "flat_extrap", "linear_interp", "back_extrap",
+    "both_extrap"),
   col = "value",
   ret = c("df", "all", "error"),
   test_col = NULL,
@@ -26,10 +27,15 @@ predict_simple(
 \arguments{
 \item{df}{Data frame of model data.}
 
-\item{model}{An R function that outputs a model object with a \code{predict.model} generic,
-where \code{\link[stats:family]{stats::family()}} contains an inverse link function \code{linkinv} and
-\code{predict.model()} accepts the \code{se.fit = TRUE} argument and returns confidence
-intervals. This includes \link[stats:lm]{stats::lm}, \link[stats:glm]{stats::glm}, and \link[lme4:lmer]{lme4::lmer}.}
+\item{model}{Type of simple extrapolation or interpolation to perform:
+\itemize{
+\item{\code{forward}: }{Just \code{flat_extrap} and \code{linear_interp}. (default)}
+\item{\code{all}: }{All of \code{flat_extrap}, \code{linear_interp}, and \code{back_extrap}}
+\item{\code{flat_extrap}: }{Flat extrapolation from latest observed point.}
+\item{\code{linear_interp}: }{Linear interpolation between observed data points.}
+\item{\code{back_extrap}: }{Flat extrapolation from first observed data point backwards.}
+\item{\code{both_extrap}: }{Both \code{flat_extrap} and \code{back_extrap}.}
+}}
 
 \item{col}{Name of column to extrapolate/interpolate.}
 
