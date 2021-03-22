@@ -31,7 +31,8 @@ predict_holt_avg_trend <- function(df,
                                    types = c("imputed", "imputed", "projected"),
                                    source_col = NULL,
                                    source = NULL,
-                                   replace_obs = c("missing", "all", "none")) {
+                                   replace_obs = c("missing", "all", "none"),
+                                   replace_filter = NULL) {
   predict_forecast_avg_trend(df = df,
                              forecast_function = forecast::holt,
                              response = response,
@@ -56,7 +57,8 @@ predict_holt_avg_trend <- function(df,
                              types = types,
                              source_col = source_col,
                              source = source,
-                             replace_obs = replace_obs)
+                             replace_obs = replace_obs,
+                             replace_filter = replace_filter)
 }
 
 #' Use `predict_ses` on groups to generate average trend and apply to original data
@@ -92,7 +94,8 @@ predict_ses_avg_trend <- function(df,
                                   types = c("imputed", "imputed", "projected"),
                                   source_col = NULL,
                                   source = NULL,
-                                  replace_obs = c("missing", "all", "none")) {
+                                  replace_obs = c("missing", "all", "none"),
+                                  replace_filter = NULL) {
   predict_forecast_avg_trend(df = df,
                              forecast_function = forecast::ses,
                              response = response,
@@ -117,5 +120,6 @@ predict_ses_avg_trend <- function(df,
                              types = types,
                              source_col = source_col,
                              source = source,
-                             replace_obs = replace_obs)
+                             replace_obs = replace_obs,
+                             replace_filter = replace_filter)
 }

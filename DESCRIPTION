@@ -35,7 +35,8 @@ Imports:
     zoo,
     forecast,
     tidyr,
-    merTools
+    merTools,
+    stringr
 Suggests:
     knitr,
     rmarkdown,

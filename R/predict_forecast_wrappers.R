@@ -28,7 +28,8 @@ predict_holt <- function(df,
                          types = c("imputed", "imputed", "projected"),
                          source_col = NULL,
                          source = NULL,
-                         replace_obs = c("missing", "all", "none")) {
+                         replace_obs = c("missing", "all", "none"),
+                         replace_filter = NULL) {
   predict_forecast(df = df,
                    forecast_function = forecast::holt,
                    response = response,
@@ -49,7 +50,8 @@ predict_holt <- function(df,
                    types = types,
                    source_col = source_col,
                    source = source,
-                   replace_obs = replace_obs)
+                   replace_obs = replace_obs,
+                   replace_filter = replace_filter)
 }
 
 #' Use simple exponential smoothing to forecast data
@@ -81,7 +83,8 @@ predict_ses <- function(df,
                         types = c("imputed", "imputed", "projected"),
                         source_col = NULL,
                         source = NULL,
-                        replace_obs = c("missing", "all", "none")) {
+                        replace_obs = c("missing", "all", "none"),
+                        replace_filter = NULL) {
   predict_forecast(df = df,
                    forecast_function = forecast::ses,
                    response = response,
@@ -102,5 +105,6 @@ predict_ses <- function(df,
                    types = types,
                    source_col = source_col,
                    source = source,
-                   replace_obs = replace_obs)
+                   replace_obs = replace_obs,
+                   replace_filter = replace_filter)
 }

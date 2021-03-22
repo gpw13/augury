@@ -1,8 +1,7 @@
 #' Merge predicted data into data frame
 #'
 #' Merges predicted data into data frame. By default, does not replace observed
-#' values with modeled data, although upper and lower bounds for the model always
-#' included.
+#' values with modeled data.
 #'
 #' @inheritParams predict_general_mdl
 #' @param response Column name of response variable.
@@ -14,18 +13,17 @@ merge_prediction <- function(df,
                              sort_col,
                              sort_descending,
                              pred_col,
-                             upper_col,
-                             lower_col,
-                             test_col,
                              type_col,
                              types,
                              source_col,
                              source,
-                             replace_obs) {
+                             replace_obs,
+                             replace_filter) {
   if (replace_obs != "none") {
-    if (!is.null(type_col)) {
-      df <- dplyr::group_by(df, dplyr::across(group_col))
-    }
+    # changing pred and response to both be real valued, in case one is integer
+    df <- dplyr::mutate(df, dplyr::across(c(response, pred_col), as.numeric))
+
+    df <- dplyr::group_by(df, dplyr::across(group_col))
 
     # put types for missing values before, between, and after the included data (types 1, 2, 3)
 
@@ -38,9 +36,11 @@ merge_prediction <- function(df,
         }
         df <- dplyr::arrange(df, dplyr::across(sort_col, fn), .by_group = TRUE)
       }
+
       df <- df %>%
         dplyr::mutate(
           !!sym(type_col) := dplyr::case_when(
+            eval(parse(text = replace_filter)) ~ .data[[type_col]],
             is.na(.data[[pred_col]]) ~ NA_character_,
             is.na(.data[[response]]) & dplyr::row_number() <= min(which(!is.na(.data[[response]])), Inf) ~ types[1],
             is.na(.data[[response]]) & dplyr::row_number() > max(which(!is.na(.data[[response]])), -Inf) ~ types[3],
@@ -51,15 +51,30 @@ merge_prediction <- function(df,
 
     # put source for missing values, where applicable
     if (!is.null(source_col)) {
-      df[[source_col]] <- ifelse(is.na(df[[response]]) & !is.na(df[[pred_col]]), source, df[[source_col]])
+      df <- df %>%
+        dplyr::mutate(!!sym(source_col) := dplyr::case_when(
+          eval(parse(text = replace_filter)) ~ .data[[source_col]],
+          is.na(.data[[response]]) & !is.na(.data[[pred_col]]) ~ source,
+          TRUE ~ .data[[source_col]]
+        ))
     }
 
     # replace data with predicted values
     if (replace_obs == "missing") {
-      df[[response]] <- ifelse(is.na(df[[response]]), df[[pred_col]], df[[response]])
+      df <- df %>%
+        dplyr::mutate(!!sym(response) := dplyr::case_when(
+          eval(parse(text = replace_filter)) ~ .data[[response]],
+          is.na(.data[[response]]) ~ .data[[pred_col]],
+          TRUE ~ .data[[response]]
+        ))
     } else {
-      df[[response]] <- df[[pred_col]]
+      df <- df %>%
+        dplyr::mutate(!!sym(response) := dplyr::case_when(
+          eval(parse(text = replace_filter)) ~ .data[[response]],
+          TRUE ~ .data[[pred_col]]
+        ))
     }
   }
+
   dplyr::ungroup(df)
 }

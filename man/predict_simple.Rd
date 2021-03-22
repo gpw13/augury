@@ -21,7 +21,8 @@ predict_simple(
   types = c("imputed", "projected"),
   source_col = NULL,
   source = NULL,
-  replace_obs = c("missing", "none")
+  replace_obs = c("missing", "none"),
+  replace_filter = NULL
 )
 }
 \arguments{
@@ -83,6 +84,14 @@ have filled in missing data.}
 \item{replace_obs}{Character value specifying how, if at all, observations should
 be replaced by infilled values. By default, replaces missing values in \code{col}
 but if set to \code{"none"} then \code{col} is not changed.}
+
+\item{replace_filter}{String value of the form "\verb{logical operator} \code{integer}"
+that specifies when replacing observations by predicted values, this is
+done where there is a specific number of observations. This is done in
+conjunction with \code{group_col}. So, if \code{group_col = "iso3"} and
+\code{replace_filter = ">= 5"}, then for this model, predictions will only be used
+for \code{iso3} vales that have 5 or more observations. Possible logical operators
+to use are \code{>}, \code{>=}, \code{<}, \code{<=}, \code{==}, and \code{!=}.}
 }
 \value{
 Depending on the value passed to \code{ret}, either a data frame with

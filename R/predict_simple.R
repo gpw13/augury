@@ -85,7 +85,8 @@ predict_simple <- function(df,
                            types = c("imputed", "projected"),
                            source_col = NULL,
                            source = NULL,
-                           replace_obs = c("missing", "none")) {
+                           replace_obs = c("missing", "none"),
+                           replace_filter = NULL) {
   # Assertions and error checking
   df <- assert_df(df)
   model <- rlang::arg_match(model)
@@ -96,6 +97,7 @@ predict_simple <- function(df,
   assert_string(source, 1)
   assert_string(types, 2)
   replace_obs <- rlang::arg_match(replace_obs)
+  replace_filter <- parse_replace_filter(replace_filter, col)
 
   df <- predict_simple_fn(df = df,
                           model = model,
@@ -132,14 +134,12 @@ predict_simple <- function(df,
                          sort_col = sort_col,
                          sort_descending = sort_descending,
                          pred_col = pred_col,
-                         upper_col = NULL,
-                         lower_col = NULL,
-                         test_col = NULL,
                          type_col = type_col,
                          types = c(NA_character_, types),
                          source_col = source_col,
                          source = source,
-                         replace_obs = replace_obs)
+                         replace_obs = replace_obs,
+                         replace_filter = replace_filter)
 
   # Return what we need
   if (ret == "df") {
