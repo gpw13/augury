@@ -17,7 +17,7 @@ parse_replace_filter <- function(replace_filter, response) {
   if (is.null(replace_filter)) {
     replace_filter <- "FALSE"
   } else {
-    replace_filter <- sprintf("!(sum(is.na(.data[['%s']])) %s)", response, replace_filter)
+    replace_filter <- sprintf("!(sum(!is.na(.data[['%s']])) %s)", response, replace_filter)
   }
   replace_filter
 }
