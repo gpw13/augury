@@ -1,10 +1,19 @@
+# augury 0.3.1
+
+* Add back extrapolation (flat) to `predict_simple()`.
+* Add `predict_aarr()` to allow the use of AARR for forecasting prevalence data.
+* Implement `replace_filter` in all `predict_...` functions that allows for select
+    use of predicted data based on number of observations so that different models
+    can be used for different data typologies.
+* Change defaults for `group_col` and `sort_col` to `"iso3"` and `"year"` respectively,
+    since they are by far the most common usage.
+
 # augury 0.3.0
 
 * `predict_..._avg_trend()` functions implemented to allow the fitting of models
    by group and application of that trend to base data.
 * Added in R-squared and root mean change error metrics to `model_error`.
 * Weighted averaging option added to `predict_average()`.
-* Add back extrapolation (flat) to `predict_simple()`.
 
 # augury 0.2.0
 
