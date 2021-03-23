@@ -14,7 +14,7 @@ forecast function.}
 
 \item{sort_col}{Column name of column to arrange data by in \code{dplyr::arrange()},
 prior to filtering for latest contiguous time series and producing the
-forecast.}
+forecast. Not used if \code{NULL}, defaults to \code{"year"}.}
 
 \item{sort_descending}{Logical value on whether the sorted values from \code{sort_col}
 should be sorted in descending order. Defaults to \code{FALSE}.}

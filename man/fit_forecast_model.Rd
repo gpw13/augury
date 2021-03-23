@@ -40,7 +40,8 @@ for details on the methods and metrics returned.}
 
 \item{group_col}{Column name(s) of group(s) to use in \code{\link[dplyr:group_by]{dplyr::group_by()}} when
 supplying type, calculating mean absolute scaled error on data involving
-time series, and if \code{group_models}, then fitting and predicting models too.}
+time series, and if \code{group_models}, then fitting and predicting models too.
+If \code{NULL}, not used. Defaults to \code{"iso3"}.}
 
 \item{group_models}{Logical, if \code{TRUE}, fits and predicts models individually onto
 each \code{group_col}. If \code{FALSE}, a general model is fit across the entire data
@@ -48,7 +49,7 @@ frame.}
 
 \item{sort_col}{Column name of column to arrange data by in \code{dplyr::arrange()},
 prior to filtering for latest contiguous time series and producing the
-forecast.}
+forecast. Not used if \code{NULL}, defaults to \code{"year"}.}
 
 \item{sort_descending}{Logical value on whether the sorted values from \code{sort_col}
 should be sorted in descending order. Defaults to \code{FALSE}.}

@@ -85,11 +85,12 @@ point. Defaults to \code{FALSE}.}
 
 \item{group_col}{Column name(s) of group(s) to use in \code{\link[dplyr:group_by]{dplyr::group_by()}} when
 supplying type, calculating mean absolute scaled error on data involving
-time series, and if \code{group_models}, then fitting and predicting models too.}
+time series, and if \code{group_models}, then fitting and predicting models too.
+If \code{NULL}, not used. Defaults to \code{"iso3"}.}
 
 \item{sort_col}{Column name(s) to use to \code{\link[dplyr:arrange]{dplyr::arrange()}} the data prior to
 supplying type and calculating mean absolute scaled error on data involving
-time series.}
+time series. If \code{NULL}, not used. Defaults to \code{"year"}.}
 
 \item{sort_descending}{Logical value on whether the sorted values from \code{sort_col}
 should be sorted in descending order. Defaults to \code{FALSE}.}

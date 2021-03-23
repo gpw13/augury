@@ -55,12 +55,13 @@
 #' @param group_col Column name(s) of group(s) to use in [dplyr::group_by()] when
 #'     supplying type, calculating mean absolute scaled error on data involving
 #'     time series, and if `group_models`, then fitting and predicting models too.
+#'     If `NULL`, not used. Defaults to `"iso3"`.
 #' @param group_models Logical, if `TRUE`, fits and predicts models individually onto
 #'     each `group_col`. If `FALSE`, a general model is fit across the entire data
 #'     frame.
 #' @param sort_col Column name(s) to use to [dplyr::arrange()] the data prior to
 #'     supplying type and calculating mean absolute scaled error on data involving
-#'     time series.
+#'     time series. If `NULL`, not used. Defaults to `"year"`.
 #' @param sort_descending Logical value on whether the sorted values from `sort_col`
 #'     should be sorted in descending order. Defaults to `FALSE`.
 #' @param pred_col Column name to store predicted value.
@@ -116,9 +117,9 @@ predict_general_mdl <- function(df,
                                 test_col = NULL,
                                 test_period = NULL,
                                 test_period_flex = NULL,
-                                group_col = NULL,
+                                group_col = "iso3",
                                 group_models = FALSE,
-                                sort_col = NULL,
+                                sort_col = "year",
                                 sort_descending = FALSE,
                                 pred_col = "pred",
                                 upper_col = "upper",

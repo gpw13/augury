@@ -25,7 +25,8 @@ for details on the methods and metrics returned.}
 
 \item{group_col}{Column name(s) of group(s) to use in \code{\link[dplyr:group_by]{dplyr::group_by()}} when
 supplying type, calculating mean absolute scaled error on data involving
-time series, and if \code{group_models}, then fitting and predicting models too.}
+time series, and if \code{group_models}, then fitting and predicting models too.
+If \code{NULL}, not used. Defaults to \code{"iso3"}.}
 
 \item{filter_na}{Character value specifying how, if at all, to filter \code{NA}
 values from the dataset prior to applying the model.  By default, all

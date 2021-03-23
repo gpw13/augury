@@ -22,7 +22,7 @@ family of functions.}
 
 \item{sort_col}{Column name(s) to use to \code{\link[dplyr:arrange]{dplyr::arrange()}} the data prior to
 supplying type and calculating mean absolute scaled error on data involving
-time series.}
+time series. If \code{NULL}, not used. Defaults to \code{"year"}.}
 
 \item{sort_descending}{Logical value on whether the sorted values from \code{sort_col}
 should be sorted in descending order. Defaults to \code{FALSE}.}

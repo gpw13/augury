@@ -15,7 +15,7 @@
 #'     forecast function.
 #' @param sort_col Column name of column to arrange data by in `dplyr::arrange()`,
 #'     prior to filtering for latest contiguous time series and producing the
-#'     forecast.
+#'     forecast. Not used if `NULL`, defaults to `"year"`.
 #' @param ... Additional arguments passed to the forecast function.
 #'
 #' @inherit predict_general_mdl params return
@@ -31,9 +31,9 @@ predict_forecast <- function(df,
                              test_col = NULL,
                              test_period = NULL,
                              test_period_flex = NULL,
-                             group_col = NULL,
-                             group_models = FALSE,
-                             sort_col = NULL,
+                             group_col = "iso3",
+                             group_models = TRUE,
+                             sort_col = "year",
                              sort_descending = FALSE,
                              pred_col = "pred",
                              upper_col = "upper",

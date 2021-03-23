@@ -54,7 +54,7 @@ Et voila, we have the same results for the USA and have also ran forecasting on 
 ```{r bad_example}
 bad_df <- dplyr::tibble(x = c(1:4, NA, 3:2, rep(NA, 4)))
 
-predict_holt(bad_df, "x")
+predict_holt(bad_df, "x", group_col = NULL, sort_col = NULL)
 ```
 
 It's advisable to consider if other data infilling or imputation methods should be used to generate a full time series prior to the use of forecasting methods to prevent issues like above from impacting the predictive accuracy.

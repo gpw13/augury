@@ -15,7 +15,7 @@ such as regions. If missing, uses global average of the data for infilling.}
 
 \item{sort_col}{Column name(s) to use to \code{\link[dplyr:arrange]{dplyr::arrange()}} the data prior to
 supplying type and calculating mean absolute scaled error on data involving
-time series.}
+time series. If \code{NULL}, not used. Defaults to \code{"year"}.}
 }
 \value{
 Column name for sorting averaged data to generate trend.
