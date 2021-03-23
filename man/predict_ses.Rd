@@ -21,7 +21,7 @@ predict_ses(
   lower_col = "lower",
   filter_na = c("all", "response", "predictors", "none"),
   type_col = NULL,
-  types = c("imputed", "imputed", "projected"),
+  types = "projected",
   source_col = NULL,
   source = NULL,
   replace_obs = c("missing", "all", "none"),
