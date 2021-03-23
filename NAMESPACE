@@ -3,6 +3,7 @@
 export("%>%")
 export(f)
 export(model_error)
+export(predict_aarr)
 export(predict_average)
 export(predict_forecast)
 export(predict_forecast_avg_trend)

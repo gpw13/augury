@@ -82,7 +82,7 @@ predict_simple <- function(df,
                            sort_descending = FALSE,
                            pred_col = "pred",
                            type_col = NULL,
-                           types = c("imputed", "projected"),
+                           types = c("imputed", "imputed", "projected"),
                            source_col = NULL,
                            source = NULL,
                            replace_obs = c("missing", "none"),
@@ -95,7 +95,7 @@ predict_simple <- function(df,
   assert_columns_unique(col, group_col, pred_col, test_col, type_col, source_col)
   assert_string(pred_col, 1)
   assert_string(source, 1)
-  assert_string(types, 2)
+  assert_string(types, 3)
   replace_obs <- rlang::arg_match(replace_obs)
   replace_filter <- parse_replace_filter(replace_filter, col)
 
@@ -135,7 +135,7 @@ predict_simple <- function(df,
                          sort_descending = sort_descending,
                          pred_col = pred_col,
                          type_col = type_col,
-                         types = c(NA_character_, types),
+                         types = types,
                          source_col = source_col,
                          source = source,
                          replace_obs = replace_obs,

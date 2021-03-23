@@ -27,7 +27,7 @@ predict_forecast <- function(df,
                              ...,
                              ret = c("df", "all", "error", "model"),
                              scale = NULL,
-                             probit = TRUE,
+                             probit = FALSE,
                              test_col = NULL,
                              test_period = NULL,
                              test_period_flex = NULL,
@@ -40,7 +40,7 @@ predict_forecast <- function(df,
                              lower_col = "lower",
                              filter_na = c("all", "response", "predictors", "none"),
                              type_col = NULL,
-                             types = c("imputed", "imputed", "projected"),
+                             types = "projected",
                              source_col = NULL,
                              source = NULL,
                              replace_obs = c("missing", "all", "none"),
@@ -56,7 +56,7 @@ predict_forecast <- function(df,
   assert_string(upper_col, 1)
   assert_string(lower_col, 1)
   filter_na <- rlang::arg_match(filter_na)
-  assert_string(types, 3)
+  assert_string(types, 1)
   assert_string(source, 1)
   replace_obs <- rlang::arg_match(replace_obs)
   replace_filter <- parse_replace_filter(replace_filter, response)
@@ -139,7 +139,7 @@ predict_forecast <- function(df,
                          sort_descending = sort_descending,
                          pred_col = pred_col,
                          type_col = type_col,
-                         types = types,
+                         types = c(NA_character_, NA_character_, types),
                          source_col = source_col,
                          source = source,
                          replace_obs = replace_obs,

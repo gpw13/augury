@@ -18,7 +18,7 @@ predict_simple(
   sort_descending = FALSE,
   pred_col = "pred",
   type_col = NULL,
-  types = c("imputed", "projected"),
+  types = c("imputed", "imputed", "projected"),
   source_col = NULL,
   source = NULL,
   replace_obs = c("missing", "none"),

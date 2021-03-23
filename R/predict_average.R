@@ -92,8 +92,7 @@ predict_average_fn <- function(df,
 #' as the prediction. If `flat_extrap`, then the latest average is flat extrapolated
 #' to the end of the data. When using `test_col`, the average may not be available
 #' for certain groups, so flat extrapolation will be relied on, meaning that the
-#' `COR` metric output by errors is difficult to interpret or use proplery and it will
-#' generate warnings about a standard deviation of zero.
+#' `COR` metric output by errors is difficult to interpret or use properly.
 #'
 #' @inheritParams predict_general_mdl
 #' @inherit predict_simple params return
