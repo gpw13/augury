@@ -240,7 +240,8 @@ predict_general_mdl <- function(df,
                          types = types,
                          source_col = source_col,
                          source = source,
-                         replace_obs = replace_obs)
+                         replace_obs = replace_obs,
+                         replace_filter = replace_filter)
 
   if (ret == "df") {
     return(df)
