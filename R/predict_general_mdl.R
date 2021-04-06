@@ -85,11 +85,11 @@
 #' @param replace_obs Character value specifying how, if at all, observations should
 #'     be replaced by fitted values. Defaults to replacing only missing values,
 #'     but can be used to replace all values or none.
-#' @param replace_filter String value of the form "`logical operator` `integer`"
+#' @param obs_filter String value of the form "`logical operator` `integer`"
 #'     that specifies when replacing observations by predicted values, this is
 #'     done where there is a specific number of observations. This is done in
 #'     conjunction with `group_col`. So, if `group_col = "iso3"` and
-#'     `replace_filter = ">= 5"`, then for this model, predictions will only be used
+#'     `obs_filter = ">= 5"`, then for this model, predictions will only be used
 #'     for `iso3` vales that have 5 or more observations. Possible logical operators
 #'     to use are `>`, `>=`, `<`, `<=`, `==`, and `!=`.
 #' @param error_correct Logical value indicating whether or not whether mean error
@@ -119,6 +119,7 @@ predict_general_mdl <- function(df,
                                 test_period_flex = NULL,
                                 group_col = "iso3",
                                 group_models = FALSE,
+                                obs_filter = NULL,
                                 sort_col = "year",
                                 sort_descending = FALSE,
                                 pred_col = "pred",
@@ -130,7 +131,6 @@ predict_general_mdl <- function(df,
                                 source_col = NULL,
                                 source = NULL,
                                 replace_obs = c("missing", "all", "none"),
-                                replace_filter = NULL,
                                 error_correct = FALSE,
                                 error_correct_cols = NULL,
                                 shift_trend = FALSE) {
@@ -150,7 +150,7 @@ predict_general_mdl <- function(df,
   assert_string(types, 3)
   assert_string(source, 1)
   replace_obs <- rlang::arg_match(replace_obs)
-  replace_filter <- parse_replace_filter(replace_filter, response)
+  obs_filter <- parse_obs_filter(obs_filter, response)
 
   # Scale response variable
   if (!is.null(scale)) {
@@ -170,6 +170,7 @@ predict_general_mdl <- function(df,
                               test_col = test_col,
                               group_col = group_col,
                               group_models = group_models,
+                              obs_filter = obs_filter,
                               sort_col = sort_col,
                               sort_descending = sort_descending,
                               pred_col = pred_col,
@@ -233,6 +234,7 @@ predict_general_mdl <- function(df,
   df <- merge_prediction(df = df,
                          response = formula_vars[1],
                          group_col = group_col,
+                         obs_filter = obs_filter,
                          sort_col = sort_col,
                          sort_descending = sort_descending,
                          pred_col = pred_col,
@@ -240,8 +242,7 @@ predict_general_mdl <- function(df,
                          types = types,
                          source_col = source_col,
                          source = source,
-                         replace_obs = replace_obs,
-                         replace_filter = replace_filter)
+                         replace_obs = replace_obs)
 
   if (ret == "df") {
     return(df)
@@ -261,6 +262,7 @@ predict_general_mdl <- function(df,
 #' @return A data frame.
 predict_general_data <- function(df,
                                  model,
+                                 group_col,
                                  pred_col,
                                  upper_col,
                                  lower_col) {
@@ -299,6 +301,7 @@ fit_general_model <- function(df,
                               test_col,
                               group_col,
                               group_models,
+                              obs_filter,
                               sort_col,
                               sort_descending,
                               pred_col,
