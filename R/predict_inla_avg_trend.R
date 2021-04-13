@@ -26,6 +26,7 @@ predict_inla_avg_trend <- function(df,
                                    test_period = NULL,
                                    test_period_flex = NULL,
                                    group_col = "iso3",
+                                   obs_filter = NULL,
                                    sort_col = "year",
                                    sort_descending = FALSE,
                                    pred_col = "pred",
@@ -37,7 +38,6 @@ predict_inla_avg_trend <- function(df,
                                    source_col = NULL,
                                    source = NULL,
                                    replace_obs = c("missing", "all", "none"),
-                                   replace_filter = NULL,
                                    error_correct = FALSE,
                                    error_correct_cols = NULL,
                                    shift_trend = FALSE) {
@@ -71,7 +71,7 @@ predict_inla_avg_trend <- function(df,
   assert_string(types, 3)
   assert_string(source, 1)
   replace_obs <- rlang::arg_match(replace_obs)
-  replace_filter <- parse_replace_filter(replace_filter, formula_vars[1])
+  obs_filter <- parse_obs_filter(obs_filter, formula_vars[1])
 
   # Scale response variable
   if (!is.null(scale)) {
@@ -117,6 +117,7 @@ predict_inla_avg_trend <- function(df,
                          response = formula_vars[1],
                          average_cols = average_cols,
                          group_col = group_col,
+                         obs_filter = obs_filter,
                          sort_col = sort_col,
                          pred_col = pred_col,
                          upper_col = upper_col,
@@ -167,6 +168,7 @@ predict_inla_avg_trend <- function(df,
   df <- merge_prediction(df = df,
                          response = formula_vars[1],
                          group_col = group_col,
+                         obs_filter = obs_filter,
                          sort_col = sort_col,
                          sort_descending = sort_descending,
                          pred_col = pred_col,
@@ -174,8 +176,7 @@ predict_inla_avg_trend <- function(df,
                          types = types,
                          source_col = source_col,
                          source = source,
-                         replace_obs = replace_obs,
-                         replace_filter = replace_filter)
+                         replace_obs = replace_obs)
 
   if (ret == "df") {
     return(df)

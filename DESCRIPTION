@@ -36,7 +36,8 @@ Imports:
     forecast,
     tidyr,
     merTools,
-    stringr
+    stringr,
+    tibble
 Suggests:
     knitr,
     rmarkdown,

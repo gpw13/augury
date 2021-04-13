@@ -1,3 +1,10 @@
+# augury 0.3.2
+
+* Use `obs_filter` in all `predict_...` functions to replace `replace_filter`, allowing
+    not just filtering of when to replace observations, but also not fitting models
+    when not being used to improve speed and reduce errors if insufficient data
+    for certain types of modeling.
+
 # augury 0.3.1
 
 * Add back extrapolation (flat) to `predict_simple()`.

@@ -13,6 +13,7 @@ fit_inla_model(
   test_col,
   group_col,
   group_models,
+  obs_filter,
   sort_col,
   sort_descending,
   pred_col,
@@ -53,6 +54,14 @@ If \code{NULL}, not used. Defaults to \code{"iso3"}.}
 \item{group_models}{Logical, if \code{TRUE}, fits and predicts models individually onto
 each \code{group_col}. If \code{FALSE}, a general model is fit across the entire data
 frame.}
+
+\item{obs_filter}{String value of the form "\verb{logical operator} \code{integer}"
+that specifies the number of observations required to fit the model and
+replace observations with predicted values. This is done in
+conjunction with \code{group_col}. So, if \code{group_col = "iso3"} and
+\code{obs_filter = ">= 5"}, then for this model, predictions will only be used
+for \code{iso3} vales that have 5 or more observations. Possible logical operators
+to use are \code{>}, \code{>=}, \code{<}, \code{<=}, \code{==}, and \code{!=}.}
 
 \item{sort_col}{Column name(s) to use to \code{\link[dplyr:arrange]{dplyr::arrange()}} the data prior to
 supplying type and calculating mean absolute scaled error on data involving

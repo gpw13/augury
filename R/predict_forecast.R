@@ -33,6 +33,7 @@ predict_forecast <- function(df,
                              test_period_flex = NULL,
                              group_col = "iso3",
                              group_models = TRUE,
+                             obs_filter = NULL,
                              sort_col = "year",
                              sort_descending = FALSE,
                              pred_col = "pred",
@@ -43,8 +44,7 @@ predict_forecast <- function(df,
                              types = "projected",
                              source_col = NULL,
                              source = NULL,
-                             replace_obs = c("missing", "all", "none"),
-                             replace_filter = NULL) {
+                             replace_obs = c("missing", "all", "none")) {
   # Assertions and error checking
   df <- assert_df(df)
   assert_function(forecast_function)
@@ -59,7 +59,7 @@ predict_forecast <- function(df,
   assert_string(types, 1)
   assert_string(source, 1)
   replace_obs <- rlang::arg_match(replace_obs)
-  replace_filter <- parse_replace_filter(replace_filter, response)
+  obs_filter <- parse_obs_filter(obs_filter, response)
 
   if (!is.null(scale)) {
     df <- scale_transform(df, response, scale = scale)
@@ -76,6 +76,7 @@ predict_forecast <- function(df,
                                test_col = test_col,
                                group_col = group_col,
                                group_models = group_models,
+                               obs_filter = obs_filter,
                                sort_col = sort_col,
                                sort_descending = sort_descending,
                                pred_col = pred_col,
@@ -135,6 +136,7 @@ predict_forecast <- function(df,
   df <- merge_prediction(df = df,
                          response = response,
                          group_col = group_col,
+                         obs_filter = obs_filter,
                          sort_col = sort_col,
                          sort_descending = sort_descending,
                          pred_col = pred_col,
@@ -142,8 +144,7 @@ predict_forecast <- function(df,
                          types = c(NA_character_, NA_character_, types),
                          source_col = source_col,
                          source = source,
-                         replace_obs = replace_obs,
-                         replace_filter = replace_filter)
+                         replace_obs = replace_obs)
 
   if (ret == "df") {
     return(df)
@@ -286,6 +287,7 @@ fit_forecast_model <- function(df,
                                test_col,
                                group_col,
                                group_models,
+                               obs_filter,
                                sort_col,
                                sort_descending,
                                pred_col,
@@ -295,51 +297,63 @@ fit_forecast_model <- function(df,
                                ret) {
 
   if (!group_models) {
-    # Filter data for modeling
-    x <- get_forecast_data(df = df,
-                           response = response,
-                           sort_col = sort_col,
-                           sort_descending = sort_descending,
-                           test_col = test_col)
-
-    # Build model
-    mdl <- forecast_series(x,
-                           forecast_function,
-                           ...)
-
-    if (ret == "model") {
-      df <- NULL
-    } else {
-      # Get model predictions
-      df <- predict_forecast_data(df = df,
-                                  forecast_obj = mdl,
-                                  sort_col = sort_col,
-                                  sort_descending = sort_descending,
-                                  pred_col = pred_col,
-                                  upper_col = upper_col,
-                                  lower_col = lower_col)
-    }
-  } else {
-    # map by group
-    df_list <- dplyr::group_by(df, dplyr::across(dplyr::all_of(group_col))) %>%
-      dplyr::group_split()
-
-    df <- purrr::map_dfr(df_list, function(df) {
+    obs_check <- dplyr::filter(df, eval(parse(text = obs_filter)))
+    if (nrow(obs_check) == 0) {
+      # Filter data for modeling
       x <- get_forecast_data(df = df,
                              response = response,
                              sort_col = sort_col,
                              sort_descending = sort_descending,
                              test_col = test_col)
+
+      # Build model
       mdl <- forecast_series(x,
                              forecast_function,
                              ...)
-      predict_forecast_data(df = df,
-                            forecast_obj = mdl,
-                            sort_col = sort_col,
-                            sort_descending = sort_descending,
-                            pred_col = pred_col,
-                            upper_col = upper_col,
-                            lower_col = lower_col)
+
+      if (ret == "model") {
+        df <- NULL
+      } else {
+        # Get model predictions
+        df <- predict_forecast_data(df = df,
+                                    forecast_obj = mdl,
+                                    sort_col = sort_col,
+                                    sort_descending = sort_descending,
+                                    pred_col = pred_col,
+                                    upper_col = upper_col,
+                                    lower_col = lower_col)
+      }
+    } else {
+      mdl <- NULL
+      df <- augury_add_columns(df, c(pred_col, upper_col, lower_col))
+    }
+  } else {
+    # map by group
+
+    df_list <- dplyr::group_by(df, dplyr::across(dplyr::all_of(group_col))) %>%
+      dplyr::group_split()
+
+    df <- purrr::map_dfr(df_list, function(df) {
+      obs_check <- dplyr::filter(df, eval(parse(text = obs_filter)))
+      if (nrow(obs_check) == 0) {
+        x <- get_forecast_data(df = df,
+                               response = response,
+                               sort_col = sort_col,
+                               sort_descending = sort_descending,
+                               test_col = test_col)
+        mdl <- forecast_series(x,
+                               forecast_function,
+                               ...)
+        predict_forecast_data(df = df,
+                              forecast_obj = mdl,
+                              sort_col = sort_col,
+                              sort_descending = sort_descending,
+                              pred_col = pred_col,
+                              upper_col = upper_col,
+                              lower_col = lower_col)
+      } else {
+        augury_add_columns(df, c(pred_col, upper_col, lower_col))
+      }
     })
 
     mdl <- NULL

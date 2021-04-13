@@ -13,6 +13,7 @@ predict_average_fn <- function(df,
                                flat_extrap = TRUE,
                                test_col = NULL,
                                group_col = NULL,
+                               obs_filter = NULL,
                                pred_col = "pred",
                                sort_col = NULL,
                                sort_descending = FALSE,
@@ -78,6 +79,9 @@ predict_average_fn <- function(df,
                          error_correct_cols = error_correct_cols,
                          shift_trend = shift_trend)
 
+  # Remove prediction column based on obs_filter
+  df <- dplyr::mutate(df, !!sym(pred_col) := ifelse(eval(parse(text = obs_filter)), NA_real_, .data[[pred_col]]))
+
   dplyr::ungroup(df)
 }
 
@@ -117,6 +121,7 @@ predict_average <- function(df,
                             test_period = NULL,
                             test_period_flex = NULL,
                             group_col = "iso3",
+                            obs_filter = NULL,
                             sort_col = "year",
                             sort_descending = FALSE,
                             pred_col = "pred",
@@ -125,7 +130,6 @@ predict_average <- function(df,
                             source_col = NULL,
                             source = NULL,
                             replace_obs = c("missing", "all", "none"),
-                            replace_filter = NULL,
                             error_correct = FALSE,
                             error_correct_cols = NULL,
                             shift_trend = FALSE) {
@@ -138,7 +142,7 @@ predict_average <- function(df,
   assert_string(types, 3)
   assert_string(source, 1)
   replace_obs <- rlang::arg_match(replace_obs)
-  replace_filter <- parse_replace_filter(replace_filter, col)
+  obs_filter <- parse_obs_filter(obs_filter, col)
 
   # Calculate pred column using averages
   df <- predict_average_fn(df = df,
@@ -148,6 +152,7 @@ predict_average <- function(df,
                            flat_extrap = flat_extrap,
                            test_col = test_col,
                            group_col = group_col,
+                           obs_filter = obs_filter,
                            pred_col = pred_col,
                            sort_col = sort_col,
                            sort_descending = sort_descending,
@@ -178,6 +183,7 @@ predict_average <- function(df,
   df <- merge_prediction(df = df,
                          response = col,
                          group_col = group_col,
+                         obs_filter = obs_filter,
                          sort_col = sort_col,
                          sort_descending = sort_descending,
                          pred_col = pred_col,
@@ -185,8 +191,7 @@ predict_average <- function(df,
                          types = types,
                          source_col = source_col,
                          source = source,
-                         replace_obs = replace_obs,
-                         replace_filter = replace_filter)
+                         replace_obs = replace_obs)
 
   # Return what we need
   if (ret == "df") {

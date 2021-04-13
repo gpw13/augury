@@ -11,6 +11,7 @@ predict_simple_fn <- function(df,
                               col,
                               test_col = NULL,
                               group_col = NULL,
+                              obs_filter = NULL,
                               pred_col = "pred",
                               sort_col = NULL,
                               sort_descending = FALSE) {
@@ -26,7 +27,8 @@ predict_simple_fn <- function(df,
   }
 
   df <- dplyr::mutate(df,
-                      !!sym(pred_col) := if (!is.null(test_col)) ifelse(.data[[test_col]], NA_real_, .data[[col]]) else .data[[col]])
+                      !!sym(pred_col) := if (!is.null(test_col)) ifelse(.data[[test_col]], NA_real_, .data[[col]]) else .data[[col]],
+                      !!sym(pred_col) := ifelse(eval(parse(text = obs_filter)), NA_real_, .data[[pred_col]]))
 
   if (model %in% c("forward", "all", "linear_interp")) {
     df <- dplyr::mutate(df, !!sym(pred_col) := zoo::na.approx(.data[[pred_col]],
@@ -78,6 +80,7 @@ predict_simple <- function(df,
                            test_period = NULL,
                            test_period_flex = NULL,
                            group_col = "iso3",
+                           obs_filter = NULL,
                            sort_col = "year",
                            sort_descending = FALSE,
                            pred_col = "pred",
@@ -85,8 +88,7 @@ predict_simple <- function(df,
                            types = c("imputed", "imputed", "projected"),
                            source_col = NULL,
                            source = NULL,
-                           replace_obs = c("missing", "none"),
-                           replace_filter = NULL) {
+                           replace_obs = c("missing", "none")) {
   # Assertions and error checking
   df <- assert_df(df)
   model <- rlang::arg_match(model)
@@ -97,13 +99,14 @@ predict_simple <- function(df,
   assert_string(source, 1)
   assert_string(types, 3)
   replace_obs <- rlang::arg_match(replace_obs)
-  replace_filter <- parse_replace_filter(replace_filter, col)
+  obs_filter <- parse_obs_filter(obs_filter, col)
 
   df <- predict_simple_fn(df = df,
                           model = model,
                           col = col,
                           test_col = test_col,
                           group_col = group_col,
+                          obs_filter = obs_filter,
                           pred_col = pred_col,
                           sort_col = sort_col,
                           sort_descending = sort_descending)
@@ -131,6 +134,7 @@ predict_simple <- function(df,
   df <- merge_prediction(df = df,
                          response = col,
                          group_col = group_col,
+                         obs_filter = obs_filter,
                          sort_col = sort_col,
                          sort_descending = sort_descending,
                          pred_col = pred_col,
@@ -138,8 +142,7 @@ predict_simple <- function(df,
                          types = types,
                          source_col = source_col,
                          source = source,
-                         replace_obs = replace_obs,
-                         replace_filter = replace_filter)
+                         replace_obs = replace_obs)
 
   # Return what we need
   if (ret == "df") {

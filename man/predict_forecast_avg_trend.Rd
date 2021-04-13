@@ -19,6 +19,7 @@ predict_forecast_avg_trend(
   test_period = NULL,
   test_period_flex = NULL,
   group_col = "iso3",
+  obs_filter = NULL,
   sort_col = "year",
   sort_descending = FALSE,
   pred_col = "pred",
@@ -29,8 +30,7 @@ predict_forecast_avg_trend(
   types = c("imputed", "imputed", "projected"),
   source_col = NULL,
   source = NULL,
-  replace_obs = c("missing", "all", "none"),
-  replace_filter = NULL
+  replace_obs = c("missing", "all", "none")
 )
 }
 \arguments{
@@ -92,6 +92,14 @@ supplying type, calculating mean absolute scaled error on data involving
 time series, and if \code{group_models}, then fitting and predicting models too.
 If \code{NULL}, not used. Defaults to \code{"iso3"}.}
 
+\item{obs_filter}{String value of the form "\verb{logical operator} \code{integer}"
+that specifies the number of observations required to fit the model and
+replace observations with predicted values. This is done in
+conjunction with \code{group_col}. So, if \code{group_col = "iso3"} and
+\code{obs_filter = ">= 5"}, then for this model, predictions will only be used
+for \code{iso3} vales that have 5 or more observations. Possible logical operators
+to use are \code{>}, \code{>=}, \code{<}, \code{<=}, \code{==}, and \code{!=}.}
+
 \item{sort_col}{Column name of column to arrange data by in \code{dplyr::arrange()},
 prior to filtering for latest contiguous time series and producing the
 forecast. Not used if \code{NULL}, defaults to \code{"year"}.}
@@ -128,14 +136,6 @@ have filled in missing data.}
 \item{replace_obs}{Character value specifying how, if at all, observations should
 be replaced by fitted values. Defaults to replacing only missing values,
 but can be used to replace all values or none.}
-
-\item{replace_filter}{String value of the form "\verb{logical operator} \code{integer}"
-that specifies when replacing observations by predicted values, this is
-done where there is a specific number of observations. This is done in
-conjunction with \code{group_col}. So, if \code{group_col = "iso3"} and
-\code{replace_filter = ">= 5"}, then for this model, predictions will only be used
-for \code{iso3} vales that have 5 or more observations. Possible logical operators
-to use are \code{>}, \code{>=}, \code{<}, \code{<=}, \code{==}, and \code{!=}.}
 }
 \value{
 Depending on the value passed to \code{ret}, either a data frame with

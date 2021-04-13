@@ -59,6 +59,13 @@
 #' @param group_models Logical, if `TRUE`, fits and predicts models individually onto
 #'     each `group_col`. If `FALSE`, a general model is fit across the entire data
 #'     frame.
+#' @param obs_filter String value of the form "`logical operator` `integer`"
+#'     that specifies the number of observations required to fit the model and
+#'     replace observations with predicted values. This is done in
+#'     conjunction with `group_col`. So, if `group_col = "iso3"` and
+#'     `obs_filter = ">= 5"`, then for this model, predictions will only be used
+#'     for `iso3` vales that have 5 or more observations. Possible logical operators
+#'     to use are `>`, `>=`, `<`, `<=`, `==`, and `!=`.
 #' @param sort_col Column name(s) to use to [dplyr::arrange()] the data prior to
 #'     supplying type and calculating mean absolute scaled error on data involving
 #'     time series. If `NULL`, not used. Defaults to `"year"`.
@@ -85,13 +92,6 @@
 #' @param replace_obs Character value specifying how, if at all, observations should
 #'     be replaced by fitted values. Defaults to replacing only missing values,
 #'     but can be used to replace all values or none.
-#' @param replace_filter String value of the form "`logical operator` `integer`"
-#'     that specifies when replacing observations by predicted values, this is
-#'     done where there is a specific number of observations. This is done in
-#'     conjunction with `group_col`. So, if `group_col = "iso3"` and
-#'     `replace_filter = ">= 5"`, then for this model, predictions will only be used
-#'     for `iso3` vales that have 5 or more observations. Possible logical operators
-#'     to use are `>`, `>=`, `<`, `<=`, `==`, and `!=`.
 #' @param error_correct Logical value indicating whether or not whether mean error
 #'     should be used to adjust predicted values. If `TRUE`, the mean error between
 #'     observed and predicted data points will be used to adjust predictions. If
@@ -119,6 +119,7 @@ predict_general_mdl <- function(df,
                                 test_period_flex = NULL,
                                 group_col = "iso3",
                                 group_models = FALSE,
+                                obs_filter = NULL,
                                 sort_col = "year",
                                 sort_descending = FALSE,
                                 pred_col = "pred",
@@ -130,7 +131,6 @@ predict_general_mdl <- function(df,
                                 source_col = NULL,
                                 source = NULL,
                                 replace_obs = c("missing", "all", "none"),
-                                replace_filter = NULL,
                                 error_correct = FALSE,
                                 error_correct_cols = NULL,
                                 shift_trend = FALSE) {
@@ -150,7 +150,7 @@ predict_general_mdl <- function(df,
   assert_string(types, 3)
   assert_string(source, 1)
   replace_obs <- rlang::arg_match(replace_obs)
-  replace_filter <- parse_replace_filter(replace_filter, response)
+  obs_filter <- parse_obs_filter(obs_filter, response)
 
   # Scale response variable
   if (!is.null(scale)) {
@@ -170,6 +170,7 @@ predict_general_mdl <- function(df,
                               test_col = test_col,
                               group_col = group_col,
                               group_models = group_models,
+                              obs_filter = obs_filter,
                               sort_col = sort_col,
                               sort_descending = sort_descending,
                               pred_col = pred_col,
@@ -233,6 +234,7 @@ predict_general_mdl <- function(df,
   df <- merge_prediction(df = df,
                          response = formula_vars[1],
                          group_col = group_col,
+                         obs_filter = obs_filter,
                          sort_col = sort_col,
                          sort_descending = sort_descending,
                          pred_col = pred_col,
@@ -240,8 +242,7 @@ predict_general_mdl <- function(df,
                          types = types,
                          source_col = source_col,
                          source = source,
-                         replace_obs = replace_obs,
-                         replace_filter = replace_filter)
+                         replace_obs = replace_obs)
 
   if (ret == "df") {
     return(df)
@@ -299,6 +300,7 @@ fit_general_model <- function(df,
                               test_col,
                               group_col,
                               group_models,
+                              obs_filter,
                               sort_col,
                               sort_descending,
                               pred_col,
@@ -330,31 +332,42 @@ fit_general_model <- function(df,
     # Build and apply models
 
     df <- purrr::map2_dfr(data, df, function(x, y) {
-      mdl <- model(formula = formula,
-                   data = x,
-                   ...)
-      predict_general_data(df = y,
-                           model = mdl,
-                           pred_col = pred_col,
-                           upper_col = upper_col,
-                           lower_col = lower_col)
+      obs_check <- dplyr::filter(y, eval(parse(text = obs_filter)))
+      if (nrow(obs_check) == 0) {
+        mdl <- model(formula = formula,
+                     data = x,
+                     ...)
+
+        predict_general_data(df = y,
+                             model = mdl,
+                             pred_col = pred_col,
+                             upper_col = upper_col,
+                             lower_col = lower_col)
+      } else {
+        y
+      }
     })
+    df <- augury_add_columns(df, c(pred_col, lower_col, upper_col))
 
     mdl <- NULL # not returning all models together for grouped models
   } else { # single model fitting
-    mdl <- model(formula = formula,
-                 data = data,
-                 ...)
-
-    # don't predict data if only returning model
-    if (ret == "mdl") {
-      df <- NULL
+    obs_check <- dplyr::filter(df, eval(parse(text = obs_filter)))
+    if (nrow(obs_check) == 0) {
+      mdl <- model(formula = formula,
+                   data = data,
+                   ...)
+      if (ret == "mdl") {
+        df <- NULL
+      } else {
+        df <- predict_general_data(df = df,
+                                   model = mdl,
+                                   pred_col = pred_col,
+                                   upper_col = upper_col,
+                                   lower_col = lower_col)
+      }
     } else {
-      df <- predict_general_data(df = df,
-                                 model = mdl,
-                                 pred_col = pred_col,
-                                 upper_col = upper_col,
-                                 lower_col = lower_col)
+      mdl <- NULL
+      df <- augury_add_columns(df, "pred")
     }
   }
 
