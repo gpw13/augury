@@ -5,7 +5,7 @@
 #' string will be parsed within a `case_when`. The `obs_filter` passed sets a
 #' threshold for fitting models and generating predictions for data based on
 #' number of observed data points. So, `'>=5'` would be that we only want to fit a model,
-#'generate predictions and use them them to replace observations
+#' generate predictions and use them them to replace observations
 #' if there are 5 or more observations. Thus, in `case_when()`, we pass the first
 #' logical argument to be anywhere there is NOT `'>=5'` observations.
 #'
@@ -34,11 +34,3 @@ assert_obs_filter <- function(obs_filter) {
     }
   }
 }
-
-obs_filter_df <- function(df,
-                          group_col,
-                          obs_filter,
-                          pred_col,
-                          upper_col,
-                          lower_col)
-

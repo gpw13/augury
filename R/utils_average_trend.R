@@ -53,6 +53,7 @@ merge_average_df <- function(avg_df,
                              response,
                              average_cols,
                              group_col,
+                             obs_filter,
                              sort_col,
                              pred_col,
                              upper_col,
@@ -101,7 +102,9 @@ merge_average_df <- function(avg_df,
                       TRUE ~ .data[[pred_col]] - .data[[paste0(lower_col, "_trend")]]          # otherwise, subtract from prediction column
                     )) %>%
       dplyr::select(-c(paste0(c(pred_col, upper_col, lower_col), "_trend"),  # drop temporary columns
-                       "temp_fill_response", "temp_forward_trend", "temp_backward_trend", "temp_response"))
+                       "temp_fill_response", "temp_forward_trend", "temp_backward_trend", "temp_response")) %>%
+      dplyr::mutate(dplyr::across(c(pred_col, upper_col, lower_col),
+                                  ~ ifelse(eval(parse(text = obs_filter)), NA_real_, .x)))
 
   } else {
 
@@ -115,7 +118,10 @@ merge_average_df <- function(avg_df,
                     lower_col)
 
     df <- df %>%
-      dplyr::left_join(avg_df, by = average_cols)
+      dplyr::left_join(avg_df, by = average_cols) %>%
+      dplyr::mutate(dplyr::across(c(pred_col, upper_col, lower_col),
+                                  ~ ifelse(eval(parse(text = obs_filter)), NA_real_, .x)))
+
   }
   dplyr::ungroup(df)
 }

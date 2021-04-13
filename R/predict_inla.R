@@ -36,6 +36,7 @@ predict_inla <- function(df,
                          test_period_flex = NULL,
                          group_col = "iso3",
                          group_models = FALSE,
+                         obs_filter = NULL,
                          sort_col = "year",
                          sort_descending = FALSE,
                          pred_col = "pred",
@@ -47,7 +48,6 @@ predict_inla <- function(df,
                          source_col = NULL,
                          source = NULL,
                          replace_obs = c("missing", "all", "none"),
-                         replace_filter = NULL,
                          error_correct = FALSE,
                          error_correct_cols = NULL,
                          shift_trend = FALSE) {
@@ -67,7 +67,7 @@ predict_inla <- function(df,
   assert_string(types, 3)
   assert_string(source, 1)
   replace_obs <- rlang::arg_match(replace_obs)
-  replace_filter <- parse_replace_filter(replace_filter, response)
+  obs_filter <- parse_obs_filter(obs_filter, response)
 
   # Scale response variable
   if (!is.null(scale)) {
@@ -87,6 +87,7 @@ predict_inla <- function(df,
                            test_col = test_col,
                            group_col = group_col,
                            group_models = group_models,
+                           obs_filter = obs_filter,
                            sort_col = sort_col,
                            sort_descending = sort_descending,
                            pred_col = pred_col,
@@ -149,6 +150,7 @@ predict_inla <- function(df,
   df <- merge_prediction(df = df,
                          response = formula_vars[1],
                          group_col = group_col,
+                         obs_filter = obs_filter,
                          sort_col = sort_col,
                          sort_descending = sort_descending,
                          pred_col = pred_col,
@@ -156,8 +158,7 @@ predict_inla <- function(df,
                          types = types,
                          source_col = source_col,
                          source = source,
-                         replace_obs = replace_obs,
-                         replace_filter = replace_filter)
+                         replace_obs = replace_obs)
 
   if (ret == "df") {
     return(df)
@@ -215,6 +216,7 @@ fit_inla_model <- function(df,
                            test_col,
                            group_col,
                            group_models,
+                           obs_filter,
                            sort_col,
                            sort_descending,
                            pred_col,
@@ -246,33 +248,45 @@ fit_inla_model <- function(df,
     # Map modeling behavior
     data <- purrr::map_dfr(data,
                            function(x) {
-                             mdl <- INLA::inla(formula = formula,
-                                               data = x,
-                                               control.predictor = control.predictor,
-                                               ...)
-                             predict_inla_data(x,
-                                               mdl,
-                                               pred_col,
-                                               upper_col,
-                                               lower_col)
+                             obs_check <- dplyr::filter(x, eval(parse(text = obs_filter)))
+                             if (nrow(obs_check) == 0) {
+                               mdl <- INLA::inla(formula = formula,
+                                                 data = x,
+                                                 control.predictor = control.predictor,
+                                                 ...)
+                               predict_inla_data(x,
+                                                 mdl,
+                                                 pred_col,
+                                                 upper_col,
+                                                 lower_col)
+                             } else {
+                               x
+                             }
                            })
+    data <- augury_add_columns(data, c(pred_col, upper_col, lower_col))
 
     mdl <- NULL # not returning all models together for grouped models
   } else { # single model fitting
-    mdl <- INLA::inla(formula = formula,
-                      data = data,
-                      control.predictor = control.predictor,
-                      ...)
+    obs_check <- dplyr::filter(data, eval(parse(text = obs_filter)))
+    if (nrow(obs_check) == 0) {
+      mdl <- INLA::inla(formula = formula,
+                        data = data,
+                        control.predictor = control.predictor,
+                        ...)
 
-    # don't predict data if only returning model
-    if (ret == "mdl") {
-      data <- NULL
+      # don't predict data if only returning model
+      if (ret == "mdl") {
+        data <- NULL
+      } else {
+        data <- predict_inla_data(data,
+                                  mdl,
+                                  pred_col,
+                                  upper_col,
+                                  lower_col)
+      }
     } else {
-      data <- predict_inla_data(data,
-                                mdl,
-                                pred_col,
-                                upper_col,
-                                lower_col)
+      mdl <- NULL
+      data <- augury_add_columns(data, c(pred_col, lower_col, upper_col))
     }
   }
 

@@ -32,6 +32,7 @@ predict_aarr <- function(df,
                          test_period_flex = NULL,
                          group_col = "iso3",
                          group_models = TRUE,
+                         obs_filter = NULL,
                          sort_col = "year",
                          sort_descending = FALSE,
                          pred_col = "pred",
@@ -39,8 +40,7 @@ predict_aarr <- function(df,
                          types = "projected",
                          source_col = NULL,
                          source = NULL,
-                         replace_obs = c("missing", "all", "none"),
-                         replace_filter = NULL) {
+                         replace_obs = c("missing", "all", "none")) {
   # Assertions and error checking
   df <- assert_df(df)
   assert_columns(df, response, test_col, group_col, sort_col, type_col, source_col)
@@ -52,7 +52,7 @@ predict_aarr <- function(df,
   assert_string(source, 1)
   assert_numeric(sort_col_min, 1)
   replace_obs <- rlang::arg_match(replace_obs)
-  replace_filter <- parse_replace_filter(replace_filter, response)
+  obs_filter <- parse_obs_filter(obs_filter, response)
 
   if (!is.null(scale)) {
     df <- scale_transform(df, response, scale = scale)
@@ -67,6 +67,7 @@ predict_aarr <- function(df,
                            test_col = test_col,
                            group_col = group_col,
                            group_models = group_models,
+                           obs_filter = obs_filter,
                            sort_col = sort_col,
                            sort_descending = sort_descending,
                            sort_col_min = sort_col_min,
@@ -119,6 +120,7 @@ predict_aarr <- function(df,
   df <- merge_prediction(df = df,
                          response = response,
                          group_col = group_col,
+                         obs_filter = obs_filter,
                          sort_col = sort_col,
                          sort_descending = sort_descending,
                          pred_col = pred_col,
@@ -126,8 +128,7 @@ predict_aarr <- function(df,
                          types = c(NA_character_, NA_character_, types),
                          source_col = source_col,
                          source = source,
-                         replace_obs = replace_obs,
-                         replace_filter = replace_filter)
+                         replace_obs = replace_obs)
 
   if (ret == "df") {
     return(df)
@@ -165,6 +166,7 @@ fit_aarr_model <- function(df,
                            sort_col_min,
                            group_col,
                            group_models,
+                           obs_filter,
                            pred_col) {
   if (group_models) {
     df <- dplyr::group_by(df, dplyr::across(dplyr::all_of(group_col)))
@@ -182,6 +184,7 @@ fit_aarr_model <- function(df,
   df <- df %>%
     dplyr::mutate(!!sym(pred_col) := .data[[response]],
                   !!sym(pred_col) := if (!is.null(test_col)) ifelse(.data[[test_col]], NA_real_, .data[[pred_col]]) else .data[[pred_col]],
+                  !!sym(pred_col) := ifelse(eval(parse(text = obs_filter)), NA_real_, .data[[pred_col]]),
                   !!sym(pred_col) := if (!is.null(sort_col_min)) ifelse(.data[[sort_col]] >= sort_col_min, .data[[pred_col]], NA_real_) else .data[[pred_col]],
                   "aarr_temp_augury" := if (sum(!is.na(.data[[pred_col]])) > 1) calculate_aarr(.data[[sort_col]], .data[[pred_col]]) else NA_real_,
                   "last_obs_temp" := max(which(!is.na(.data[[pred_col]])), -Inf),
