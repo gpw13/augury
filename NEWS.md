@@ -4,6 +4,8 @@
     not just filtering of when to replace observations, but also not fitting models
     when not being used to improve speed and reduce errors if insufficient data
     for certain types of modeling.
+* Add `expand_df()` function to allow easy generation of data frames with explicit
+    missing values prior to passing to `predict_...` functions.
 
 # augury 0.3.1
 

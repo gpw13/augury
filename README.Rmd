@@ -21,7 +21,7 @@ knitr::opts_chunk$set(
 
 The goal of augury is to streamline the process of fitting models to infill and
 forecast data, particularly for models used within the WHO's Triple Billion
-framework
+framework.
 
 ## Installation
 

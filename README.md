@@ -10,7 +10,7 @@
 
 The goal of augury is to streamline the process of fitting models to
 infill and forecast data, particularly for models used within the WHO’s
-Triple Billion framework
+Triple Billion framework.
 
 ## Installation
 
@@ -523,17 +523,17 @@ pred_df %>%
                 year <= 2018) %>%
   dplyr::select(iso3, year, value)
 #> # A tibble: 9 x 3
-#>   iso3   year value
-#>   <chr> <int> <dbl>
-#> 1 AFG    2010 0.211
-#> 2 AFG    2011 0.211
-#> 3 AFG    2012 0.210
-#> 4 AFG    2013 0.210
-#> 5 AFG    2014 0.209
-#> 6 AFG    2015 0.209
-#> 7 AFG    2016 0.211
-#> 8 AFG    2017 0.213
-#> 9 AFG    2018 0.215
+#>   iso3   year  value
+#>   <chr> <int>  <dbl>
+#> 1 AFG    2010  0.211
+#> 2 AFG    2011 NA    
+#> 3 AFG    2012 NA    
+#> 4 AFG    2013 NA    
+#> 5 AFG    2014 NA    
+#> 6 AFG    2015  0.209
+#> 7 AFG    2016 NA    
+#> 8 AFG    2017 NA    
+#> 9 AFG    2018  0.215
 ```
 
 And we can see our linear interpolation there. We can also see the flat
@@ -545,15 +545,15 @@ pred_df %>%
                 year > 2016) %>%
   dplyr::select(iso3, year, value)
 #> # A tibble: 7 x 3
-#>   iso3   year value
-#>   <chr> <int> <dbl>
-#> 1 AFG    2017 0.213
-#> 2 AFG    2018 0.215
-#> 3 AFG    2019 0.215
-#> 4 AFG    2020 0.215
-#> 5 AFG    2021 0.215
-#> 6 AFG    2022 0.215
-#> 7 AFG    2023 0.215
+#>   iso3   year  value
+#>   <chr> <int>  <dbl>
+#> 1 AFG    2017 NA    
+#> 2 AFG    2018  0.215
+#> 3 AFG    2019 NA    
+#> 4 AFG    2020 NA    
+#> 5 AFG    2021 NA    
+#> 6 AFG    2022 NA    
+#> 7 AFG    2023 NA
 ```
 
 We can use the `predict_average()` function in much the same way, except
@@ -595,24 +595,24 @@ predict_average(df,
 #>    iso3   year ind   value lower upper source type    other_detail region  pred
 #>    <chr> <int> <chr> <dbl> <lgl> <lgl> <chr>  <chr>   <lgl>        <chr>  <dbl>
 #>  1 LBN    2000 <NA>   65.9 NA    NA    <NA>   imputed NA           UMC     65.9
-#>  2 LBN    2001 <NA>   66.9 NA    NA    <NA>   imputed NA           UMC     66.9
-#>  3 LBN    2002 <NA>   67.8 NA    NA    <NA>   imputed NA           UMC     67.8
-#>  4 LBN    2003 <NA>   68.8 NA    NA    <NA>   imputed NA           UMC     68.8
-#>  5 LBN    2004 <NA>   69.6 NA    NA    <NA>   imputed NA           UMC     69.6
-#>  6 LBN    2005 <NA>   70.6 NA    NA    <NA>   imputed NA           UMC     70.6
-#>  7 LBN    2006 <NA>   71.5 NA    NA    <NA>   imputed NA           UMC     71.5
-#>  8 LBN    2007 <NA>   72.3 NA    NA    <NA>   imputed NA           UMC     72.3
-#>  9 LBN    2008 <NA>   73.2 NA    NA    <NA>   imputed NA           UMC     73.2
-#> 10 LBN    2009 <NA>   73.9 NA    NA    <NA>   imputed NA           UMC     73.9
-#> 11 LBN    2010 <NA>   74.6 NA    NA    <NA>   imputed NA           UMC     74.6
-#> 12 LBN    2011 <NA>   75.3 NA    NA    <NA>   imputed NA           UMC     75.3
-#> 13 LBN    2012 <NA>   75.8 NA    NA    <NA>   imputed NA           UMC     75.8
-#> 14 LBN    2013 <NA>   76.2 NA    NA    <NA>   imputed NA           UMC     76.2
-#> 15 LBN    2014 <NA>   76.6 NA    NA    <NA>   imputed NA           UMC     76.6
-#> 16 LBN    2015 <NA>   77.1 NA    NA    <NA>   imputed NA           UMC     77.1
-#> 17 LBN    2016 <NA>   77.4 NA    NA    <NA>   imputed NA           UMC     77.4
-#> 18 LBN    2017 <NA>   77.6 NA    NA    <NA>   imputed NA           UMC     77.6
-#> 19 LBN    2018 <NA>   78.0 NA    NA    <NA>   imputed NA           UMC     78.0
+#>  2 LBN    2001 <NA>   65.9 NA    NA    <NA>   imputed NA           UMC     65.9
+#>  3 LBN    2002 <NA>   65.9 NA    NA    <NA>   imputed NA           UMC     65.9
+#>  4 LBN    2003 <NA>   65.9 NA    NA    <NA>   imputed NA           UMC     65.9
+#>  5 LBN    2004 <NA>   65.9 NA    NA    <NA>   imputed NA           UMC     65.9
+#>  6 LBN    2005 <NA>   65.9 NA    NA    <NA>   imputed NA           UMC     65.9
+#>  7 LBN    2006 <NA>   65.9 NA    NA    <NA>   imputed NA           UMC     65.9
+#>  8 LBN    2007 <NA>   65.9 NA    NA    <NA>   imputed NA           UMC     65.9
+#>  9 LBN    2008 <NA>   65.9 NA    NA    <NA>   imputed NA           UMC     65.9
+#> 10 LBN    2009 <NA>   65.9 NA    NA    <NA>   imputed NA           UMC     65.9
+#> 11 LBN    2010 <NA>   65.9 NA    NA    <NA>   imputed NA           UMC     65.9
+#> 12 LBN    2011 <NA>   65.9 NA    NA    <NA>   imputed NA           UMC     65.9
+#> 13 LBN    2012 <NA>   65.9 NA    NA    <NA>   imputed NA           UMC     65.9
+#> 14 LBN    2013 <NA>   65.9 NA    NA    <NA>   imputed NA           UMC     65.9
+#> 15 LBN    2014 <NA>   65.9 NA    NA    <NA>   imputed NA           UMC     65.9
+#> 16 LBN    2015 <NA>   65.9 NA    NA    <NA>   imputed NA           UMC     65.9
+#> 17 LBN    2016 <NA>   65.9 NA    NA    <NA>   imputed NA           UMC     65.9
+#> 18 LBN    2017 <NA>   65.9 NA    NA    <NA>   imputed NA           UMC     65.9
+#> 19 LBN    2018 <NA>   65.9 NA    NA    <NA>   imputed NA           UMC     65.9
 ```
 
 Hope these examples have been clear and highlight some of the usefulness
@@ -669,17 +669,17 @@ pred_df %>%
 #> # A tibble: 11 x 8
 #>    iso3   year year_n value who_region  pred upper lower
 #>    <chr> <int>  <dbl> <dbl> <chr>      <dbl> <dbl> <dbl>
-#>  1 AFG    2013     14  30.4 EMR         30.4  30.4  30.4
-#>  2 AFG    2014     15  30.4 EMR         30.4  30.4  30.4
-#>  3 AFG    2015     16  30.4 EMR         30.4  30.4  30.4
-#>  4 AFG    2016     17  30.2 EMR         30.2  30.2  30.1
-#>  5 AFG    2017     18  29.9 EMR         29.9  30.0  29.9
-#>  6 AFG    2018     19  29.7 EMR         29.7  29.8  29.6
-#>  7 AFG    2019     20  29.4 EMR         29.4  29.6  29.3
-#>  8 AFG    2020     21  29.2 EMR         29.2  29.3  29.0
-#>  9 AFG    2021     22  29.0 EMR         29.0  29.1  28.8
-#> 10 AFG    2022     23  28.7 EMR         28.7  28.9  28.5
-#> 11 AFG    2023     24  28.5 EMR         28.5  28.8  28.2
+#>  1 AFG    2013     14  30.4 EMR         29.4  29.4  29.4
+#>  2 AFG    2014     15  30.4 EMR         29.4  29.4  29.4
+#>  3 AFG    2015     16  30.4 EMR         29.4  29.4  29.4
+#>  4 AFG    2016     17  29.4 EMR         29.4  29.4  29.4
+#>  5 AFG    2017     18  29.4 EMR         29.4  29.4  29.4
+#>  6 AFG    2018     19  29.4 EMR         29.4  29.4  29.4
+#>  7 AFG    2019     20  29.4 EMR         29.4  29.4  29.4
+#>  8 AFG    2020     21  29.4 EMR         29.4  29.4  29.4
+#>  9 AFG    2021     22  29.4 EMR         29.4  29.4  29.4
+#> 10 AFG    2022     23  29.4 EMR         29.4  29.4  29.4
+#> 11 AFG    2023     24  29.4 EMR         29.4  29.4  29.4
 ```
 
 Above, we can see we have a generated a model using 2nd order random
