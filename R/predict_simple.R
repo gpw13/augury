@@ -28,7 +28,8 @@ predict_simple_fn <- function(df,
 
   df <- dplyr::mutate(df,
                       !!sym(pred_col) := if (!is.null(test_col)) ifelse(.data[[test_col]], NA_real_, .data[[col]]) else .data[[col]],
-                      !!sym(pred_col) := ifelse(eval(parse(text = obs_filter)), NA_real_, .data[[pred_col]]))
+                      !!sym(pred_col) := dplyr::case_when(eval(parse(text = obs_filter)) ~ NA_real_,
+                                                          TRUE ~ .data[[pred_col]]))
 
   if (model %in% c("forward", "all", "linear_interp")) {
     df <- dplyr::mutate(df, !!sym(pred_col) := zoo::na.approx(.data[[pred_col]],
