@@ -20,6 +20,7 @@
 #' @inheritParams predict_general_mdl
 #'
 #' @return Expanded data frame with explicit missing values.
+#' @export
 expand_df <- function(df,
                       ...,
                       response = "value",
