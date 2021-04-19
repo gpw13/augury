@@ -17,6 +17,8 @@
 #'     to be met in the `sort_col` for an observation to be used in calculating AARR.
 #'     If `sort_col = "year"` and `sort_col_min = 2008`, then only observations
 #'     from 2008 onward will be used in calculating AARR.
+#' @param interpolate Logical value, whether or not to interpolate values based on
+#'     estimated AARR between observations. Defaults to `FALSE`.
 #'
 #' @inherit predict_forecast params return
 #'
@@ -24,6 +26,7 @@
 predict_aarr <- function(df,
                          response,
                          sort_col_min = NULL,
+                         interpolate = FALSE,
                          ret = c("df", "all", "error", "model"),
                          scale = NULL,
                          probit = FALSE,
@@ -64,6 +67,7 @@ predict_aarr <- function(df,
 
   mdl_df <- fit_aarr_model(df = df,
                            response = response,
+                           interpolate = interpolate,
                            test_col = test_col,
                            group_col = group_col,
                            group_models = group_models,
@@ -151,6 +155,23 @@ calculate_aarr <- function(years, prevalence) {
   100 * (1 - exp(coef))
 }
 
+#' Interpolate using AARR from vector of years and prevalence
+#'
+#' @inheritParams calculate_aarr
+interpolate_aarr <- function(years, prevalence) {
+  prev_p <- zoo::na.locf(prevalence, na.rm = FALSE)
+  last_p <- zoo::na.locf(prevalence, na.rm = FALSE, fromLast = TRUE)
+  temp_years <- years
+  temp_years[is.na(prevalence)] <- NA
+  prev_y <- zoo::na.locf(temp_years, na.rm = FALSE)
+  last_y <- zoo::na.locf(temp_years, na.rm = FALSE, fromLast = TRUE)
+  aarr_interp <- 1 - (last_p / prev_p)^(1 / (last_y - prev_y))
+  new_prev <- ifelse(is.na(prevalence),
+                     last_p * ((1 - aarr_interp)^(years - last_y)),
+                     prevalence)
+  new_prev
+}
+
 #' Generate prediction from model object
 #'
 #' `fit_aarr_data()` calculates AARR and then generates a prediction based on calculated AARR.
@@ -160,6 +181,7 @@ calculate_aarr <- function(years, prevalence) {
 #' @return A data frame.
 fit_aarr_model <- function(df,
                            response,
+                           interpolate,
                            test_col,
                            sort_col,
                            sort_descending,
@@ -188,15 +210,16 @@ fit_aarr_model <- function(df,
                                                       TRUE ~ .data[[pred_col]]),
                   !!sym(pred_col) := if (!is.null(sort_col_min)) ifelse(.data[[sort_col]] >= sort_col_min, .data[[pred_col]], NA_real_) else .data[[pred_col]],
                   "aarr_temp_augury" := if (sum(!is.na(.data[[pred_col]])) > 1) calculate_aarr(.data[[sort_col]], .data[[pred_col]]) else NA_real_,
+                  "prev_interp_augury" := if (interpolate) interpolate_aarr(.data[[sort_col]], .data[[pred_col]]) else .data[[pred_col]],
                   "last_obs_temp" := max(which(!is.na(.data[[pred_col]])), -Inf),
                   !!sym(pred_col) := dplyr::case_when(
                     sum(!is.na(.data[[pred_col]])) <= 1 ~ .data[[pred_col]],
                     dplyr::row_number() > .data[["last_obs_temp"]] ~ .data[[pred_col]][.data[["last_obs_temp"]]] * ((1 - (.data[["aarr_temp_augury"]] / 100)) ^ (.data[[sort_col]] - .data[[sort_col]][.data[["last_obs_temp"]]])),
-                    TRUE ~ .data[[pred_col]]
+                    TRUE ~ .data[["prev_interp_augury"]]
                   ))
 
   mdl <- dplyr::summarize(df, "aarr" := unique(.data[["aarr_temp_augury"]]), .groups = "drop")
-  df <- df %>% dplyr::ungroup() %>% dplyr::select(-c("aarr_temp_augury", "last_obs_temp"))
+  df <- df %>% dplyr::ungroup() %>% dplyr::select(-c("aarr_temp_augury", "last_obs_temp", "prev_interp_augury"))
 
   list(df = df, mdl = mdl)
 }

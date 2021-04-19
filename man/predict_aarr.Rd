@@ -8,6 +8,7 @@ predict_aarr(
   df,
   response,
   sort_col_min = NULL,
+  interpolate = FALSE,
   ret = c("df", "all", "error", "model"),
   scale = NULL,
   probit = FALSE,
@@ -37,6 +38,9 @@ AARR.}
 to be met in the \code{sort_col} for an observation to be used in calculating AARR.
 If \code{sort_col = "year"} and \code{sort_col_min = 2008}, then only observations
 from 2008 onward will be used in calculating AARR.}
+
+\item{interpolate}{Logical value, whether or not to interpolate values based on
+estimated AARR between observations. Defaults to \code{FALSE}.}
 
 \item{ret}{Character vector specifying what values the function returns. Defaults
 to returning a data frame, but can return a vector of model error, the

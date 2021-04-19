@@ -7,6 +7,7 @@
 fit_aarr_model(
   df,
   response,
+  interpolate,
   test_col,
   sort_col,
   sort_descending,
@@ -22,6 +23,9 @@ fit_aarr_model(
 
 \item{response}{Column name of prevalence variable to be used to calculate
 AARR.}
+
+\item{interpolate}{Logical value, whether or not to interpolate values based on
+estimated AARR between observations. Defaults to \code{FALSE}.}
 
 \item{test_col}{Name of logical column specifying which response values to remove
 for testing the model's predictive accuracy. If \code{NULL}, ignored. See \code{\link[=model_error]{model_error()}}
