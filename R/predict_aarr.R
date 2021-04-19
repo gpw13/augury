@@ -215,7 +215,8 @@ fit_aarr_model <- function(df,
                   !!sym(pred_col) := dplyr::case_when(
                     sum(!is.na(.data[[pred_col]])) <= 1 ~ .data[[pred_col]],
                     dplyr::row_number() > .data[["last_obs_temp"]] ~ .data[[pred_col]][.data[["last_obs_temp"]]] * ((1 - (.data[["aarr_temp_augury"]] / 100)) ^ (.data[[sort_col]] - .data[[sort_col]][.data[["last_obs_temp"]]])),
-                    TRUE ~ .data[["prev_interp_augury"]]
+                    !is.na(.data[["prev_interp_augury"]]) ~ .data[["prev_interp_augury"]],
+                    TRUE ~ .data[[response]]
                   ))
 
   mdl <- dplyr::summarize(df, "aarr" := unique(.data[["aarr_temp_augury"]]), .groups = "drop")
