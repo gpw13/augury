@@ -19,6 +19,8 @@
 #'     from 2008 onward will be used in calculating AARR.
 #' @param interpolate Logical value, whether or not to interpolate values based on
 #'     estimated AARR between observations. Defaults to `FALSE`.
+#' @param types Types to add to missing values. The first value is for imputed
+#'     values and the second is for extrapolated values.
 #'
 #' @inherit predict_forecast params return
 #'
@@ -40,7 +42,7 @@ predict_aarr <- function(df,
                          sort_descending = FALSE,
                          pred_col = "pred",
                          type_col = NULL,
-                         types = "projected",
+                         types = c("imputed", "projected"),
                          source_col = NULL,
                          source = NULL,
                          replace_obs = c("missing", "all", "none")) {
@@ -51,7 +53,7 @@ predict_aarr <- function(df,
   ret <- rlang::arg_match(ret)
   assert_test_col(df, test_col)
   assert_string(pred_col, 1)
-  assert_string(types, 1)
+  assert_string(types, 2)
   assert_string(source, 1)
   assert_numeric(sort_col_min, 1)
   replace_obs <- rlang::arg_match(replace_obs)
@@ -129,7 +131,7 @@ predict_aarr <- function(df,
                          sort_descending = sort_descending,
                          pred_col = pred_col,
                          type_col = type_col,
-                         types = c(NA_character_, NA_character_, types),
+                         types = c(NA_character_, types),
                          source_col = source_col,
                          source = source,
                          replace_obs = replace_obs)
