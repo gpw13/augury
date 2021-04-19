@@ -81,8 +81,11 @@ should be sorted in descending order. Defaults to \code{FALSE}.}
 
 \item{type_col}{Column name specifying data type.}
 
-\item{types}{Types to add to missing values. The first value is for imputed
-values and the second is for extrapolated values.}
+\item{types}{Vector of length 3 that provides the type to provide to data
+produced in the model. These values are only used to fill in type values
+where the dependent variable is missing. The first value is given to missing
+observations that precede the first observation, the second to those after
+the last observation, and the third for those following the final observation.}
 
 \item{source_col}{Column name containing source information for the data frame.
 If provided, the argument in \code{source} is used to fill in where predictions

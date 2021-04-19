@@ -66,8 +66,6 @@ predict_simple_fn <- function(df,
 #'   \item{`both_extrap`: }{Both `flat_extrap` and `back_extrap`.}
 #' }
 #' @param col Name of column to extrapolate/interpolate.
-#' @param types Types to add to missing values. The first value is for imputed
-#'     values and the second is for extrapolated values.
 #' @param replace_obs Character value specifying how, if at all, observations should
 #'     be replaced by infilled values. By default, replaces missing values in `col`
 #'     but if set to `"none"` then `col` is not changed.
