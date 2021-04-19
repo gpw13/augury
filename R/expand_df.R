@@ -63,7 +63,7 @@ expand_df_filter <- function(df,
                              sort_col,
                              sort_descending,
                              group_col) {
-  if (keep_no_obs || keep_before_obs) {
+  if (!keep_no_obs || !keep_before_obs) {
     assert_columns(df, sort_col, group_col)
     df <- dplyr::group_by(df, dplyr::across(group_col))
 
@@ -79,7 +79,7 @@ expand_df_filter <- function(df,
     }
     if (!keep_before_obs) {
       df <- df %>%
-        dplyr::filter(dplyr::row_number() >= min(which(is.na(.data[[response]])), Inf))
+        dplyr::filter(dplyr::row_number() >= min(which(!is.na(.data[[response]])), Inf))
     }
 
     if (!keep_no_obs) {
