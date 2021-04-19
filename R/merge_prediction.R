@@ -54,7 +54,7 @@ merge_prediction <- function(df,
       df <- df %>%
         dplyr::mutate(!!sym(source_col) := dplyr::case_when(
           eval(parse(text = obs_filter)) ~ .data[[source_col]],
-          is.na(.data[[response]]) & !is.na(.data[[pred_col]]) ~ source,
+          is.na(.data[[response]]) & !is.na(.data[[pred_col]]) ~ !!source,
           TRUE ~ .data[[source_col]]
         ))
     }
