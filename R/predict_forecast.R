@@ -297,36 +297,31 @@ fit_forecast_model <- function(df,
                                ret) {
 
   if (!group_models) {
-    obs_check <- dplyr::filter(df, eval(parse(text = obs_filter)))
-    if (nrow(obs_check) == 0) {
-      # Filter data for modeling
-      x <- get_forecast_data(df = df,
-                             response = response,
-                             sort_col = sort_col,
-                             sort_descending = sort_descending,
-                             test_col = test_col)
+    # Filter data for modeling
+    x <- get_forecast_data(df = df,
+                           response = response,
+                           sort_col = sort_col,
+                           sort_descending = sort_descending,
+                           test_col = test_col)
 
-      # Build model
-      mdl <- forecast_series(x,
-                             forecast_function,
-                             ...)
+    # Build model
+    mdl <- forecast_series(x,
+                           forecast_function,
+                           ...)
 
-      if (ret == "model") {
-        df <- NULL
-      } else {
-        # Get model predictions
-        df <- predict_forecast_data(df = df,
-                                    forecast_obj = mdl,
-                                    sort_col = sort_col,
-                                    sort_descending = sort_descending,
-                                    pred_col = pred_col,
-                                    upper_col = upper_col,
-                                    lower_col = lower_col)
-      }
+    if (ret == "model") {
+      df <- NULL
     } else {
-      mdl <- NULL
-      df <- augury_add_columns(df, c(pred_col, upper_col, lower_col))
+      # Get model predictions
+      df <- predict_forecast_data(df = df,
+                                  forecast_obj = mdl,
+                                  sort_col = sort_col,
+                                  sort_descending = sort_descending,
+                                  pred_col = pred_col,
+                                  upper_col = upper_col,
+                                  lower_col = lower_col)
     }
+
   } else {
     # map by group
 

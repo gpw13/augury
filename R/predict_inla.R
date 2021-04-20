@@ -267,27 +267,23 @@ fit_inla_model <- function(df,
 
     mdl <- NULL # not returning all models together for grouped models
   } else { # single model fitting
-    obs_check <- dplyr::filter(data, eval(parse(text = obs_filter)))
-    if (nrow(obs_check) == 0) {
-      mdl <- INLA::inla(formula = formula,
-                        data = data,
-                        control.predictor = control.predictor,
-                        ...)
 
-      # don't predict data if only returning model
-      if (ret == "mdl") {
-        data <- NULL
-      } else {
-        data <- predict_inla_data(data,
-                                  mdl,
-                                  pred_col,
-                                  upper_col,
-                                  lower_col)
-      }
+    mdl <- INLA::inla(formula = formula,
+                      data = data,
+                      control.predictor = control.predictor,
+                      ...)
+
+    # don't predict data if only returning model
+    if (ret == "mdl") {
+      data <- NULL
     } else {
-      mdl <- NULL
-      data <- augury_add_columns(data, c(pred_col, lower_col, upper_col))
+      data <- predict_inla_data(data,
+                                mdl,
+                                pred_col,
+                                upper_col,
+                                lower_col)
     }
+
   }
 
   # Merge predictions data with old df

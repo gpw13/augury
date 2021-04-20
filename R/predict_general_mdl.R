@@ -66,6 +66,12 @@
 #'     `obs_filter = ">= 5"`, then for this model, predictions will only be used
 #'     for `iso3` vales that have 5 or more observations. Possible logical operators
 #'     to use are `>`, `>=`, `<`, `<=`, `==`, and `!=`.
+#'
+#'     If `group_models = FALSE`, then `obs_filter` is only used to determine when
+#'     predicted values replace observed values but **is not** used to restrict values
+#'     from being used in model fitting. If `group_models = TRUE`, then a model
+#'     is only fit for a group if they meet the `obs_filter` requirements. This provides
+#'     speed benefits, particularly when running INLA time series using `predict_inla()`.
 #' @param sort_col Column name(s) to use to [dplyr::arrange()] the data prior to
 #'     supplying type and calculating mean absolute scaled error on data involving
 #'     time series. If `NULL`, not used. Defaults to `"year"`.
@@ -351,24 +357,20 @@ fit_general_model <- function(df,
 
     mdl <- NULL # not returning all models together for grouped models
   } else { # single model fitting
-    obs_check <- dplyr::filter(df, eval(parse(text = obs_filter)))
-    if (nrow(obs_check) == 0) {
-      mdl <- model(formula = formula,
-                   data = data,
-                   ...)
-      if (ret == "mdl") {
-        df <- NULL
-      } else {
-        df <- predict_general_data(df = df,
-                                   model = mdl,
-                                   pred_col = pred_col,
-                                   upper_col = upper_col,
-                                   lower_col = lower_col)
-      }
+
+    mdl <- model(formula = formula,
+                 data = data,
+                 ...)
+    if (ret == "mdl") {
+      df <- NULL
     } else {
-      mdl <- NULL
-      df <- augury_add_columns(df, "pred")
+      df <- predict_general_data(df = df,
+                                 model = mdl,
+                                 pred_col = pred_col,
+                                 upper_col = upper_col,
+                                 lower_col = lower_col)
     }
+
   }
 
   # use error correction if applicable

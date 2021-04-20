@@ -258,8 +258,6 @@ fit_lme4_model <- function(df,
 
     mdl <- NULL # not returning all models together for grouped models
   } else { # single model fitting
-    obs_check <- dplyr::filter(df, eval(parse(text = obs_filter)))
-    if (nrow(obs_check) == 0) {
       mdl <- model(formula = formula,
                    data = data,
                    ...)
@@ -274,10 +272,6 @@ fit_lme4_model <- function(df,
                                 upper_col = upper_col,
                                 lower_col = lower_col)
       }
-    } else {
-      mdl <- NULL
-      df <- augury_add_columns(df, "pred")
-    }
   }
 
   # use error correction if applicable
