@@ -80,7 +80,10 @@ predict_average_fn <- function(df,
                          shift_trend = shift_trend)
 
   # Remove prediction column based on obs_filter
-  df <- dplyr::mutate(df, !!sym(pred_col) := ifelse(eval(parse(text = obs_filter)), NA_real_, .data[[pred_col]]))
+  df <- dplyr::mutate(df, !!sym(pred_col) := dplyr::case_when(
+    eval(parse(text = obs_filter)) ~ NA_real_,
+    TRUE ~ .data[[pred_col]])
+  )
 
   dplyr::ungroup(df)
 }
