@@ -281,8 +281,8 @@ fit_lme4_model <- function(df,
             dplyr::select(x, -"augury_temp_obs_check")
           },
           .keep = TRUE) %>%
-          dplyr::select(-"augury_temp_obs_check") %>%
-          dplyr::ungroup()
+          dplyr::ungroup() %>%
+          dplyr::select(-"augury_temp_obs_check")
       }
   }
 
