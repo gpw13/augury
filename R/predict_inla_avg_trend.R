@@ -61,6 +61,7 @@ predict_inla_avg_trend <- function(df,
                                  average_cols,
                                  error_correct,
                                  error_correct_cols)
+  assert_group_models(group_col, group_models)
 
   ret <- rlang::arg_match(ret)
   assert_test_col(df, test_col)

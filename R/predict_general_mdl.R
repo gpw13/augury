@@ -145,6 +145,7 @@ predict_general_mdl <- function(df,
   assert_model(model)
   formula_vars <- parse_formula(formula)
   assert_columns(df, formula_vars, test_col, group_col, sort_col, type_col, source_col)
+  assert_group_models(group_col, group_models)
   response <- formula_vars[1]
   assert_columns_unique(response, pred_col, upper_col, lower_col, test_col, group_col, sort_col, type_col, source_col)
   ret <- rlang::arg_match(ret)

@@ -72,6 +72,7 @@ predict_general_mdl_avg_trend <- function(df,
   assert_columns(df, average_cols, weight_col, formula_vars,
                  test_col, group_col, sort_col, type_col,
                  source_col, error_correct_cols)
+  assert_group_models(group_col, group_models)
 
   if (!is.null(weight_col)) {
     assert_numeric_cols(weight_col, df)

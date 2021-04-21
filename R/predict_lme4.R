@@ -48,6 +48,7 @@ predict_lme4 <- function(df,
   assert_model(model)
   formula_vars <- parse_formula(formula)
   assert_columns(df, formula_vars, test_col, group_col, sort_col, type_col, source_col)
+  assert_group_models(group_col, group_models)
   response <- formula_vars[1]
   assert_columns_unique(response, pred_col, lower_col, upper_col, test_col, group_col, sort_col, type_col, source_col)
   ret <- rlang::arg_match(ret)
@@ -231,10 +232,10 @@ fit_lme4_model <- function(df,
   if (group_models) {
 
     # Split data frames
-    data <- dplyr::group_by(data, .data[[group_col]]) %>%
+    data <- dplyr::group_by(data, dplyr::across(group_col)) %>%
       dplyr::group_split()
 
-    df <- dplyr::group_by(df, .data[[group_col]]) %>%
+    df <- dplyr::group_by(df, dplyr::across(group_col)) %>%
       dplyr::group_split()
 
     # Build and apply models
@@ -266,11 +267,18 @@ fit_lme4_model <- function(df,
       if (ret == "mdl") {
         df <- NULL
       } else {
-        df <- predict_lme4_data(df = df,
+        df <- dplyr::group_by(df, dplyr::across(group_col)) %>%
+          dplyr::group_modify(function(x) {
+            if (nrow(obs_check) == 0) {
+              predict_lme4_data(df = x,
                                 model = mdl,
                                 pred_col = pred_col,
                                 upper_col = upper_col,
                                 lower_col = lower_col)
+            } else {
+              x
+            }
+          })
       }
   }
 

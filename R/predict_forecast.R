@@ -50,6 +50,7 @@ predict_forecast <- function(df,
   assert_function(forecast_function)
   assert_columns(df, response, test_col, group_col, sort_col, type_col, source_col)
   assert_columns_unique(response, pred_col, upper_col, lower_col, test_col, group_col, sort_col, type_col, source_col)
+  assert_group_models(group_col, group_models)
   ret <- rlang::arg_match(ret)
   assert_test_col(df, test_col)
   assert_string(pred_col, 1)

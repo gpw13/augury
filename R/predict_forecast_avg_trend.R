@@ -55,6 +55,7 @@ predict_forecast_avg_trend <- function(df,
   assert_group_sort_col(response,
                         average_cols,
                         sort_col)
+  assert_group_models(group_col, group_models)
 
   ret <- rlang::arg_match(ret)
   assert_test_col(df, test_col)

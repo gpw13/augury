@@ -49,6 +49,7 @@ predict_aarr <- function(df,
   # Assertions and error checking
   df <- assert_df(df)
   assert_columns(df, response, test_col, group_col, sort_col, type_col, source_col)
+  assert_group_models(group_col, group_models)
   assert_columns_unique(response, pred_col, test_col, group_col, sort_col, type_col, source_col)
   ret <- rlang::arg_match(ret)
   assert_test_col(df, test_col)

@@ -198,3 +198,14 @@ assert_columns_unique <- function(...) {
          call. = FALSE)
   }
 }
+
+#' Assert if group_models TRUE then group_col not NULL
+#'
+#' @inheritParams predict_general_mdl
+assert_group_models <- function(group_col,
+                                group_models) {
+  if (group_models && is.null(group_col)) {
+    stop("`group_models` is `TRUE` so `group_col` cannot be `NULL`.",
+         call. = FALSE)
+  }
+}
