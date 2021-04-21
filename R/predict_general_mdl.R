@@ -365,11 +365,22 @@ fit_general_model <- function(df,
     if (ret == "mdl") {
       df <- NULL
     } else {
-      df <- predict_general_data(df = df,
-                                 model = mdl,
-                                 pred_col = pred_col,
-                                 upper_col = upper_col,
-                                 lower_col = lower_col)
+      df <- dplyr::group_by(df, dplyr::across(group_col)) %>%
+        dplyr::mutate("augury_temp_obs_check" := eval(parse(text = obs_filter))) %>%
+        dplyr::group_by(.data[["augury_temp_obs_check"]]) %>%
+        dplyr::group_modify(function(x, ...) {
+          if (!unique(x[["augury_temp_obs_check"]])) {
+            x <- predict_general_data(df = x,
+                                      model = mdl,
+                                      pred_col = pred_col,
+                                      upper_col = upper_col,
+                                      lower_col = lower_col)
+          }
+          dplyr::select(x, -"augury_temp_obs_check")
+        },
+        .keep = TRUE) %>%
+        dplyr::select(-"augury_temp_obs_check") %>%
+        dplyr::ungroup()
     }
 
   }
