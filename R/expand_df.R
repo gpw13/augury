@@ -79,7 +79,7 @@ expand_df_filter <- function(df,
     }
     if (!keep_before_obs) {
       df <- df %>%
-        dplyr::filter(dplyr::row_number() >= min(which(!is.na(.data[[response]])), Inf))
+        dplyr::filter(dplyr::row_number() >= min(which(!is.na(.data[[response]])), Inf) | all(is.na(.data[[response]])))
     }
 
     if (!keep_no_obs) {
