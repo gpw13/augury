@@ -8,10 +8,15 @@
 #' @return A numeric vector
 probit_vec <- function(x, inverse = FALSE){
   if (!inverse) {
-    x[x <= 1e-4] <- 1e-4
-    x[x >= 1-1e-3] <- 1-1e-3
+    x[x <= 1e-8] <- 1e-8
+    x[x >= 1-1e-8] <- 1-1e-8
   }
-  VGAM::probitlink(x, inverse = inverse)
+  x <- VGAM::probitlink(x, inverse = inverse)
+  if (inverse) {
+    x[x <= 1e-08] <- 0
+    x[x >= 1-1e-8] <- 1
+  }
+  x
 }
 
 #' Probit transform bounded data in a data frame
