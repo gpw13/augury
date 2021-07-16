@@ -76,7 +76,7 @@ most useful when we have robust series for a set of countries, and no data for o
 We can then use something like the regional average to infill data for missing countries.
 
 ```{r reg_avg_data}
-df <- ghost::gho_data("SDGPOLLUTINGFUELS") %>%
+df <- ghost::gho_data("PHE_HHAIR_PROP_POP_CLEAN_FUELS") %>%
   billionaiRe::wrangle_gho_data(source = "WHO GHO",
                                 type = "estimated") %>%
   dplyr::filter(whoville::is_who_member(iso3))
