@@ -19,8 +19,8 @@ Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1
-URL: https://github.com/caldwellst/augury
-BugReports: https://github.com/caldwellst/augury/issues
+URL: https://github.com/gpw13/augury
+BugReports: https://github.com/gpw13/augury/issues
 Depends: 
     R (>= 2.10)
 Imports: 
@@ -45,8 +45,8 @@ Suggests:
     ghost,
     whoville
 Remotes:
-    caldwellst/billionaiRe,
-    caldwellst/ghost,
-    caldwellst/whoville,
+    gpw13/billionaiRe,
+    gpw13/ghost,
+    gpw13/whoville,
     url::https://inla.r-inla-download.org/R/stable/src/contrib/INLA_20.03.17.tar.gz
 VignetteBuilder: knitr

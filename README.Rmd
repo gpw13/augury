@@ -13,10 +13,10 @@ knitr::opts_chunk$set(
 )
 ```
 
-# augury <a href='https://github.com/caldwellst/augury'><img src='man/figures/logo.png' align="right" height="139" /></a>
+# augury <a href='https://github.com/gpw13/augury'><img src='man/figures/logo.png' align="right" height="139" /></a>
 
 <!-- badges: start -->
-[![R-CMD-check](https://github.com/caldwellst/augury/workflows/R-CMD-check/badge.svg)](https://github.com/caldwellst/augury/actions)
+[![R-CMD-check](https://github.com/gpw13/augury/workflows/R-CMD-check/badge.svg)](https://github.com/gpw13/augury/actions)
 <!-- badges: end -->
 
 The goal of augury is to streamline the process of fitting models to infill and
@@ -25,7 +25,7 @@ framework.
 
 ## Installation
 
-You can install augury from [GitHub](https://github.com/caldwellst/augury). The
+You can install augury from [GitHub](https://github.com/gpw13/augury). The
 package depends on the [INLA package](https://www.r-inla.org/home) which is not
 available on CRAN. You will need to separately install that prior to installing
 augury. The below code should allow you to install the packages without any
@@ -33,14 +33,14 @@ trouble:
 
 ``` r
 if (!require("INLA")) install.packages("INLA",repos=c(getOption("repos"),INLA="https://inla.r-inla-download.org/R/stable"), dep=TRUE)
-remotes::install_github("caldwellst/augury")
+remotes::install_github("gpw13/augury")
 ```
 
 If you are reinstalling the package to update something, you should make sure you
 have necessary dependencies, but to avoid re-downloading the large INLA tarball,
 you can use:
 ```r
-remotes::install_github("caldwellst/augury", dependencies = FALSE)
+remotes::install_github("gpw13/augury", dependencies = FALSE)
 ```
 
 ## Overview

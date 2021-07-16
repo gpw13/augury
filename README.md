@@ -1,11 +1,11 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# augury <a href='https://github.com/caldwellst/augury'><img src='man/figures/logo.png' align="right" height="139" /></a>
+# augury <a href='https://github.com/gpw13/augury'><img src='man/figures/logo.png' align="right" height="139" /></a>
 
 <!-- badges: start -->
 
-[![R-CMD-check](https://github.com/caldwellst/augury/workflows/R-CMD-check/badge.svg)](https://github.com/caldwellst/augury/actions)
+[![R-CMD-check](https://github.com/gpw13/augury/workflows/R-CMD-check/badge.svg)](https://github.com/gpw13/augury/actions)
 <!-- badges: end -->
 
 The goal of augury is to streamline the process of fitting models to
@@ -14,16 +14,15 @@ Triple Billion framework.
 
 ## Installation
 
-You can install augury from
-[GitHub](https://github.com/caldwellst/augury). The package depends on
-the [INLA package](https://www.r-inla.org/home) which is not available
-on CRAN. You will need to separately install that prior to installing
-augury. The below code should allow you to install the packages without
-any trouble:
+You can install augury from [GitHub](https://github.com/gpw13/augury).
+The package depends on the [INLA package](https://www.r-inla.org/home)
+which is not available on CRAN. You will need to separately install that
+prior to installing augury. The below code should allow you to install
+the packages without any trouble:
 
 ``` r
 if (!require("INLA")) install.packages("INLA",repos=c(getOption("repos"),INLA="https://inla.r-inla-download.org/R/stable"), dep=TRUE)
-remotes::install_github("caldwellst/augury")
+remotes::install_github("gpw13/augury")
 ```
 
 If you are reinstalling the package to update something, you should make
@@ -31,7 +30,7 @@ sure you have necessary dependencies, but to avoid re-downloading the
 large INLA tarball, you can use:
 
 ``` r
-remotes::install_github("caldwellst/augury", dependencies = FALSE)
+remotes::install_github("gpw13/augury", dependencies = FALSE)
 ```
 
 ## Overview
@@ -154,12 +153,12 @@ head(df)
 #> # A tibble: 6 x 9
 #>   iso3   year ind             value lower upper source  type      other_detail
 #>   <chr> <int> <chr>           <dbl> <lgl> <lgl> <chr>   <chr>     <lgl>       
-#> 1 ALB    2000 hpop_sanitation  38.6 NA    NA    WHO GHO estimated NA          
-#> 2 ALB    2001 hpop_sanitation  38.4 NA    NA    WHO GHO estimated NA          
-#> 3 ALB    2002 hpop_sanitation  38.3 NA    NA    WHO GHO estimated NA          
-#> 4 ALB    2003 hpop_sanitation  38.1 NA    NA    WHO GHO estimated NA          
-#> 5 ALB    2004 hpop_sanitation  37.9 NA    NA    WHO GHO estimated NA          
-#> 6 ALB    2005 hpop_sanitation  37.8 NA    NA    WHO GHO estimated NA
+#> 1 AFG    2000 hpop_sanitation    NA NA    NA    WHO GHO estimated NA          
+#> 2 AFG    2001 hpop_sanitation    NA NA    NA    WHO GHO estimated NA          
+#> 3 AFG    2002 hpop_sanitation    NA NA    NA    WHO GHO estimated NA          
+#> 4 AFG    2003 hpop_sanitation    NA NA    NA    WHO GHO estimated NA          
+#> 5 AFG    2004 hpop_sanitation    NA NA    NA    WHO GHO estimated NA          
+#> 6 AFG    2005 hpop_sanitation    NA NA    NA    WHO GHO estimated NA
 ```
 
 Now that we have the input data available from the GHO in an easy to use
@@ -179,12 +178,12 @@ head(df)
 #> # A tibble: 6 x 15
 #>   iso3   year year_n region    sdi sdi_scaled    e0 e0_scaled ind    value lower
 #>   <chr> <int>  <dbl> <chr>   <dbl>      <dbl> <dbl>     <dbl> <chr>  <dbl> <lgl>
-#> 1 ALB    2000      1 Southe… 0.604      0.650  74.0     0.752 hpop_…  38.6 NA   
-#> 2 ALB    2001      2 Southe… 0.61       0.657  74.3     0.759 hpop_…  38.4 NA   
-#> 3 ALB    2002      3 Southe… 0.614      0.661  74.6     0.766 hpop_…  38.3 NA   
-#> 4 ALB    2003      4 Southe… 0.619      0.667  74.8     0.771 hpop_…  38.1 NA   
-#> 5 ALB    2004      5 Southe… 0.625      0.673  75.0     0.776 hpop_…  37.9 NA   
-#> 6 ALB    2005      6 Southe… 0.632      0.681  75.2     0.780 hpop_…  37.8 NA   
+#> 1 ALB    2000      1 Southe… 0.604      0.650  74.0     0.752 hpop_…  40.2 NA   
+#> 2 ALB    2001      2 Southe… 0.61       0.657  74.3     0.759 hpop_…  40.5 NA   
+#> 3 ALB    2002      3 Southe… 0.614      0.661  74.6     0.766 hpop_…  40.8 NA   
+#> 4 ALB    2003      4 Southe… 0.619      0.667  74.8     0.771 hpop_…  41.1 NA   
+#> 5 ALB    2004      5 Southe… 0.625      0.673  75.0     0.776 hpop_…  41.4 NA   
+#> 6 ALB    2005      6 Southe… 0.632      0.681  75.2     0.780 hpop_…  41.9 NA   
 #> # … with 4 more variables: upper <lgl>, source <chr>, type <chr>,
 #> #   other_detail <lgl>
 ```
@@ -212,18 +211,18 @@ modeled_df %>%
   filter(year > 2015) %>%
   select(iso3, year, value, pred, lower, upper, source, type)
 #> # A tibble: 10 x 8
-#>    iso3   year value  pred lower upper source  type     
-#>    <chr> <int> <dbl> <dbl> <dbl> <dbl> <chr>   <chr>    
-#>  1 ALB    2016  39.8  39.9  39.6  40.1 WHO GHO estimated
-#>  2 ALB    2017  39.9  39.9  39.6  40.1 WHO GHO estimated
-#>  3 ALB    2018  39.9  39.9  39.2  40.6 <NA>    projected
-#>  4 ALB    2019  39.9  39.9  38.7  41.1 <NA>    projected
-#>  5 ALB    2020  39.9  39.9  38.1  41.7 <NA>    projected
-#>  6 ALB    2021  39.9  39.9  37.4  42.4 <NA>    projected
-#>  7 ALB    2022  39.9  39.9  36.7  43.2 <NA>    projected
-#>  8 ALB    2023  39.9  39.9  35.8  44.0 <NA>    projected
-#>  9 ALB    2024  39.9  39.9  35.0  45.0 <NA>    projected
-#> 10 ALB    2025  39.9  39.9  34.0  46.0 <NA>    projected
+#>    iso3   year value  pred lower upper source          type     
+#>    <chr> <int> <dbl> <dbl> <dbl> <dbl> <chr>           <chr>    
+#>  1 ALB    2016  46.7  46.7  46.5  46.9 WHO GHO         estimated
+#>  2 ALB    2017  47.1  47.0  46.8  47.3 WHO GHO         estimated
+#>  3 ALB    2018  47.4  47.4  47.1  47.6 WHO GHO         estimated
+#>  4 ALB    2019  47.6  47.6  47.4  47.8 WHO GHO         estimated
+#>  5 ALB    2020  47.7  47.7  47.5  48.0 WHO GHO         estimated
+#>  6 ALB    2021  47.9  47.9  47.3  48.5 augury modeling projected
+#>  7 ALB    2022  48.1  48.1  47.0  49.1 augury modeling projected
+#>  8 ALB    2023  48.3  48.3  46.7  49.8 augury modeling projected
+#>  9 ALB    2024  48.5  48.5  46.3  50.6 augury modeling projected
+#> 10 ALB    2025  48.6  48.6  45.8  51.4 augury modeling projected
 ```
 
 And there we go, we have now fit a time series model to our data,
@@ -245,18 +244,18 @@ df %>%
   filter(year > 2015) %>%
   select(iso3, year, value, pred, lower, upper, source, type)
 #> # A tibble: 10 x 8
-#>    iso3   year value  pred lower upper source  type     
-#>    <chr> <int> <dbl> <dbl> <dbl> <dbl> <chr>   <chr>    
-#>  1 ALB    2016  39.8  39.9  39.6  40.1 WHO GHO estimated
-#>  2 ALB    2017  39.9  39.9  39.6  40.1 WHO GHO estimated
-#>  3 ALB    2018  39.9  39.9  39.2  40.6 <NA>    projected
-#>  4 ALB    2019  39.9  39.9  38.7  41.1 <NA>    projected
-#>  5 ALB    2020  39.9  39.9  38.1  41.7 <NA>    projected
-#>  6 ALB    2021  39.9  39.9  37.4  42.4 <NA>    projected
-#>  7 ALB    2022  39.9  39.9  36.7  43.2 <NA>    projected
-#>  8 ALB    2023  39.9  39.9  35.8  44.0 <NA>    projected
-#>  9 ALB    2024  39.9  39.9  35.0  45.0 <NA>    projected
-#> 10 ALB    2025  39.9  39.9  34.0  46.0 <NA>    projected
+#>    iso3   year value  pred lower upper source          type     
+#>    <chr> <int> <dbl> <dbl> <dbl> <dbl> <chr>           <chr>    
+#>  1 ALB    2016  46.7  46.7  46.5  46.9 WHO GHO         estimated
+#>  2 ALB    2017  47.1  47.0  46.8  47.3 WHO GHO         estimated
+#>  3 ALB    2018  47.4  47.4  47.1  47.6 WHO GHO         estimated
+#>  4 ALB    2019  47.6  47.6  47.4  47.8 WHO GHO         estimated
+#>  5 ALB    2020  47.7  47.7  47.5  48.0 WHO GHO         estimated
+#>  6 ALB    2021  47.9  47.9  47.3  48.5 augury modeling projected
+#>  7 ALB    2022  48.1  48.1  47.0  49.1 augury modeling projected
+#>  8 ALB    2023  48.3  48.3  46.7  49.8 augury modeling projected
+#>  9 ALB    2024  48.5  48.5  46.3  50.6 augury modeling projected
+#> 10 ALB    2025  48.6  48.6  45.8  51.4 augury modeling projected
 ```
 
 And we can see that the results here are the same as manually scaling
@@ -280,10 +279,10 @@ head(df)
 #>   <chr> <int> <chr> <dbl> <lgl> <lgl> <chr>                   <chr> <lgl>       
 #> 1 AFG    2018 espar    35 NA    NA    Electronic State Parti… repo… NA          
 #> 2 AFG    2019 espar    43 NA    NA    Electronic State Parti… repo… NA          
-#> 3 AGO    2018 espar    59 NA    NA    Electronic State Parti… repo… NA          
-#> 4 AGO    2019 espar    63 NA    NA    Electronic State Parti… repo… NA          
-#> 5 ALB    2018 espar    NA NA    NA    Electronic State Parti… repo… NA          
-#> 6 ALB    2019 espar    62 NA    NA    Electronic State Parti… repo… NA
+#> 3 AFG    2020 espar    47 NA    NA    Electronic State Parti… repo… NA          
+#> 4 AGO    2018 espar    59 NA    NA    Electronic State Parti… repo… NA          
+#> 5 AGO    2019 espar    63 NA    NA    Electronic State Parti… repo… NA          
+#> 6 AGO    2020 espar    65 NA    NA    Electronic State Parti… repo… NA
 ```
 
 With this, let’s go straight into the modeling like last time, except we
@@ -312,14 +311,14 @@ modeled_df %>%
 #> # A tibble: 8 x 8
 #>   iso3   year value  pred lower upper source                              type  
 #>   <chr> <int> <dbl> <dbl> <dbl> <dbl> <chr>                               <chr> 
-#> 1 AFG    2018  35    38.4  30.7  46.6 Electronic State Parties Self-Asse… repor…
-#> 2 AFG    2019  43    39.4  31.6  47.6 Electronic State Parties Self-Asse… repor…
-#> 3 AFG    2020  40.3  40.3  32.5  48.5 <NA>                                proje…
-#> 4 AFG    2021  41.3  41.3  33.4  49.4 <NA>                                proje…
-#> 5 AFG    2022  42.1  42.1  34.3  50.2 <NA>                                proje…
-#> 6 AFG    2023  43.1  43.1  35.2  51.1 <NA>                                proje…
-#> 7 AFG    2024  43.9  43.9  36.0  52.0 <NA>                                proje…
-#> 8 AFG    2025  44.8  44.8  36.9  52.8 <NA>                                proje…
+#> 1 AFG    2018  35    40.6  31.2  50.5 Electronic State Parties Self-Asse… repor…
+#> 2 AFG    2019  43    41.5  32.1  51.4 Electronic State Parties Self-Asse… repor…
+#> 3 AFG    2020  47    42.7  33.2  52.5 Electronic State Parties Self-Asse… repor…
+#> 4 AFG    2021  43.5  43.5  34.0  53.2 WHO DDI Preliminary infilling and … proje…
+#> 5 AFG    2022  44.5  44.5  35.1  54.2 WHO DDI Preliminary infilling and … proje…
+#> 6 AFG    2023  45.4  45.4  35.9  55.0 WHO DDI Preliminary infilling and … proje…
+#> 7 AFG    2024  46.4  46.4  36.9  56.0 WHO DDI Preliminary infilling and … proje…
+#> 8 AFG    2025  47.3  47.3  37.8  56.8 WHO DDI Preliminary infilling and … proje…
 ```
 
 And exactly as we were able to do with the time series modeling, we now
@@ -429,7 +428,7 @@ series will prevent data before that from being used.
 ``` r
 bad_df <- dplyr::tibble(x = c(1:4, NA, 3:2, rep(NA, 4)))
 
-predict_holt(bad_df, "x", group_col = NULL, sort_col = NULL)
+predict_holt(bad_df, "x", group_col = NULL, sort_col = NULL, group_models = FALSE)
 #> # A tibble: 11 x 4
 #>         x   pred upper  lower
 #>     <dbl>  <dbl> <dbl>  <dbl>
@@ -470,13 +469,13 @@ df <- ghost::gho_data("SA_0000001688",
 head(df)
 #> # A tibble: 6 x 9
 #>   iso3   year ind     value lower upper source  type      other_detail
-#>   <chr> <int> <chr>   <dbl> <lgl> <lgl> <chr>   <chr>     <lgl>       
-#> 1 AFG    2010 alcohol 0.211 NA    NA    WHO GHO estimated NA          
-#> 2 AFG    2015 alcohol 0.209 NA    NA    WHO GHO estimated NA          
-#> 3 AFG    2018 alcohol 0.215 NA    NA    WHO GHO estimated NA          
-#> 4 AGO    2000 alcohol 2.76  NA    NA    WHO GHO estimated NA          
-#> 5 AGO    2005 alcohol 4.89  NA    NA    WHO GHO estimated NA          
-#> 6 AGO    2010 alcohol 8.16  NA    NA    WHO GHO estimated NA
+#>   <chr> <int> <chr>   <dbl> <dbl> <dbl> <chr>   <chr>     <lgl>       
+#> 1 AFG    2000 alcohol   0     0     0.1 WHO GHO estimated NA          
+#> 2 AFG    2005 alcohol   0     0     0.1 WHO GHO estimated NA          
+#> 3 AFG    2010 alcohol   0     0     0.1 WHO GHO estimated NA          
+#> 4 AFG    2015 alcohol   0     0     0   WHO GHO estimated NA          
+#> 5 AFG    2019 alcohol   0     0     0.1 WHO GHO estimated NA          
+#> 6 AGO    2000 alcohol   3.3   2.4   4.4 WHO GHO estimated NA
 ```
 
 Here we can see that data has time series and gaps in years. We can use
@@ -496,17 +495,17 @@ df %>%
                 year,
                 value)
 #> # A tibble: 9 x 3
-#>   iso3   year  value
-#>   <chr> <int>  <dbl>
-#> 1 AFG    2010  0.211
-#> 2 AFG    2011 NA    
-#> 3 AFG    2012 NA    
-#> 4 AFG    2013 NA    
-#> 5 AFG    2014 NA    
-#> 6 AFG    2015  0.209
-#> 7 AFG    2016 NA    
-#> 8 AFG    2017 NA    
-#> 9 AFG    2018  0.215
+#>   iso3   year value
+#>   <chr> <int> <dbl>
+#> 1 AFG    2010     0
+#> 2 AFG    2011    NA
+#> 3 AFG    2012    NA
+#> 4 AFG    2013    NA
+#> 5 AFG    2014    NA
+#> 6 AFG    2015     0
+#> 7 AFG    2016    NA
+#> 8 AFG    2017    NA
+#> 9 AFG    2018    NA
 ```
 
 Let’s now use our linear interpolation and flat extrapolation on this
@@ -523,17 +522,17 @@ pred_df %>%
                 year <= 2018) %>%
   dplyr::select(iso3, year, value)
 #> # A tibble: 9 x 3
-#>   iso3   year  value
-#>   <chr> <int>  <dbl>
-#> 1 AFG    2010  0.211
-#> 2 AFG    2011 NA    
-#> 3 AFG    2012 NA    
-#> 4 AFG    2013 NA    
-#> 5 AFG    2014 NA    
-#> 6 AFG    2015  0.209
-#> 7 AFG    2016 NA    
-#> 8 AFG    2017 NA    
-#> 9 AFG    2018  0.215
+#>   iso3   year value
+#>   <chr> <int> <dbl>
+#> 1 AFG    2010     0
+#> 2 AFG    2011     0
+#> 3 AFG    2012     0
+#> 4 AFG    2013     0
+#> 5 AFG    2014     0
+#> 6 AFG    2015     0
+#> 7 AFG    2016     0
+#> 8 AFG    2017     0
+#> 9 AFG    2018     0
 ```
 
 And we can see our linear interpolation there. We can also see the flat
@@ -545,15 +544,15 @@ pred_df %>%
                 year > 2016) %>%
   dplyr::select(iso3, year, value)
 #> # A tibble: 7 x 3
-#>   iso3   year  value
-#>   <chr> <int>  <dbl>
-#> 1 AFG    2017 NA    
-#> 2 AFG    2018  0.215
-#> 3 AFG    2019 NA    
-#> 4 AFG    2020 NA    
-#> 5 AFG    2021 NA    
-#> 6 AFG    2022 NA    
-#> 7 AFG    2023 NA
+#>   iso3   year value
+#>   <chr> <int> <dbl>
+#> 1 AFG    2017     0
+#> 2 AFG    2018     0
+#> 3 AFG    2019     0
+#> 4 AFG    2020     0
+#> 5 AFG    2021     0
+#> 6 AFG    2022     0
+#> 7 AFG    2023     0
 ```
 
 We can use the `predict_average()` function in much the same way, except
@@ -562,7 +561,7 @@ no data for others. We can then use something like the regional average
 to infill data for missing countries.
 
 ``` r
-df <- ghost::gho_data("SDGPOLLUTINGFUELS") %>%
+df <- ghost::gho_data("PHE_HHAIR_PROP_POP_CLEAN_FUELS") %>%
   billionaiRe::wrangle_gho_data(source = "WHO GHO",
                                 type = "estimated") %>%
   dplyr::filter(whoville::is_who_member(iso3))
@@ -592,27 +591,27 @@ predict_average(df,
                 source = "WB IG regional averages") %>%
   dplyr::filter(iso3 == "LBN")
 #> # A tibble: 19 x 11
-#>    iso3   year ind   value lower upper source type    other_detail region  pred
-#>    <chr> <int> <chr> <dbl> <lgl> <lgl> <chr>  <chr>   <lgl>        <chr>  <dbl>
-#>  1 LBN    2000 <NA>   65.9 NA    NA    <NA>   imputed NA           UMC     65.9
-#>  2 LBN    2001 <NA>   65.9 NA    NA    <NA>   imputed NA           UMC     65.9
-#>  3 LBN    2002 <NA>   65.9 NA    NA    <NA>   imputed NA           UMC     65.9
-#>  4 LBN    2003 <NA>   65.9 NA    NA    <NA>   imputed NA           UMC     65.9
-#>  5 LBN    2004 <NA>   65.9 NA    NA    <NA>   imputed NA           UMC     65.9
-#>  6 LBN    2005 <NA>   65.9 NA    NA    <NA>   imputed NA           UMC     65.9
-#>  7 LBN    2006 <NA>   65.9 NA    NA    <NA>   imputed NA           UMC     65.9
-#>  8 LBN    2007 <NA>   65.9 NA    NA    <NA>   imputed NA           UMC     65.9
-#>  9 LBN    2008 <NA>   65.9 NA    NA    <NA>   imputed NA           UMC     65.9
-#> 10 LBN    2009 <NA>   65.9 NA    NA    <NA>   imputed NA           UMC     65.9
-#> 11 LBN    2010 <NA>   65.9 NA    NA    <NA>   imputed NA           UMC     65.9
-#> 12 LBN    2011 <NA>   65.9 NA    NA    <NA>   imputed NA           UMC     65.9
-#> 13 LBN    2012 <NA>   65.9 NA    NA    <NA>   imputed NA           UMC     65.9
-#> 14 LBN    2013 <NA>   65.9 NA    NA    <NA>   imputed NA           UMC     65.9
-#> 15 LBN    2014 <NA>   65.9 NA    NA    <NA>   imputed NA           UMC     65.9
-#> 16 LBN    2015 <NA>   65.9 NA    NA    <NA>   imputed NA           UMC     65.9
-#> 17 LBN    2016 <NA>   65.9 NA    NA    <NA>   imputed NA           UMC     65.9
-#> 18 LBN    2017 <NA>   65.9 NA    NA    <NA>   imputed NA           UMC     65.9
-#> 19 LBN    2018 <NA>   65.9 NA    NA    <NA>   imputed NA           UMC     65.9
+#>    iso3   year ind   value lower upper source    type  other_detail region  pred
+#>    <chr> <int> <chr> <dbl> <dbl> <dbl> <chr>     <chr> <lgl>        <chr>  <dbl>
+#>  1 LBN    2000 <NA>   64.4    NA    NA WB IG re… impu… NA           UMC     64.4
+#>  2 LBN    2001 <NA>   65.4    NA    NA WB IG re… impu… NA           UMC     65.4
+#>  3 LBN    2002 <NA>   66.4    NA    NA WB IG re… impu… NA           UMC     66.4
+#>  4 LBN    2003 <NA>   67.4    NA    NA WB IG re… impu… NA           UMC     67.4
+#>  5 LBN    2004 <NA>   68.4    NA    NA WB IG re… impu… NA           UMC     68.4
+#>  6 LBN    2005 <NA>   69.4    NA    NA WB IG re… impu… NA           UMC     69.4
+#>  7 LBN    2006 <NA>   70.3    NA    NA WB IG re… impu… NA           UMC     70.3
+#>  8 LBN    2007 <NA>   71.3    NA    NA WB IG re… impu… NA           UMC     71.3
+#>  9 LBN    2008 <NA>   72.2    NA    NA WB IG re… impu… NA           UMC     72.2
+#> 10 LBN    2009 <NA>   73.1    NA    NA WB IG re… impu… NA           UMC     73.1
+#> 11 LBN    2010 <NA>   73.9    NA    NA WB IG re… impu… NA           UMC     73.9
+#> 12 LBN    2011 <NA>   74.7    NA    NA WB IG re… impu… NA           UMC     74.7
+#> 13 LBN    2012 <NA>   75.4    NA    NA WB IG re… impu… NA           UMC     75.4
+#> 14 LBN    2013 <NA>   76.1    NA    NA WB IG re… impu… NA           UMC     76.1
+#> 15 LBN    2014 <NA>   76.7    NA    NA WB IG re… impu… NA           UMC     76.7
+#> 16 LBN    2015 <NA>   77.3    NA    NA WB IG re… impu… NA           UMC     77.3
+#> 17 LBN    2016 <NA>   77.9    NA    NA WB IG re… impu… NA           UMC     77.9
+#> 18 LBN    2017 <NA>   78.4    NA    NA WB IG re… impu… NA           UMC     78.4
+#> 19 LBN    2018 <NA>   78.9    NA    NA WB IG re… impu… NA           UMC     78.9
 ```
 
 Hope these examples have been clear and highlight some of the usefulness
