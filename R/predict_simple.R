@@ -33,6 +33,7 @@ predict_simple_fn <- function(df,
 
   if (model %in% c("forward", "all", "linear_interp")) {
     df <- dplyr::mutate(df, !!sym(pred_col) := zoo::na.approx(.data[[pred_col]],
+                                                              .data[[sort_col[1]]],
                                                               na.rm = FALSE))
   }
 
@@ -69,7 +70,12 @@ predict_simple_fn <- function(df,
 #' @param replace_obs Character value specifying how, if at all, observations should
 #'     be replaced by infilled values. By default, replaces missing values in `col`
 #'     but if set to `"none"` then `col` is not changed.
-#'
+#' @param sort_col Column name(s) to use to dplyr::arrange() the data prior to
+#'     supplying type and calculating mean absolute scaled error on data involving
+#'     time series. If NULL, not used. Defaults to "year". For `predict_simple()`,
+#'     the first value in `sort_col` is passed to [zoo::na.approx()] as `xout` to
+#'     ensure linear interpolation is based on `sort_col` indexing rather than
+#'     default data frame indexing.
 #' @export
 predict_simple <- function(df,
                            model = c("forward", "all", "flat_extrap", "linear_interp", "back_extrap", "both_extrap"),

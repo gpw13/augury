@@ -75,9 +75,12 @@ is only fit for a group if they meet the `obs_filter` requirements. This provide
 speed benefits, particularly when running INLA time series using `predict_inla()`.
 }}
 
-\item{sort_col}{Column name(s) to use to \code{\link[dplyr:arrange]{dplyr::arrange()}} the data prior to
+\item{sort_col}{Column name(s) to use to dplyr::arrange() the data prior to
 supplying type and calculating mean absolute scaled error on data involving
-time series. If \code{NULL}, not used. Defaults to \code{"year"}.}
+time series. If NULL, not used. Defaults to "year". For \code{predict_simple()},
+the first value in \code{sort_col} is passed to \code{\link[zoo:na.approx]{zoo::na.approx()}} as \code{xout} to
+ensure linear interpolation is based on \code{sort_col} indexing rather than
+default data frame indexing.}
 
 \item{sort_descending}{Logical value on whether the sorted values from \code{sort_col}
 should be sorted in descending order. Defaults to \code{FALSE}.}
