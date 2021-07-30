@@ -48,5 +48,5 @@ Remotes:
     gpw13/billionaiRe,
     gpw13/ghost,
     gpw13/whoville,
-    url::https://inla.r-inla-download.org/R/stable
+    hrue/r-inla, ref = "stable", subdir = "rinla", build = FALSE
 VignetteBuilder: knitr
