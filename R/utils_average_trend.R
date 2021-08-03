@@ -56,8 +56,8 @@ merge_average_df <- function(avg_df,
                              obs_filter,
                              sort_col,
                              pred_col,
-                             upper_col,
-                             lower_col,
+                             pred_upper_col,
+                             pred_lower_col,
                              test_col) {
   # group average data
   # don't use sort_col in grouping for wrangling
@@ -71,13 +71,13 @@ merge_average_df <- function(avg_df,
     avg_df <- avg_df %>%
       dplyr::arrange(.data[[sort_col]], .by_group = TRUE) %>%
       dplyr::mutate(!!sym(paste0(pred_col, "_trend")) := .data[[pred_col]] - dplyr::lag(.data[[pred_col]]),
-                    !!sym(paste0(upper_col, "_trend")) := .data[[upper_col]] - .data[[pred_col]],
-                    !!sym(paste0(lower_col, "_trend")) := .data[[pred_col]] - .data[[lower_col]]) %>%
+                    !!sym(paste0(pred_upper_col, "_trend")) := .data[[pred_upper_col]] - .data[[pred_col]],
+                    !!sym(paste0(pred_lower_col, "_trend")) := .data[[pred_col]] - .data[[pred_lower_col]]) %>%
       dplyr::select(average_cols,
                     pred_col,
-                    upper_col,
-                    lower_col,
-                    paste0(c(pred_col, upper_col, lower_col), "_trend"))
+                    pred_upper_col,
+                    pred_lower_col,
+                    paste0(c(pred_col, pred_upper_col, pred_lower_col), "_trend"))
 
     df <- df %>%
       dplyr::left_join(avg_df, by = average_cols) %>%
@@ -93,33 +93,33 @@ merge_average_df <- function(avg_df,
                       dplyr::row_number() > min(which(!is.na(.data[["temp_response"]])), Inf) ~ .data[["temp_forward_trend"]],
                       dplyr::row_number() < min(which(!is.na(.data[["temp_response"]])), Inf) ~ .data[["temp_backward_trend"]]
                     ),
-                    !!sym(upper_col) := dplyr::case_when(
+                    !!sym(pred_upper_col) := dplyr::case_when(
                       !is.na(.data[["temp_response"]]) ~ .data[[pred_col]],         # no bounds if value already present
-                      TRUE ~ .data[[pred_col]] + .data[[paste0(upper_col, "_trend")]]          # otherwise, add to prediction column
+                      TRUE ~ .data[[pred_col]] + .data[[paste0(pred_upper_col, "_trend")]]          # otherwise, add to prediction column
                     ),
-                    !!sym(lower_col) := dplyr::case_when(
+                    !!sym(pred_lower_col) := dplyr::case_when(
                       !is.na(.data[["temp_response"]]) ~ .data[[pred_col]],         # no bounds if value already present
-                      TRUE ~ .data[[pred_col]] - .data[[paste0(lower_col, "_trend")]]          # otherwise, subtract from prediction column
+                      TRUE ~ .data[[pred_col]] - .data[[paste0(pred_lower_col, "_trend")]]          # otherwise, subtract from prediction column
                     )) %>%
-      dplyr::select(-c(paste0(c(pred_col, upper_col, lower_col), "_trend"),  # drop temporary columns
+      dplyr::select(-c(paste0(c(pred_col, pred_upper_col, pred_lower_col), "_trend"),  # drop temporary columns
                        "temp_fill_response", "temp_forward_trend", "temp_backward_trend", "temp_response")) %>%
-      dplyr::mutate(dplyr::across(c(pred_col, upper_col, lower_col),
+      dplyr::mutate(dplyr::across(c(pred_col, pred_upper_col, pred_lower_col),
                                   ~ ifelse(eval(parse(text = obs_filter)), NA_real_, .x)))
 
   } else {
 
-    # predictions here created with sort col
+    # predictions here created without sort col
     # no trend is generated, just raw values of regional trends used
     # prediction kept always at that regional level
     avg_df <- dplyr::arrange(.by_group = TRUE) %>%
       dplyr::select(average_cols,
                     pred_col,
-                    upper_col,
-                    lower_col)
+                    pred_upper_col,
+                    pred_lower_col)
 
     df <- df %>%
       dplyr::left_join(avg_df, by = average_cols) %>%
-      dplyr::mutate(dplyr::across(c(pred_col, upper_col, lower_col),
+      dplyr::mutate(dplyr::across(c(pred_col, pred_upper_col, pred_lower_col),
                                   ~ ifelse(eval(parse(text = obs_filter)), NA_real_, .x)))
 
   }

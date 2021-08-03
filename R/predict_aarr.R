@@ -115,8 +115,8 @@ predict_aarr <- function(df,
                        sort_col = sort_col,
                        sort_descending,
                        pred_col = pred_col,
-                       upper_col = NULL,
-                       lower_col = NULL)
+                       pred_upper_col = NULL,
+                       pred_lower_col = NULL)
 
     if (ret == "error") {
       return(err)
@@ -131,6 +131,10 @@ predict_aarr <- function(df,
                          sort_col = sort_col,
                          sort_descending = sort_descending,
                          pred_col = pred_col,
+                         pred_upper_col = NULL,
+                         pred_lower_col = NULL,
+                         upper_col = NULL,
+                         lower_col = NULL,
                          type_col = type_col,
                          types = c(NA_character_, types),
                          source_col = source_col,

@@ -1,3 +1,10 @@
+# augury 0.3.3
+
+* All `predict_...()` functions now treat confidence bounds in the same way as
+    response and predicted values. Upper and lower bounds are generated in full
+    in `pred_upper_col` and `pred_lower_col` and then the existing bounds replaced
+    based on `replace_obs` and presence of non-missing values.
+    
 # augury 0.3.2
 
 * Use `obs_filter` in all `predict_...` functions to replace `replace_filter`, allowing

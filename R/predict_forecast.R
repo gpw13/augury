@@ -37,6 +37,8 @@ predict_forecast <- function(df,
                              sort_col = "year",
                              sort_descending = FALSE,
                              pred_col = "pred",
+                             pred_upper_col = "pred_upper",
+                             pred_lower_col = "pred_lower",
                              upper_col = "upper",
                              lower_col = "lower",
                              filter_na = c("all", "response", "predictors", "none"),
@@ -49,13 +51,15 @@ predict_forecast <- function(df,
   df <- assert_df(df)
   assert_function(forecast_function)
   assert_columns(df, response, test_col, group_col, sort_col, type_col, source_col)
-  assert_columns_unique(response, pred_col, upper_col, lower_col, test_col, group_col, sort_col, type_col, source_col)
+  assert_columns_unique(response, pred_col, pred_upper_col, pred_lower_col, upper_col, lower_col, test_col, group_col, sort_col, type_col, source_col)
   assert_group_models(group_col, group_models)
   ret <- rlang::arg_match(ret)
   assert_test_col(df, test_col)
   assert_string(pred_col, 1)
   assert_string(upper_col, 1)
   assert_string(lower_col, 1)
+  assert_string(pred_lower_col, 1)
+  assert_string(pred_upper_col, 1)
   filter_na <- rlang::arg_match(filter_na)
   assert_string(types, 1)
   assert_string(source, 1)
@@ -81,8 +85,8 @@ predict_forecast <- function(df,
                                sort_col = sort_col,
                                sort_descending = sort_descending,
                                pred_col = pred_col,
-                               upper_col = upper_col,
-                               lower_col = lower_col,
+                               pred_upper_col = pred_upper_col,
+                               pred_lower_col = pred_lower_col,
                                filter_na = filter_na,
                                ret = ret)
 
@@ -98,8 +102,8 @@ predict_forecast <- function(df,
     df <- probit_transform(df,
                            c(response,
                              pred_col,
-                             upper_col,
-                             lower_col),
+                             pred_upper_col,
+                             pred_lower_col),
                            inverse = TRUE)
   }
 
@@ -108,8 +112,8 @@ predict_forecast <- function(df,
     df <- scale_transform(df,
                           c(response,
                             pred_col,
-                            upper_col,
-                            lower_col),
+                            pred_upper_col,
+                            pred_lower_col),
                           scale = scale,
                           divide = FALSE)
   }
@@ -125,8 +129,8 @@ predict_forecast <- function(df,
                        sort_col = sort_col,
                        sort_descending,
                        pred_col = pred_col,
-                       upper_col = upper_col,
-                       lower_col = lower_col)
+                       pred_upper_col = pred_upper_col,
+                       pred_lower_col = pred_lower_col)
 
     if (ret == "error") {
       return(err)
@@ -141,6 +145,10 @@ predict_forecast <- function(df,
                          sort_col = sort_col,
                          sort_descending = sort_descending,
                          pred_col = pred_col,
+                         pred_upper_col = pred_upper_col,
+                         pred_lower_col = pred_lower_col,
+                         upper_col = upper_col,
+                         lower_col = lower_col,
                          type_col = type_col,
                          types = c(NA_character_, NA_character_, types),
                          source_col = source_col,
@@ -171,8 +179,8 @@ predict_forecast_data <- function(df,
                                   sort_col,
                                   sort_descending,
                                   pred_col,
-                                  upper_col,
-                                  lower_col) {
+                                  pred_upper_col,
+                                  pred_lower_col) {
   if (!is.null(sort_col)) {
     if (sort_descending) {
       fn <- dplyr::desc
@@ -186,8 +194,8 @@ predict_forecast_data <- function(df,
   x_len <- length(x)
   na_len <- nrow(df) - x_len # fill in NA for "pred" prior to the forecast
   df[[pred_col]] <- c(rep(NA_real_, na_len), x)
-  df[[upper_col]] <- c(rep(NA_real_, na_len), get_forecast_bounds(forecast_obj, "upper"))
-  df[[lower_col]] <- c(rep(NA_real_, na_len), get_forecast_bounds(forecast_obj, "lower"))
+  df[[pred_upper_col]] <- c(rep(NA_real_, na_len), get_forecast_bounds(forecast_obj, "upper"))
+  df[[pred_lower_col]] <- c(rep(NA_real_, na_len), get_forecast_bounds(forecast_obj, "lower"))
   df
 }
 
@@ -292,8 +300,8 @@ fit_forecast_model <- function(df,
                                sort_col,
                                sort_descending,
                                pred_col,
-                               upper_col,
-                               lower_col,
+                               pred_upper_col,
+                               pred_lower_col,
                                filter_na,
                                ret) {
 
@@ -319,8 +327,8 @@ fit_forecast_model <- function(df,
                                   sort_col = sort_col,
                                   sort_descending = sort_descending,
                                   pred_col = pred_col,
-                                  upper_col = upper_col,
-                                  lower_col = lower_col)
+                                  pred_upper_col = pred_upper_col,
+                                  pred_lower_col = pred_lower_col)
     }
 
   } else {
@@ -345,10 +353,10 @@ fit_forecast_model <- function(df,
                               sort_col = sort_col,
                               sort_descending = sort_descending,
                               pred_col = pred_col,
-                              upper_col = upper_col,
-                              lower_col = lower_col)
+                              pred_upper_col = pred_upper_col,
+                              pred_lower_col = pred_lower_col)
       } else {
-        augury_add_columns(df, c(pred_col, upper_col, lower_col))
+        augury_add_columns(df, c(pred_col, pred_upper_col, pred_lower_col))
       }
     })
 
