@@ -30,6 +30,8 @@ predict_lme4_avg_trend <- function(df,
                                    sort_col = "year",
                                    sort_descending = FALSE,
                                    pred_col = "pred",
+                                   pred_upper_col = "pred_upper",
+                                   pred_lower_col = "pred_lower",
                                    upper_col = "upper",
                                    lower_col = "lower",
                                    filter_na = c("predictors", "response", "all", "none"),
@@ -66,6 +68,8 @@ predict_lme4_avg_trend <- function(df,
   ret <- rlang::arg_match(ret)
   assert_test_col(df, test_col)
   assert_string(pred_col, 1)
+  assert_string(pred_upper_col, 1)
+  assert_string(pred_lower_col, 1)
   assert_string(upper_col, 1)
   assert_string(lower_col, 1)
   filter_na <- rlang::arg_match(filter_na)
@@ -97,8 +101,8 @@ predict_lme4_avg_trend <- function(df,
                                    sort_col = sort_col,
                                    sort_descending = sort_descending,
                                    pred_col = pred_col,
-                                   upper_col = upper_col,
-                                   lower_col = lower_col,
+                                   pred_upper_col = pred_upper_col,
+                                   pred_lower_col = pred_lower_col,
                                    filter_na = filter_na,
                                    ret = ret,
                                    error_correct = error_correct,
@@ -121,8 +125,8 @@ predict_lme4_avg_trend <- function(df,
                          obs_filter = obs_filter,
                          sort_col = sort_col,
                          pred_col = pred_col,
-                         upper_col = upper_col,
-                         lower_col = lower_col,
+                         pred_upper_col = pred_upper_col,
+                         pred_lower_col = pred_lower_col,
                          test_col = test_col)
 
   # Untransform variables
@@ -130,8 +134,8 @@ predict_lme4_avg_trend <- function(df,
     df <- probit_transform(df,
                            c(formula_vars[1],
                              pred_col,
-                             upper_col,
-                             lower_col),
+                             pred_upper_col,
+                             pred_lower_col),
                            inverse = TRUE)
   }
 
@@ -140,8 +144,8 @@ predict_lme4_avg_trend <- function(df,
     df <- scale_transform(df,
                           c(formula_vars[1],
                             pred_col,
-                            upper_col,
-                            lower_col),
+                            pred_upper_col,
+                            pred_lower_col),
                           scale = scale,
                           divide = FALSE)
   }
@@ -157,8 +161,8 @@ predict_lme4_avg_trend <- function(df,
                        sort_col = sort_col,
                        sort_descending = sort_descending,
                        pred_col = pred_col,
-                       upper_col = upper_col,
-                       lower_col = lower_col)
+                       pred_upper_col = pred_upper_col,
+                       pred_lower_col = pred_lower_col)
 
     if (ret == "error") {
       return(err)
@@ -173,6 +177,10 @@ predict_lme4_avg_trend <- function(df,
                          sort_col = sort_col,
                          sort_descending = sort_descending,
                          pred_col = pred_col,
+                         pred_upper_col = pred_upper_col,
+                         pred_lower_col = pred_lower_col,
+                         upper_col = upper_col,
+                         lower_col = lower_col,
                          type_col = type_col,
                          types = types,
                          source_col = source_col,
@@ -218,8 +226,8 @@ fit_lme4_average_model <- function(df,
                                    sort_col,
                                    sort_descending,
                                    pred_col,
-                                   upper_col,
-                                   lower_col,
+                                   pred_upper_col,
+                                   pred_lower_col,
                                    filter_na,
                                    ret,
                                    error_correct,
@@ -267,8 +275,8 @@ fit_lme4_average_model <- function(df,
       predict_lme4_data(df = y,
                         model = mdl,
                         pred_col = pred_col,
-                        upper_col = upper_col,
-                        lower_col = lower_col)
+                        pred_upper_col = pred_upper_col,
+                        pred_lower_col = pred_lower_col)
     })
 
     mdl <- NULL # not returning all models together for grouped models
@@ -284,8 +292,8 @@ fit_lme4_average_model <- function(df,
       df <- predict_lme4_data(df = grp_data,
                               model = mdl,
                               pred_col = pred_col,
-                              upper_col = upper_col,
-                              lower_col = lower_col)
+                              pred_upper_col = pred_upper_col,
+                              pred_lower_col = pred_lower_col)
     }
   }
   if (ret != "mdl") {
@@ -295,8 +303,8 @@ fit_lme4_average_model <- function(df,
                            sort_col = sort_col,
                            sort_descending = sort_descending,
                            pred_col = pred_col,
-                           upper_col = upper_col,
-                           lower_col = lower_col,
+                           pred_upper_col = pred_upper_col,
+                           pred_lower_col = pred_lower_col,
                            test_col = NULL,
                            error_correct = error_correct,
                            error_correct_cols = error_correct_cols,

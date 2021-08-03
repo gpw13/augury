@@ -32,6 +32,8 @@ predict_lme4 <- function(df,
                          sort_col = "year",
                          sort_descending = FALSE,
                          pred_col = "pred",
+                         pred_upper_col = "pred_upper",
+                         pred_lower_col = "pred_lower",
                          upper_col = "upper",
                          lower_col = "lower",
                          filter_na = c("all", "response", "predictors", "none"),
@@ -50,10 +52,12 @@ predict_lme4 <- function(df,
   assert_columns(df, formula_vars, test_col, group_col, sort_col, type_col, source_col)
   assert_group_models(group_col, group_models)
   response <- formula_vars[1]
-  assert_columns_unique(response, pred_col, lower_col, upper_col, test_col, group_col, sort_col, type_col, source_col)
+  assert_columns_unique(response, pred_col, pred_lower_col, pred_upper_col, lower_col, upper_col, test_col, group_col, sort_col, type_col, source_col)
   ret <- rlang::arg_match(ret)
   assert_test_col(df, test_col)
   assert_string(pred_col, 1)
+  assert_string(pred_upper_col, 1)
+  assert_string(pred_lower_col, 1)
   assert_string(upper_col, 1)
   assert_string(lower_col, 1)
   filter_na <- rlang::arg_match(filter_na)
@@ -84,8 +88,8 @@ predict_lme4 <- function(df,
                            sort_col = sort_col,
                            sort_descending = sort_descending,
                            pred_col = pred_col,
-                           upper_col = upper_col,
-                           lower_col = lower_col,
+                           pred_upper_col = pred_upper_col,
+                           pred_lower_col = pred_lower_col,
                            filter_na = filter_na,
                            ret = ret,
                            error_correct = error_correct,
@@ -105,8 +109,8 @@ predict_lme4 <- function(df,
     df <- probit_transform(df,
                            c(formula_vars[1],
                              pred_col,
-                             upper_col,
-                             lower_col),
+                             pred_upper_col,
+                             pred_lower_col),
                            inverse = TRUE)
   }
 
@@ -115,8 +119,8 @@ predict_lme4 <- function(df,
     df <- scale_transform(df,
                           c(formula_vars[1],
                             pred_col,
-                            upper_col,
-                            lower_col),
+                            pred_upper_col,
+                            pred_lower_col),
                           scale = scale,
                           divide = FALSE)
   }
@@ -132,8 +136,8 @@ predict_lme4 <- function(df,
                        sort_col = sort_col,
                        sort_descending = sort_descending,
                        pred_col = pred_col,
-                       upper_col = upper_col,
-                       lower_col = lower_col)
+                       pred_upper_col = pred_upper_col,
+                       pred_lower_col = pred_lower_col)
 
     if (ret == "error") {
       return(err)
@@ -148,6 +152,10 @@ predict_lme4 <- function(df,
                          sort_col = sort_col,
                          sort_descending = sort_descending,
                          pred_col = pred_col,
+                         pred_upper_col = pred_upper_col,
+                         pred_lower_col = pred_lower_col,
+                         upper_col = upper_col,
+                         lower_col = lower_col,
                          type_col = type_col,
                          types = types,
                          source_col = source_col,
@@ -174,14 +182,14 @@ predict_lme4 <- function(df,
 predict_lme4_data <- function(df,
                               model,
                               pred_col,
-                              upper_col,
-                              lower_col) {
+                              pred_upper_col,
+                              pred_lower_col) {
   pred <- merTools::predictInterval(model,
                                     newdata = as.data.frame(df),
                                     level = 0.95)
   df[[pred_col]] <- pred[["fit"]]
-  df[[upper_col]] <- pred[["upr"]]
-  df[[lower_col]] <- pred[["lwr"]]
+  df[[pred_upper_col]] <- pred[["upr"]]
+  df[[pred_lower_col]] <- pred[["lwr"]]
   df
 }
 
@@ -213,8 +221,8 @@ fit_lme4_model <- function(df,
                            sort_col,
                            sort_descending,
                            pred_col,
-                           upper_col,
-                           lower_col,
+                           pred_upper_col,
+                           pred_lower_col,
                            filter_na,
                            ret,
                            error_correct,
@@ -249,13 +257,13 @@ fit_lme4_model <- function(df,
         predict_lme4_data(df = y,
                           model = mdl,
                           pred_col = pred_col,
-                          upper_col = upper_col,
-                          lower_col = lower_col)
+                          pred_upper_col = pred_upper_col,
+                          pred_lower_col = pred_lower_col)
       } else {
         y
       }
     })
-    df <- augury_add_columns(df, c(pred_col, upper_col, lower_col))
+    df <- augury_add_columns(df, c(pred_col, pred_upper_col, pred_lower_col))
 
     mdl <- NULL # not returning all models together for grouped models
   } else { # single model fitting
@@ -275,8 +283,8 @@ fit_lme4_model <- function(df,
               x <- predict_lme4_data(df = x,
                                      model = mdl,
                                      pred_col = pred_col,
-                                     upper_col = upper_col,
-                                     lower_col = lower_col)
+                                     pred_upper_col = pred_upper_col,
+                                     pred_lower_col = pred_lower_col)
             }
             dplyr::select(x, -"augury_temp_obs_check")
           },
@@ -294,8 +302,8 @@ fit_lme4_model <- function(df,
                            sort_col = sort_col,
                            sort_descending = sort_descending,
                            pred_col = pred_col,
-                           upper_col = upper_col,
-                           lower_col = lower_col,
+                           pred_upper_col = pred_upper_col,
+                           pred_lower_col = pred_lower_col,
                            test_col = test_col,
                            error_correct = error_correct,
                            error_correct_cols = error_correct_cols,

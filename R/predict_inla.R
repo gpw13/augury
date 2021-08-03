@@ -40,6 +40,8 @@ predict_inla <- function(df,
                          sort_col = "year",
                          sort_descending = FALSE,
                          pred_col = "pred",
+                         pred_upper_col = "pred_upper",
+                         pred_lower_col = "pred_lower",
                          upper_col = "upper",
                          lower_col = "lower",
                          filter_na = c("predictors", "response", "all", "none"),
@@ -58,10 +60,12 @@ predict_inla <- function(df,
   assert_columns(df, formula_vars, test_col, group_col, sort_col, type_col, source_col, error_correct_cols)
   assert_group_models(group_col, group_models)
   response <- formula_vars[1]
-  assert_columns_unique(response, pred_col, lower_col, upper_col, test_col, group_col, sort_col, type_col, source_col)
+  assert_columns_unique(response, pred_col, pred_upper_col, pred_lower_col, lower_col, upper_col, test_col, group_col, sort_col, type_col, source_col)
   ret <- rlang::arg_match(ret)
   assert_test_col(df, test_col)
   assert_string(pred_col, 1)
+  assert_string(pred_upper_col, 1)
+  assert_string(pred_lower_col, 1)
   assert_string(upper_col, 1)
   assert_string(lower_col, 1)
   filter_na <- rlang::arg_match(filter_na)
@@ -92,8 +96,8 @@ predict_inla <- function(df,
                            sort_col = sort_col,
                            sort_descending = sort_descending,
                            pred_col = pred_col,
-                           upper_col = upper_col,
-                           lower_col = lower_col,
+                           pred_upper_col = pred_upper_col,
+                           pred_lower_col = pred_lower_col,
                            filter_na = filter_na,
                            ret = ret,
                            error_correct = error_correct,
@@ -112,8 +116,8 @@ predict_inla <- function(df,
     df <- probit_transform(df,
                            c(formula_vars[1],
                              pred_col,
-                             upper_col,
-                             lower_col),
+                             pred_upper_col,
+                             pred_lower_col),
                            inverse = TRUE)
   }
 
@@ -122,8 +126,8 @@ predict_inla <- function(df,
     df <- scale_transform(df,
                           c(formula_vars[1],
                             pred_col,
-                            upper_col,
-                            lower_col),
+                            pred_upper_col,
+                            pred_lower_col),
                           scale = scale,
                           divide = FALSE)
   }
@@ -139,8 +143,8 @@ predict_inla <- function(df,
                        sort_col = sort_col,
                        sort_descending = sort_descending,
                        pred_col = pred_col,
-                       upper_col = upper_col,
-                       lower_col = lower_col)
+                       pred_upper_col = pred_upper_col,
+                       pred_lower_col = pred_lower_col)
 
     if (ret == "error") {
       return(err)
@@ -155,6 +159,10 @@ predict_inla <- function(df,
                          sort_col = sort_col,
                          sort_descending = sort_descending,
                          pred_col = pred_col,
+                         pred_upper_col = pred_upper_col,
+                         pred_lower_col = pred_lower_col,
+                         upper_col = upper_col,
+                         lower_col = lower_col,
                          type_col = type_col,
                          types = types,
                          source_col = source_col,
@@ -184,12 +192,12 @@ predict_inla <- function(df,
 predict_inla_data <- function(df,
                               model,
                               pred_col,
-                              upper_col,
-                              lower_col) {
+                              pred_upper_col,
+                              pred_lower_col) {
   fit <- model[["summary.fitted.values"]]
   df[[pred_col]] <- fit[["mean"]]
-  df[[lower_col]] <- fit[["0.025quant"]]
-  df[[upper_col]] <- fit[["0.975quant"]]
+  df[[pred_lower_col]] <- fit[["0.025quant"]]
+  df[[pred_upper_col]] <- fit[["0.975quant"]]
   df
 }
 
@@ -221,8 +229,8 @@ fit_inla_model <- function(df,
                            sort_col,
                            sort_descending,
                            pred_col,
-                           upper_col,
-                           lower_col,
+                           pred_upper_col,
+                           pred_lower_col,
                            filter_na,
                            ret,
                            error_correct,
@@ -258,13 +266,13 @@ fit_inla_model <- function(df,
                                predict_inla_data(x,
                                                  mdl,
                                                  pred_col,
-                                                 upper_col,
-                                                 lower_col)
+                                                 pred_upper_col,
+                                                 pred_lower_col)
                              } else {
                                x
                              }
                            })
-    data <- augury_add_columns(data, c(pred_col, upper_col, lower_col))
+    data <- augury_add_columns(data, c(pred_col, pred_upper_col, pred_lower_col))
 
     mdl <- NULL # not returning all models together for grouped models
   } else { # single model fitting
@@ -281,8 +289,8 @@ fit_inla_model <- function(df,
       data <- predict_inla_data(data,
                                 mdl,
                                 pred_col,
-                                upper_col,
-                                lower_col)
+                                pred_upper_col,
+                                pred_lower_col)
     }
 
   }
@@ -295,12 +303,12 @@ fit_inla_model <- function(df,
     df <- NULL
   } else {
     df <- dplyr::left_join(dplyr::select(df, -dplyr::any_of(c(pred_col,
-                                                              lower_col,
-                                                              upper_col))),
+                                                              pred_lower_col,
+                                                              pred_upper_col))),
                            dplyr::select(data, dplyr::all_of(c("augury_unique_id",
                                                                pred_col,
-                                                               lower_col,
-                                                               upper_col))),
+                                                               pred_lower_col,
+                                                               pred_upper_col))),
                            by = "augury_unique_id") %>%
       dplyr::select(-"augury_unique_id")
 
@@ -311,8 +319,8 @@ fit_inla_model <- function(df,
                            sort_col = sort_col,
                            sort_descending = sort_descending,
                            pred_col = pred_col,
-                           upper_col = upper_col,
-                           lower_col = lower_col,
+                           pred_upper_col = pred_upper_col,
+                           pred_lower_col = pred_lower_col,
                            test_col = test_col,
                            error_correct = error_correct,
                            error_correct_cols = error_correct_cols,

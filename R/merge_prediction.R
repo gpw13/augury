@@ -14,14 +14,26 @@ merge_prediction <- function(df,
                              sort_col,
                              sort_descending,
                              pred_col,
+                             pred_upper_col,
+                             pred_lower_col,
+                             upper_col,
+                             lower_col,
                              type_col,
                              types,
                              source_col,
                              source,
                              replace_obs) {
+  # in case no input lower/upper col exists
+  df <- augury_add_columns(df, c(upper_col, lower_col))
+
   if (replace_obs != "none") {
-    # changing pred and response to both be real valued, in case one is integer
-    df <- dplyr::mutate(df, dplyr::across(c(response, pred_col), as.numeric))
+    # changing pred and response columns to all be real valued, in case some are integer
+    df <- dplyr::mutate(df, dplyr::across(c(response,
+                                            pred_col,
+                                            pred_upper_col,
+                                            pred_lower_col,
+                                            upper_col,
+                                            lower_col), as.numeric))
 
     df <- dplyr::group_by(df, dplyr::across(group_col))
 
@@ -62,17 +74,56 @@ merge_prediction <- function(df,
     # replace data with predicted values
     if (replace_obs == "missing") {
       df <- df %>%
-        dplyr::mutate(!!sym(response) := dplyr::case_when(
-          eval(parse(text = obs_filter)) ~ .data[[response]],
-          is.na(.data[[response]]) ~ .data[[pred_col]],
-          TRUE ~ .data[[response]]
+        dplyr::mutate(
+          !!sym(response) := dplyr::case_when(
+            eval(parse(text = obs_filter)) ~ .data[[response]],
+            is.na(.data[[response]]) ~ .data[[pred_col]],
+            TRUE ~ .data[[response]]
+          ))
+
+      # only calculate if all lower/upper cols present
+      if (all(sapply(list(pred_upper_col, pred_lower_col, upper_col, lower_col),
+                     function(x) !is.null(x)))) {
+        # add in upper/lower cols if not present already
+        df <- augury_add_columns(df, c(lower_col, upper_col))
+
+        df <- df %>%
+          dplyr::mutate(
+        !!sym(lower_col) := dplyr::case_when(
+          eval(parse(text = obs_filter)) ~ .data[[lower_col]],
+          is.na(.data[[response]]) ~ .data[[pred_lower_col]],
+          TRUE ~ .data[[lower_col]]
+        ),
+        !!sym(upper_col) := dplyr::case_when(
+          eval(parse(text = obs_filter)) ~ .data[[upper_col]],
+          is.na(.data[[response]]) ~ .data[[pred_upper_col]],
+          TRUE ~ .data[[upper_col]]
         ))
+      }
+
     } else {
+      if (all(sapply(list(pred_upper_col, pred_lower_col, upper_col, lower_col),
+                     function(x) !is.null(x)))) {
+        # add in upper/lower cols if not present already
+        df <- augury_add_columns(df, c(lower_col, upper_col))
+
+        df <- df %>%
+          dplyr::mutate(
+            !!sym(lower_col) := dplyr::case_when(
+              eval(parse(text = obs_filter)) ~ .data[[lower_col]],
+              TRUE ~ .data[[pred_lower_col]]
+            ),
+            !!sym(upper_col) := dplyr::case_when(
+              eval(parse(text = obs_filter)) ~ .data[[upper_col]],
+              TRUE ~ .data[[pred_upper_col]]
+            ))
+      }
       df <- df %>%
-        dplyr::mutate(!!sym(response) := dplyr::case_when(
-          eval(parse(text = obs_filter)) ~ .data[[response]],
-          TRUE ~ .data[[pred_col]]
-        ))
+        dplyr::mutate(
+          !!sym(response) := dplyr::case_when(
+            eval(parse(text = obs_filter)) ~ .data[[response]],
+            TRUE ~ .data[[pred_col]]
+          ))
     }
   }
 

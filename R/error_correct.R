@@ -8,8 +8,8 @@ error_correct_fn <- function(df,
                              sort_col,
                              sort_descending,
                              pred_col,
-                             upper_col,
-                             lower_col,
+                             pred_upper_col,
+                             pred_lower_col,
                              test_col,
                              error_correct,
                              error_correct_cols,
@@ -30,7 +30,7 @@ error_correct_fn <- function(df,
       dplyr::mutate("temp_error" := ifelse(is.na(.data[["temp_error"]]),
                                            mean(.data[["temp_error"]], na.rm = TRUE),
                                            .data[["temp_error"]])) %>%
-      dplyr::mutate(dplyr::across(dplyr::any_of(c(pred_col, upper_col, lower_col)),
+      dplyr::mutate(dplyr::across(dplyr::any_of(c(pred_col, pred_upper_col, pred_lower_col)),
                                   ~ .x + .data[["temp_error"]])) %>%
       dplyr::select(-"temp_error")
   }
@@ -50,7 +50,7 @@ error_correct_fn <- function(df,
     df <- df %>%
       dplyr::mutate("temp_error" := if (is.null(test_col)) .data[[response]] else ifelse(.data[[test_col]], NA_real_, .data[[response]]),
                     "temp_error" := match_trend(.data[["temp_error"]], .data[[pred_col]])) %>%
-      dplyr::mutate(dplyr::across(dplyr::any_of(c(pred_col, upper_col, lower_col)),
+      dplyr::mutate(dplyr::across(dplyr::any_of(c(pred_col, pred_upper_col, pred_lower_col)),
                                   ~ .x + .data[["temp_error"]])) %>%
       dplyr::select(-"temp_error") %>%
       dplyr::ungroup()

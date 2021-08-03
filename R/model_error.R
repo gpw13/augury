@@ -13,7 +13,7 @@
 #' * [MASE](https://en.wikipedia.org/wiki/Mean_absolute_scaled_error): mean absolute scaled error.
 #'     Only calculated if `test_col` is provided, as it is test error scaled by in-sample error.
 #' * CBA: confidence bound accuracy, % of observations lying within the confidence bounds.
-#'     Should be very near to 95%. Only calculated if both `upper_col` and `lower_col`
+#'     Should be very near to 95%. Only calculated if both `pred_upper_col` and `pred_lower_col`
 #'     are provided.
 #' * [R2](https://en.wikipedia.org/wiki/Coefficient_of_determination): R-squared
 #'     or coefficient of determination. Calculated only on test values if `test_col`
@@ -52,8 +52,8 @@ model_error <- function(df,
                         sort_col = NULL,
                         sort_descending = FALSE,
                         pred_col = "pred",
-                        upper_col = "upper",
-                        lower_col = "lower") {
+                        pred_upper_col = "pred_upper",
+                        pred_lower_col = "pred_lower") {
   # Group and arrange data if necessary
 
   df <- dplyr::group_by(df, dplyr::across(dplyr::all_of(group_col)))
@@ -98,7 +98,7 @@ model_error <- function(df,
                      "MAE" := mean(.data[["diff_abs"]], na.rm = TRUE),
                      "MdAE" := stats::median(.data[["diff_abs"]], na.rm = TRUE),
                      "MASE" := if (!is.null(test_col)) .data[["MAE"]] / mase_norm else NA_real_,
-                     "CBA" := if (!is.null(upper_col) && !is.null(lower_col)) sum(.data[[response]] <= .data[[upper_col]] & .data[[response]] >= .data[[lower_col]], na.rm = TRUE) / dplyr::n() else NA_real_,
+                     "CBA" := if (!is.null(pred_upper_col) && !is.null(pred_lower_col)) sum(.data[[response]] <= .data[[pred_upper_col]] & .data[[response]] >= .data[[pred_lower_col]], na.rm = TRUE) / dplyr::n() else NA_real_,
                      "R2" := 1 - (sum(.data[["diff_sqr"]]) / sum(.data[["diff_mean_sqr"]])),
                      .groups = "drop")
 

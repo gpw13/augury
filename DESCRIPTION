@@ -1,6 +1,6 @@
 Package: augury
 Title: Provides Streamlined Methods for Data Imputation and Forecasting for WHO DDI Statistics
-Version: 0.3.1
+Version: 0.3.3
 Authors@R: 
     c(person(given = "Seth",
              family = "Caldwell",
