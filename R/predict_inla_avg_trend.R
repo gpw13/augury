@@ -45,6 +45,7 @@ predict_inla_avg_trend <- function(df,
                                    shift_trend = FALSE) {
 
   # Assertions and error checking
+  assert_inla()
   df <- assert_df(df)
   formula_vars <- parse_formula(formula)
   assert_columns(df, average_cols, weight_col, formula_vars,

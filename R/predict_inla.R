@@ -55,6 +55,7 @@ predict_inla <- function(df,
                          shift_trend = FALSE) {
 
   # Assertions and error checking
+  assert_inla()
   df <- assert_df(df)
   formula_vars <- parse_formula(formula)
   assert_columns(df, formula_vars, test_col, group_col, sort_col, type_col, source_col, error_correct_cols)

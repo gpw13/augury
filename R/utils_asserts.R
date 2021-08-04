@@ -209,3 +209,11 @@ assert_group_models <- function(group_col,
          call. = FALSE)
   }
 }
+
+#' Assert if INLA is installed, for use in `predict_inla...()` functions.
+assert_inla <- function() {
+  if (!requireNamespace("INLA", quietly = TRUE)) {
+    stop("Please install the INLA package before using any `predict_inla...()` functions.",
+         call. = FALSE)
+  }
+}

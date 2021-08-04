@@ -25,7 +25,6 @@ Depends:
     R (>= 2.10)
 Imports: 
     VGAM,
-    INLA,
     stats,
     dplyr,
     rlang,
@@ -39,6 +38,7 @@ Imports:
     stringr,
     tibble
 Suggests:
+    INLA,
     knitr,
     rmarkdown,
     billionaiRe,
@@ -47,6 +47,5 @@ Suggests:
 Remotes:
     gpw13/billionaiRe,
     gpw13/ghost,
-    gpw13/whoville,
-    url::https://inla.r-inla-download.org/R/stable/src/contrib/INLA_21.02.23.tar.gz
+    gpw13/whoville
 VignetteBuilder: knitr
