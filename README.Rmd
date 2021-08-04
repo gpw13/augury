@@ -28,19 +28,11 @@ framework.
 You can install augury from [GitHub](https://github.com/gpw13/augury). The
 package depends on the [INLA package](https://www.r-inla.org/home) which is not
 available on CRAN. You will need to separately install that prior to installing
-augury. The below code should allow you to install the packages without any
-trouble:
+augury, following the code below.
 
 ``` r
 if (!require("INLA")) install.packages("INLA",repos=c(getOption("repos"),INLA="https://inla.r-inla-download.org/R/stable"), dep=TRUE)
 remotes::install_github("gpw13/augury")
-```
-
-If you are reinstalling the package to update something, you should make sure you
-have necessary dependencies, but to avoid re-downloading the large INLA tarball,
-you can use:
-```r
-remotes::install_github("gpw13/augury", dependencies = FALSE)
 ```
 
 ## Overview

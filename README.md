@@ -17,20 +17,11 @@ Triple Billion framework.
 You can install augury from [GitHub](https://github.com/gpw13/augury).
 The package depends on the [INLA package](https://www.r-inla.org/home)
 which is not available on CRAN. You will need to separately install that
-prior to installing augury. The below code should allow you to install
-the packages without any trouble:
+prior to installing augury, following the code below.
 
 ``` r
 if (!require("INLA")) install.packages("INLA",repos=c(getOption("repos"),INLA="https://inla.r-inla-download.org/R/stable"), dep=TRUE)
 remotes::install_github("gpw13/augury")
-```
-
-If you are reinstalling the package to update something, you should make
-sure you have necessary dependencies, but to avoid re-downloading the
-large INLA tarball, you can use:
-
-``` r
-remotes::install_github("gpw13/augury", dependencies = FALSE)
 ```
 
 ## Overview
@@ -150,15 +141,16 @@ df <- ghost::gho_data("WSH_SANITATION_SAFELY_MANAGED",
                                 type = "estimated")
 
 head(df)
-#> # A tibble: 6 x 9
-#>   iso3   year ind             value lower upper source  type      other_detail
-#>   <chr> <int> <chr>           <dbl> <lgl> <lgl> <chr>   <chr>     <lgl>       
-#> 1 AFG    2000 hpop_sanitation    NA NA    NA    WHO GHO estimated NA          
-#> 2 AFG    2001 hpop_sanitation    NA NA    NA    WHO GHO estimated NA          
-#> 3 AFG    2002 hpop_sanitation    NA NA    NA    WHO GHO estimated NA          
-#> 4 AFG    2003 hpop_sanitation    NA NA    NA    WHO GHO estimated NA          
-#> 5 AFG    2004 hpop_sanitation    NA NA    NA    WHO GHO estimated NA          
-#> 6 AFG    2005 hpop_sanitation    NA NA    NA    WHO GHO estimated NA
+#> # A tibble: 6 × 13
+#>   iso3   year ind   value lower upper use_dash use_calc source type  type_detail
+#>   <chr> <int> <chr> <dbl> <lgl> <lgl> <lgl>    <lgl>    <chr>  <chr> <lgl>      
+#> 1 AFG    2000 hpop…    NA NA    NA    TRUE     TRUE     WHO G… esti… NA         
+#> 2 AFG    2001 hpop…    NA NA    NA    TRUE     TRUE     WHO G… esti… NA         
+#> 3 AFG    2002 hpop…    NA NA    NA    TRUE     TRUE     WHO G… esti… NA         
+#> 4 AFG    2003 hpop…    NA NA    NA    TRUE     TRUE     WHO G… esti… NA         
+#> 5 AFG    2004 hpop…    NA NA    NA    TRUE     TRUE     WHO G… esti… NA         
+#> 6 AFG    2005 hpop…    NA NA    NA    TRUE     TRUE     WHO G… esti… NA         
+#> # … with 2 more variables: other_detail <lgl>, upload_detail <lgl>
 ```
 
 Now that we have the input data available from the GHO in an easy to use
@@ -175,7 +167,7 @@ df <- left_join(covariates_df,
   filter(iso3 == "ALB")
 
 head(df)
-#> # A tibble: 6 x 15
+#> # A tibble: 6 × 19
 #>   iso3   year year_n region    sdi sdi_scaled    e0 e0_scaled ind    value lower
 #>   <chr> <int>  <dbl> <chr>   <dbl>      <dbl> <dbl>     <dbl> <chr>  <dbl> <lgl>
 #> 1 ALB    2000      1 Southe… 0.604      0.650  74.0     0.752 hpop_…  40.2 NA   
@@ -184,8 +176,9 @@ head(df)
 #> 4 ALB    2003      4 Southe… 0.619      0.667  74.8     0.771 hpop_…  41.1 NA   
 #> 5 ALB    2004      5 Southe… 0.625      0.673  75.0     0.776 hpop_…  41.4 NA   
 #> 6 ALB    2005      6 Southe… 0.632      0.681  75.2     0.780 hpop_…  41.9 NA   
-#> # … with 4 more variables: upper <lgl>, source <chr>, type <chr>,
-#> #   other_detail <lgl>
+#> # … with 8 more variables: upper <lgl>, use_dash <lgl>, use_calc <lgl>,
+#> #   source <chr>, type <chr>, type_detail <lgl>, other_detail <lgl>,
+#> #   upload_detail <lgl>
 ```
 
 Of course, the only “covariate” being used in this time series model is
@@ -210,19 +203,19 @@ modeled_df <- df %>%
 modeled_df %>%
   filter(year > 2015) %>%
   select(iso3, year, value, pred, lower, upper, source, type)
-#> # A tibble: 10 x 8
+#> # A tibble: 10 × 8
 #>    iso3   year value  pred lower upper source          type     
 #>    <chr> <int> <dbl> <dbl> <dbl> <dbl> <chr>           <chr>    
-#>  1 ALB    2016  46.7  46.7  46.5  46.9 WHO GHO         estimated
-#>  2 ALB    2017  47.1  47.0  46.8  47.3 WHO GHO         estimated
-#>  3 ALB    2018  47.4  47.4  47.1  47.6 WHO GHO         estimated
-#>  4 ALB    2019  47.6  47.6  47.4  47.8 WHO GHO         estimated
-#>  5 ALB    2020  47.7  47.7  47.5  48.0 WHO GHO         estimated
-#>  6 ALB    2021  47.9  47.9  47.3  48.5 augury modeling projected
-#>  7 ALB    2022  48.1  48.1  47.0  49.1 augury modeling projected
-#>  8 ALB    2023  48.3  48.3  46.7  49.8 augury modeling projected
-#>  9 ALB    2024  48.5  48.5  46.3  50.6 augury modeling projected
-#> 10 ALB    2025  48.6  48.6  45.8  51.4 augury modeling projected
+#>  1 ALB    2016  46.7  46.7    NA    NA WHO GHO         estimated
+#>  2 ALB    2017  47.1  47.1    NA    NA WHO GHO         estimated
+#>  3 ALB    2018  47.4  47.4    NA    NA WHO GHO         estimated
+#>  4 ALB    2019  47.6  47.6    NA    NA WHO GHO         estimated
+#>  5 ALB    2020  47.7  47.7    NA    NA WHO GHO         estimated
+#>  6 ALB    2021  47.9  47.9    NA    NA augury modeling projected
+#>  7 ALB    2022  48.1  48.1    NA    NA augury modeling projected
+#>  8 ALB    2023  48.2  48.2    NA    NA augury modeling projected
+#>  9 ALB    2024  48.4  48.4    NA    NA augury modeling projected
+#> 10 ALB    2025  48.6  48.6    NA    NA augury modeling projected
 ```
 
 And there we go, we have now fit a time series model to our data,
@@ -243,19 +236,19 @@ df %>%
                   source = "augury modeling") %>%
   filter(year > 2015) %>%
   select(iso3, year, value, pred, lower, upper, source, type)
-#> # A tibble: 10 x 8
+#> # A tibble: 10 × 8
 #>    iso3   year value  pred lower upper source          type     
 #>    <chr> <int> <dbl> <dbl> <dbl> <dbl> <chr>           <chr>    
-#>  1 ALB    2016  46.7  46.7  46.5  46.9 WHO GHO         estimated
-#>  2 ALB    2017  47.1  47.0  46.8  47.3 WHO GHO         estimated
-#>  3 ALB    2018  47.4  47.4  47.1  47.6 WHO GHO         estimated
-#>  4 ALB    2019  47.6  47.6  47.4  47.8 WHO GHO         estimated
-#>  5 ALB    2020  47.7  47.7  47.5  48.0 WHO GHO         estimated
-#>  6 ALB    2021  47.9  47.9  47.3  48.5 augury modeling projected
-#>  7 ALB    2022  48.1  48.1  47.0  49.1 augury modeling projected
-#>  8 ALB    2023  48.3  48.3  46.7  49.8 augury modeling projected
-#>  9 ALB    2024  48.5  48.5  46.3  50.6 augury modeling projected
-#> 10 ALB    2025  48.6  48.6  45.8  51.4 augury modeling projected
+#>  1 ALB    2016  46.7  46.7    NA    NA WHO GHO         estimated
+#>  2 ALB    2017  47.1  47.1    NA    NA WHO GHO         estimated
+#>  3 ALB    2018  47.4  47.4    NA    NA WHO GHO         estimated
+#>  4 ALB    2019  47.6  47.6    NA    NA WHO GHO         estimated
+#>  5 ALB    2020  47.7  47.7    NA    NA WHO GHO         estimated
+#>  6 ALB    2021  47.9  47.9    NA    NA augury modeling projected
+#>  7 ALB    2022  48.1  48.1    NA    NA augury modeling projected
+#>  8 ALB    2023  48.2  48.2    NA    NA augury modeling projected
+#>  9 ALB    2024  48.4  48.4    NA    NA augury modeling projected
+#> 10 ALB    2025  48.6  48.6    NA    NA augury modeling projected
 ```
 
 And we can see that the results here are the same as manually scaling
@@ -274,15 +267,16 @@ df <- ghost::gho_data("SDGIHR2018") %>%
                                 type = "reported")
 
 head(df)
-#> # A tibble: 6 x 9
-#>   iso3   year ind   value lower upper source                  type  other_detail
-#>   <chr> <int> <chr> <dbl> <lgl> <lgl> <chr>                   <chr> <lgl>       
-#> 1 AFG    2018 espar    35 NA    NA    Electronic State Parti… repo… NA          
-#> 2 AFG    2019 espar    43 NA    NA    Electronic State Parti… repo… NA          
-#> 3 AFG    2020 espar    47 NA    NA    Electronic State Parti… repo… NA          
-#> 4 AGO    2018 espar    59 NA    NA    Electronic State Parti… repo… NA          
-#> 5 AGO    2019 espar    63 NA    NA    Electronic State Parti… repo… NA          
-#> 6 AGO    2020 espar    65 NA    NA    Electronic State Parti… repo… NA
+#> # A tibble: 6 × 13
+#>   iso3   year ind   value lower upper use_dash use_calc source type  type_detail
+#>   <chr> <int> <chr> <dbl> <lgl> <lgl> <lgl>    <lgl>    <chr>  <chr> <lgl>      
+#> 1 AFG    2018 espar    35 NA    NA    TRUE     TRUE     Elect… repo… NA         
+#> 2 AFG    2019 espar    43 NA    NA    TRUE     TRUE     Elect… repo… NA         
+#> 3 AFG    2020 espar    47 NA    NA    TRUE     TRUE     Elect… repo… NA         
+#> 4 AGO    2018 espar    59 NA    NA    TRUE     TRUE     Elect… repo… NA         
+#> 5 AGO    2019 espar    63 NA    NA    TRUE     TRUE     Elect… repo… NA         
+#> 6 AGO    2020 espar    65 NA    NA    TRUE     TRUE     Elect… repo… NA         
+#> # … with 2 more variables: other_detail <lgl>, upload_detail <lgl>
 ```
 
 With this, let’s go straight into the modeling like last time, except we
@@ -308,17 +302,17 @@ modeled_df <- df %>%
 modeled_df %>%
   filter(year > 2017, iso3 == "AFG") %>%
   select(iso3, year, value, pred, lower, upper, source, type)
-#> # A tibble: 8 x 8
+#> # A tibble: 8 × 8
 #>   iso3   year value  pred lower upper source                              type  
 #>   <chr> <int> <dbl> <dbl> <dbl> <dbl> <chr>                               <chr> 
-#> 1 AFG    2018  35    40.6  31.2  50.5 Electronic State Parties Self-Asse… repor…
-#> 2 AFG    2019  43    41.5  32.1  51.4 Electronic State Parties Self-Asse… repor…
-#> 3 AFG    2020  47    42.7  33.2  52.5 Electronic State Parties Self-Asse… repor…
-#> 4 AFG    2021  43.5  43.5  34.0  53.2 WHO DDI Preliminary infilling and … proje…
-#> 5 AFG    2022  44.5  44.5  35.1  54.2 WHO DDI Preliminary infilling and … proje…
-#> 6 AFG    2023  45.4  45.4  35.9  55.0 WHO DDI Preliminary infilling and … proje…
-#> 7 AFG    2024  46.4  46.4  36.9  56.0 WHO DDI Preliminary infilling and … proje…
-#> 8 AFG    2025  47.3  47.3  37.8  56.8 WHO DDI Preliminary infilling and … proje…
+#> 1 AFG    2018  35    40.6    NA    NA Electronic State Parties Self-Asse… repor…
+#> 2 AFG    2019  43    41.5    NA    NA Electronic State Parties Self-Asse… repor…
+#> 3 AFG    2020  47    42.7    NA    NA Electronic State Parties Self-Asse… repor…
+#> 4 AFG    2021  43.5  43.5    NA    NA WHO DDI Preliminary infilling and … proje…
+#> 5 AFG    2022  44.5  44.5    NA    NA WHO DDI Preliminary infilling and … proje…
+#> 6 AFG    2023  45.4  45.4    NA    NA WHO DDI Preliminary infilling and … proje…
+#> 7 AFG    2024  46.4  46.4    NA    NA WHO DDI Preliminary infilling and … proje…
+#> 8 AFG    2025  47.3  47.3    NA    NA WHO DDI Preliminary infilling and … proje…
 ```
 
 And exactly as we were able to do with the time series modeling, we now
@@ -349,18 +343,20 @@ df <- ghost::gho_data("BP_04", query = "$filter=SpatialDim in ('USA', 'GBR') and
   billionaiRe::wrangle_gho_data() %>%
   dplyr::right_join(tidyr::expand_grid(iso3 = c("USA", "GBR"),
                                        year = 1975:2017))
+#> Warning: Some of the rows are missing a source value.
 #> Joining, by = c("iso3", "year")
 
 head(df)
-#> # A tibble: 6 x 9
-#>   iso3   year ind   value lower upper source type  other_detail
-#>   <chr> <int> <chr> <dbl> <dbl> <dbl> <lgl>  <chr> <lgl>       
-#> 1 GBR    1975 bp     37.8  26.7  49.1 NA     <NA>  NA          
-#> 2 GBR    1976 bp     37.6  27.4  48   NA     <NA>  NA          
-#> 3 GBR    1977 bp     37.3  27.9  46.8 NA     <NA>  NA          
-#> 4 GBR    1978 bp     37.1  28.4  45.9 NA     <NA>  NA          
-#> 5 GBR    1979 bp     36.9  28.8  45.2 NA     <NA>  NA          
-#> 6 GBR    1980 bp     36.7  29.2  44.4 NA     <NA>  NA
+#> # A tibble: 6 × 13
+#>   iso3   year ind   value lower upper use_dash use_calc source type  type_detail
+#>   <chr> <int> <chr> <dbl> <dbl> <dbl> <lgl>    <lgl>    <lgl>  <chr> <lgl>      
+#> 1 GBR    1975 bp     37.8  26.7  49.1 TRUE     TRUE     NA     <NA>  NA         
+#> 2 GBR    1976 bp     37.6  27.4  48   TRUE     TRUE     NA     <NA>  NA         
+#> 3 GBR    1977 bp     37.3  27.9  46.8 TRUE     TRUE     NA     <NA>  NA         
+#> 4 GBR    1978 bp     37.1  28.4  45.9 TRUE     TRUE     NA     <NA>  NA         
+#> 5 GBR    1979 bp     36.9  28.8  45.2 TRUE     TRUE     NA     <NA>  NA         
+#> 6 GBR    1980 bp     36.7  29.2  44.4 TRUE     TRUE     NA     <NA>  NA         
+#> # … with 2 more variables: other_detail <lgl>, upload_detail <lgl>
 ```
 
 With this data, we can now use the `predict_forecast()` function like we
@@ -379,15 +375,17 @@ predict_forecast(usa_df,
 #> Registered S3 method overwritten by 'quantmod':
 #>   method            from
 #>   as.zoo.data.frame zoo
-#> # A tibble: 6 x 10
-#>   iso3   year ind   value lower upper source type  other_detail  pred
-#>   <chr> <int> <chr> <dbl> <dbl> <dbl> <lgl>  <chr> <lgl>        <dbl>
-#> 1 USA    2012 bp     15.7  NA    NA   NA     <NA>  NA            NA  
-#> 2 USA    2013 bp     15.5  NA    NA   NA     <NA>  NA            NA  
-#> 3 USA    2014 bp     15.4  NA    NA   NA     <NA>  NA            NA  
-#> 4 USA    2015 bp     15.3  NA    NA   NA     <NA>  NA            NA  
-#> 5 USA    2016 <NA>   15.2  15.0  15.3 NA     <NA>  NA            15.2
-#> 6 USA    2017 <NA>   15.1  14.9  15.2 NA     <NA>  NA            15.1
+#> # A tibble: 6 × 16
+#>   iso3   year ind   value lower upper use_dash use_calc source type  type_detail
+#>   <chr> <int> <chr> <dbl> <dbl> <dbl> <lgl>    <lgl>    <lgl>  <chr> <lgl>      
+#> 1 USA    2012 bp     15.7  11.7  20.3 TRUE     TRUE     NA     <NA>  NA         
+#> 2 USA    2013 bp     15.5  11.2  20.8 TRUE     TRUE     NA     <NA>  NA         
+#> 3 USA    2014 bp     15.4  10.8  21.3 TRUE     TRUE     NA     <NA>  NA         
+#> 4 USA    2015 bp     15.3  10.4  21.8 TRUE     TRUE     NA     <NA>  NA         
+#> 5 USA    2016 <NA>   15.2  NA    NA   NA       NA       NA     <NA>  NA         
+#> 6 USA    2017 <NA>   15.1  NA    NA   NA       NA       NA     <NA>  NA         
+#> # … with 5 more variables: other_detail <lgl>, upload_detail <lgl>, pred <dbl>,
+#> #   pred_upper <dbl>, pred_lower <dbl>
 ```
 
 Of course, we might want to run these models all together for each
@@ -403,17 +401,19 @@ predict_holt(df,
              group_models = TRUE,
              sort_col = "year") %>%
   dplyr::filter(year >= 2014, year <= 2017)
-#> # A tibble: 8 x 10
-#>   iso3   year ind   value lower upper source type  other_detail  pred
-#>   <chr> <int> <chr> <dbl> <dbl> <dbl> <lgl>  <chr> <lgl>        <dbl>
-#> 1 GBR    2014 bp     18.5  NA    NA   NA     <NA>  NA            NA  
-#> 2 GBR    2015 bp     17.9  NA    NA   NA     <NA>  NA            NA  
-#> 3 GBR    2016 <NA>   17.3  17.2  17.4 NA     <NA>  NA            17.3
-#> 4 GBR    2017 <NA>   16.7  16.5  16.9 NA     <NA>  NA            16.7
-#> 5 USA    2014 bp     15.4  NA    NA   NA     <NA>  NA            NA  
-#> 6 USA    2015 bp     15.3  NA    NA   NA     <NA>  NA            NA  
-#> 7 USA    2016 <NA>   15.2  15.0  15.3 NA     <NA>  NA            15.2
-#> 8 USA    2017 <NA>   15.1  14.9  15.2 NA     <NA>  NA            15.1
+#> # A tibble: 8 × 16
+#>   iso3   year ind   value lower upper use_dash use_calc source type  type_detail
+#>   <chr> <int> <chr> <dbl> <dbl> <dbl> <lgl>    <lgl>    <lgl>  <chr> <lgl>      
+#> 1 GBR    2014 bp     18.5  14    23.3 TRUE     TRUE     NA     <NA>  NA         
+#> 2 GBR    2015 bp     17.9  13    23.2 TRUE     TRUE     NA     <NA>  NA         
+#> 3 GBR    2016 <NA>   17.3  NA    NA   NA       NA       NA     <NA>  NA         
+#> 4 GBR    2017 <NA>   16.7  NA    NA   NA       NA       NA     <NA>  NA         
+#> 5 USA    2014 bp     15.4  10.8  21.3 TRUE     TRUE     NA     <NA>  NA         
+#> 6 USA    2015 bp     15.3  10.4  21.8 TRUE     TRUE     NA     <NA>  NA         
+#> 7 USA    2016 <NA>   15.2  NA    NA   NA       NA       NA     <NA>  NA         
+#> 8 USA    2017 <NA>   15.1  NA    NA   NA       NA       NA     <NA>  NA         
+#> # … with 5 more variables: other_detail <lgl>, upload_detail <lgl>, pred <dbl>,
+#> #   pred_upper <dbl>, pred_lower <dbl>
 ```
 
 Et voila, we have the same results for the USA and have also ran
@@ -429,20 +429,20 @@ series will prevent data before that from being used.
 bad_df <- dplyr::tibble(x = c(1:4, NA, 3:2, rep(NA, 4)))
 
 predict_holt(bad_df, "x", group_col = NULL, sort_col = NULL, group_models = FALSE)
-#> # A tibble: 11 x 4
-#>         x   pred upper  lower
-#>     <dbl>  <dbl> <dbl>  <dbl>
-#>  1  1     NA     NA    NA    
-#>  2  2     NA     NA    NA    
-#>  3  3     NA     NA    NA    
-#>  4  4     NA     NA    NA    
-#>  5 NA     NA     NA    NA    
-#>  6  3     NA     NA    NA    
-#>  7  2     NA     NA    NA    
-#>  8  1.17   1.17   2.55 -0.217
-#>  9  0.338  0.338  2.33 -1.66 
-#> 10 -0.494 -0.494  2.14 -3.12 
-#> 11 -1.32  -1.32   1.98 -4.63
+#> # A tibble: 11 × 6
+#>         x   pred pred_upper pred_lower upper lower
+#>     <dbl>  <dbl>      <dbl>      <dbl> <dbl> <dbl>
+#>  1  1     NA          NA        NA        NA    NA
+#>  2  2     NA          NA        NA        NA    NA
+#>  3  3     NA          NA        NA        NA    NA
+#>  4  4     NA          NA        NA        NA    NA
+#>  5 NA     NA          NA        NA        NA    NA
+#>  6  3     NA          NA        NA        NA    NA
+#>  7  2     NA          NA        NA        NA    NA
+#>  8  1.17   1.17        2.55     -0.217    NA    NA
+#>  9  0.338  0.338       2.33     -1.66     NA    NA
+#> 10 -0.494 -0.494       2.14     -3.12     NA    NA
+#> 11 -1.32  -1.32        1.98     -4.63     NA    NA
 ```
 
 It’s advisable to consider if other data infilling or imputation methods
@@ -467,15 +467,16 @@ df <- ghost::gho_data("SA_0000001688",
   dplyr::arrange(iso3, year)
 
 head(df)
-#> # A tibble: 6 x 9
-#>   iso3   year ind     value lower upper source  type      other_detail
-#>   <chr> <int> <chr>   <dbl> <dbl> <dbl> <chr>   <chr>     <lgl>       
-#> 1 AFG    2000 alcohol   0     0     0.1 WHO GHO estimated NA          
-#> 2 AFG    2005 alcohol   0     0     0.1 WHO GHO estimated NA          
-#> 3 AFG    2010 alcohol   0     0     0.1 WHO GHO estimated NA          
-#> 4 AFG    2015 alcohol   0     0     0   WHO GHO estimated NA          
-#> 5 AFG    2019 alcohol   0     0     0.1 WHO GHO estimated NA          
-#> 6 AGO    2000 alcohol   3.3   2.4   4.4 WHO GHO estimated NA
+#> # A tibble: 6 × 13
+#>   iso3   year ind     value lower upper use_dash use_calc source  type  type_detail
+#>   <chr> <int> <chr>   <dbl> <dbl> <dbl> <lgl>    <lgl>    <chr>   <chr> <lgl>      
+#> 1 AFG    2000 alcohol   0     0     0.1 TRUE     TRUE     WHO GHO esti… NA         
+#> 2 AFG    2005 alcohol   0     0     0.1 TRUE     TRUE     WHO GHO esti… NA         
+#> 3 AFG    2010 alcohol   0     0     0.1 TRUE     TRUE     WHO GHO esti… NA         
+#> 4 AFG    2015 alcohol   0     0     0   TRUE     TRUE     WHO GHO esti… NA         
+#> 5 AFG    2019 alcohol   0     0     0.1 TRUE     TRUE     WHO GHO esti… NA         
+#> 6 AGO    2000 alcohol   3.3   2.4   4.4 TRUE     TRUE     WHO GHO esti… NA         
+#> # … with 2 more variables: other_detail <lgl>, upload_detail <lgl>
 ```
 
 Here we can see that data has time series and gaps in years. We can use
@@ -494,7 +495,7 @@ df %>%
   dplyr::select(iso3,
                 year,
                 value)
-#> # A tibble: 9 x 3
+#> # A tibble: 9 × 3
 #>   iso3   year value
 #>   <chr> <int> <dbl>
 #> 1 AFG    2010     0
@@ -521,7 +522,7 @@ pred_df %>%
                 year >= 2010,
                 year <= 2018) %>%
   dplyr::select(iso3, year, value)
-#> # A tibble: 9 x 3
+#> # A tibble: 9 × 3
 #>   iso3   year value
 #>   <chr> <int> <dbl>
 #> 1 AFG    2010     0
@@ -543,7 +544,7 @@ pred_df %>%
   dplyr::filter(iso3 == "AFG",
                 year > 2016) %>%
   dplyr::select(iso3, year, value)
-#> # A tibble: 7 x 3
+#> # A tibble: 7 × 3
 #>   iso3   year value
 #>   <chr> <int> <dbl>
 #> 1 AFG    2017     0
@@ -565,6 +566,7 @@ df <- ghost::gho_data("PHE_HHAIR_PROP_POP_CLEAN_FUELS") %>%
   billionaiRe::wrangle_gho_data(source = "WHO GHO",
                                 type = "estimated") %>%
   dplyr::filter(whoville::is_who_member(iso3))
+#> Warning: Some of the rows are missing a ind value.
 
 x <- whoville::who_member_states()
 x[!(x %in% df$iso3)]
@@ -590,28 +592,30 @@ predict_average(df,
                 source_col = "source",
                 source = "WB IG regional averages") %>%
   dplyr::filter(iso3 == "LBN")
-#> # A tibble: 19 x 11
-#>    iso3   year ind   value lower upper source    type  other_detail region  pred
-#>    <chr> <int> <chr> <dbl> <dbl> <dbl> <chr>     <chr> <lgl>        <chr>  <dbl>
-#>  1 LBN    2000 <NA>   64.4    NA    NA WB IG re… impu… NA           UMC     64.4
-#>  2 LBN    2001 <NA>   65.4    NA    NA WB IG re… impu… NA           UMC     65.4
-#>  3 LBN    2002 <NA>   66.4    NA    NA WB IG re… impu… NA           UMC     66.4
-#>  4 LBN    2003 <NA>   67.4    NA    NA WB IG re… impu… NA           UMC     67.4
-#>  5 LBN    2004 <NA>   68.4    NA    NA WB IG re… impu… NA           UMC     68.4
-#>  6 LBN    2005 <NA>   69.4    NA    NA WB IG re… impu… NA           UMC     69.4
-#>  7 LBN    2006 <NA>   70.3    NA    NA WB IG re… impu… NA           UMC     70.3
-#>  8 LBN    2007 <NA>   71.3    NA    NA WB IG re… impu… NA           UMC     71.3
-#>  9 LBN    2008 <NA>   72.2    NA    NA WB IG re… impu… NA           UMC     72.2
-#> 10 LBN    2009 <NA>   73.1    NA    NA WB IG re… impu… NA           UMC     73.1
-#> 11 LBN    2010 <NA>   73.9    NA    NA WB IG re… impu… NA           UMC     73.9
-#> 12 LBN    2011 <NA>   74.7    NA    NA WB IG re… impu… NA           UMC     74.7
-#> 13 LBN    2012 <NA>   75.4    NA    NA WB IG re… impu… NA           UMC     75.4
-#> 14 LBN    2013 <NA>   76.1    NA    NA WB IG re… impu… NA           UMC     76.1
-#> 15 LBN    2014 <NA>   76.7    NA    NA WB IG re… impu… NA           UMC     76.7
-#> 16 LBN    2015 <NA>   77.3    NA    NA WB IG re… impu… NA           UMC     77.3
-#> 17 LBN    2016 <NA>   77.9    NA    NA WB IG re… impu… NA           UMC     77.9
-#> 18 LBN    2017 <NA>   78.4    NA    NA WB IG re… impu… NA           UMC     78.4
-#> 19 LBN    2018 <NA>   78.9    NA    NA WB IG re… impu… NA           UMC     78.9
+#> # A tibble: 19 × 15
+#>    iso3   year ind   value lower upper use_dash use_calc source           type  
+#>    <chr> <int> <chr> <dbl> <dbl> <dbl> <lgl>    <lgl>    <chr>            <chr> 
+#>  1 LBN    2000 <NA>   67.2    NA    NA NA       NA       WB IG regional … imput…
+#>  2 LBN    2001 <NA>   68.2    NA    NA NA       NA       WB IG regional … imput…
+#>  3 LBN    2002 <NA>   69.2    NA    NA NA       NA       WB IG regional … imput…
+#>  4 LBN    2003 <NA>   70.2    NA    NA NA       NA       WB IG regional … imput…
+#>  5 LBN    2004 <NA>   71.2    NA    NA NA       NA       WB IG regional … imput…
+#>  6 LBN    2005 <NA>   72.2    NA    NA NA       NA       WB IG regional … imput…
+#>  7 LBN    2006 <NA>   73.1    NA    NA NA       NA       WB IG regional … imput…
+#>  8 LBN    2007 <NA>   74.0    NA    NA NA       NA       WB IG regional … imput…
+#>  9 LBN    2008 <NA>   74.8    NA    NA NA       NA       WB IG regional … imput…
+#> 10 LBN    2009 <NA>   75.6    NA    NA NA       NA       WB IG regional … imput…
+#> 11 LBN    2010 <NA>   76.3    NA    NA NA       NA       WB IG regional … imput…
+#> 12 LBN    2011 <NA>   77.0    NA    NA NA       NA       WB IG regional … imput…
+#> 13 LBN    2012 <NA>   77.6    NA    NA NA       NA       WB IG regional … imput…
+#> 14 LBN    2013 <NA>   78.2    NA    NA NA       NA       WB IG regional … imput…
+#> 15 LBN    2014 <NA>   78.7    NA    NA NA       NA       WB IG regional … imput…
+#> 16 LBN    2015 <NA>   79.2    NA    NA NA       NA       WB IG regional … imput…
+#> 17 LBN    2016 <NA>   79.7    NA    NA NA       NA       WB IG regional … imput…
+#> 18 LBN    2017 <NA>   80.1    NA    NA NA       NA       WB IG regional … imput…
+#> 19 LBN    2018 <NA>   80.5    NA    NA NA       NA       WB IG regional … imput…
+#> # … with 5 more variables: type_detail <lgl>, other_detail <lgl>,
+#> #   upload_detail <lgl>, region <chr>, pred <dbl>
 ```
 
 Hope these examples have been clear and highlight some of the usefulness
@@ -644,6 +648,7 @@ df <- ghost::gho_data("BP_04", query = "$filter=Dim1 eq 'MLE' and Dim2 eq 'YEARS
   dplyr::filter(whoville::is_who_member(iso3),                # keep WHO member states
                 year >= 2000, year <= 2023) %>%               # get relevant years  
   dplyr::mutate(who_region = whoville::iso3_to_regions(iso3)) # get WHO regions
+#> Warning: Some of the rows are missing a source value.
 #> Joining, by = c("iso3", "year")
 
 ur <- unique(df$who_region)
@@ -665,20 +670,20 @@ pred_df <- df %>%
 
 pred_df %>%
   dplyr::filter(iso3 == "AFG", year >= 2013)
-#> # A tibble: 11 x 8
-#>    iso3   year year_n value who_region  pred upper lower
-#>    <chr> <int>  <dbl> <dbl> <chr>      <dbl> <dbl> <dbl>
-#>  1 AFG    2013     14  30.4 EMR         29.4  29.4  29.4
-#>  2 AFG    2014     15  30.4 EMR         29.4  29.4  29.4
-#>  3 AFG    2015     16  30.4 EMR         29.4  29.4  29.4
-#>  4 AFG    2016     17  29.4 EMR         29.4  29.4  29.4
-#>  5 AFG    2017     18  29.4 EMR         29.4  29.4  29.4
-#>  6 AFG    2018     19  29.4 EMR         29.4  29.4  29.4
-#>  7 AFG    2019     20  29.4 EMR         29.4  29.4  29.4
-#>  8 AFG    2020     21  29.4 EMR         29.4  29.4  29.4
-#>  9 AFG    2021     22  29.4 EMR         29.4  29.4  29.4
-#> 10 AFG    2022     23  29.4 EMR         29.4  29.4  29.4
-#> 11 AFG    2023     24  29.4 EMR         29.4  29.4  29.4
+#> # A tibble: 11 × 10
+#>    iso3   year year_n value who_region  pred pred_upper pred_lower upper lower
+#>    <chr> <int>  <dbl> <dbl> <chr>      <dbl>      <dbl>      <dbl> <dbl> <dbl>
+#>  1 AFG    2013     14  30.4 EMR         29.4       29.4       29.4    NA    NA
+#>  2 AFG    2014     15  30.4 EMR         29.4       29.4       29.4    NA    NA
+#>  3 AFG    2015     16  30.4 EMR         29.4       29.4       29.4    NA    NA
+#>  4 AFG    2016     17  29.4 EMR         29.4       29.4       29.4    NA    NA
+#>  5 AFG    2017     18  29.4 EMR         29.4       29.4       29.4    NA    NA
+#>  6 AFG    2018     19  29.4 EMR         29.4       29.4       29.4    NA    NA
+#>  7 AFG    2019     20  29.4 EMR         29.4       29.4       29.4    NA    NA
+#>  8 AFG    2020     21  29.4 EMR         29.4       29.4       29.4    NA    NA
+#>  9 AFG    2021     22  29.4 EMR         29.4       29.4       29.4    NA    NA
+#> 10 AFG    2022     23  29.4 EMR         29.4       29.4       29.4    NA    NA
+#> 11 AFG    2023     24  29.4 EMR         29.4       29.4       29.4    NA    NA
 ```
 
 Above, we can see we have a generated a model using 2nd order random
@@ -712,7 +717,7 @@ df %>%
   dplyr::summarize(value = mean(value, na.rm = T)) %>%
   head()
 #> `summarise()` has grouped output by 'who_region'. You can override using the `.groups` argument.
-#> # A tibble: 6 x 3
+#> # A tibble: 6 × 3
 #> # Groups:   who_region [1]
 #>   who_region year_n value
 #>   <chr>       <dbl> <dbl>
