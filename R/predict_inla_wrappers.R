@@ -17,7 +17,7 @@
 #' @export
 predict_inla_ts <- function(df,
                             model = "rw2",
-                            formula = stats::as.formula(sprintf("value ~ f(year_n, model = '%s')", model)),
+                            formula = stats::as.formula(sprintf("value ~ f(year, model = '%s')", model)),
                             family = "gaussian",
                             control.predictor = list(compute = TRUE),
                             control.inla = list(strategy = "laplace"),
