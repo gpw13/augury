@@ -9,7 +9,10 @@
 #'   \item{iso3}{Country ISO3 code.}
 #'   \item{year}{Year.}
 #'   \item{year_n}{Year, starting with `1` in 2000. For use in time series modelling.}
-#'   \item{region}{World Bank regional classification.}
+#'   \item{region}{Unclear origin regional classification.}
+#'   \item{un_subregion}{UN subregional classification.}
+#'   \item{sdg_subregion}{UN subregional classification for SDG calculation purposes.}
+#'   \item{gbd_subregion}{IHME GBD subregional classification.}
 #'   \item{sdi}{Socio-demographic Index, a composite calculated using publicly available on total fertility rates, mean years of schooling, and lag distributed income per capita.}
 #'   \item{sdi_scaled}{Socio-demographic Index, rescaled to a 0 - 1 scale.}
 #'   \item{e0}{Life expectancy at birth, total (years).}
