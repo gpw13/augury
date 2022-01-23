@@ -29,6 +29,7 @@ jobs:
           extra-packages: |
             any::pkgdown
           needs: website
+          _R_CHECK_FORCE_SUGGESTS_: false
 
       - name: Deploy package
         run: |
