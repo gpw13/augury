@@ -32,7 +32,7 @@ jobs:
             local::.
             pkgdepends
           needs: website
-          dependencies: pkgdepends::as_pkg_dependencies("hard")
+          dependencies: 'hard'
 
       - name: Deploy package
         run: |
