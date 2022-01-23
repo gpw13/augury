@@ -37,6 +37,7 @@ jobs:
         run: |
           remotes::install_deps(dependencies = TRUE)
           remotes::install_cran("pkgdown")
+          remotes::instal_github("gpw13/augury")
         shell: Rscript {0}
 
       - name: Deploy package
