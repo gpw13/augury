@@ -263,6 +263,7 @@ fit_inla_model <- function(df,
                                mdl <- INLA::inla(formula = formula,
                                                  data = x,
                                                  control.predictor = control.predictor,
+                                                 verbose = TRUE,
                                                  ...)
                                predict_inla_data(x,
                                                  mdl,
