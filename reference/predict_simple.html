@@ -90,6 +90,8 @@ functions provide.</p>
   types <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"imputed"</span>, <span class="st">"imputed"</span>, <span class="st">"projected"</span><span class="op">)</span>,
   source_col <span class="op">=</span> <span class="cn">NULL</span>,
   source <span class="op">=</span> <span class="cn">NULL</span>,
+  scenario_detail_col <span class="op">=</span> <span class="cn">NULL</span>,
+  scenario_detail <span class="op">=</span> <span class="cn">NULL</span>,
   replace_obs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"missing"</span>, <span class="st">"none"</span><span class="op">)</span>
 <span class="op">)</span></code></pre></div>
     </div>
@@ -169,6 +171,14 @@ If provided, the argument in <code>source</code> is used to fill in where predic
 have filled in missing data.</p></dd>
 <dt>source</dt>
 <dd><p>Source to add to missing values.</p></dd>
+<dt>scenario_detail_col</dt>
+<dd><p>Column name containing scenario_detail information
+for the data frame. If provided, the argument in <code>scenario_detail</code> is used
+to fill in where prediction shave filled in missing data.</p></dd>
+<dt>scenario_detail</dt>
+<dd><p>Scenario details to add to missing values (usually the
+name of the model being used to generate the projection, optionally with
+relevant parameters).</p></dd>
 <dt>replace_obs</dt>
 <dd><p>Character value specifying how, if at all, observations should
 be replaced by infilled values. By default, replaces missing values in <code>col</code>
