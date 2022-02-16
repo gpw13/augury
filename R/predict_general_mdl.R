@@ -107,6 +107,12 @@
 #'     If provided, the argument in `source` is used to fill in where predictions
 #'     have filled in missing data.
 #' @param source Source to add to missing values.
+#' @param scenario_detail_col Column name containing scenario_detail information
+#'     for the data frame. If provided, the argument in `scenario_detail` is used
+#'     to fill in where prediction shave filled in missing data.
+#' @param scenario_detail Scenario details to add to missing values (usually the
+#'     name of the model being used to generate the projection, optionally with
+#'     relevant parameters).
 #' @param replace_obs Character value specifying how, if at all, observations should
 #'     be replaced by fitted values. Defaults to replacing only missing values,
 #'     but can be used to replace all values or none.
@@ -150,6 +156,8 @@ predict_general_mdl <- function(df,
                                 types = c("imputed", "imputed", "projected"),
                                 source_col = NULL,
                                 source = NULL,
+                                scenario_detail_col = NULL,
+                                scenario_detail = NULL,
                                 replace_obs = c("missing", "all", "none"),
                                 error_correct = FALSE,
                                 error_correct_cols = NULL,
@@ -269,6 +277,8 @@ predict_general_mdl <- function(df,
                          types = types,
                          source_col = source_col,
                          source = source,
+                         scenario_detail_col = scenario_detail_col,
+                         scenario_detail = scenario_detail,
                          replace_obs = replace_obs)
 
   if (ret == "df") {

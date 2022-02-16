@@ -46,6 +46,8 @@ predict_forecast <- function(df,
                              types = "projected",
                              source_col = NULL,
                              source = NULL,
+                             scenario_detail_col = NULL,
+                             scenario_detail = NULL,
                              replace_obs = c("missing", "all", "none")) {
   # Assertions and error checking
   df <- assert_df(df)
@@ -153,6 +155,8 @@ predict_forecast <- function(df,
                          types = c(NA_character_, NA_character_, types),
                          source_col = source_col,
                          source = source,
+                         scenario_detail_col = scenario_detail_col,
+                         scenario_detail = scenario_detail,
                          replace_obs = replace_obs)
 
   if (ret == "df") {

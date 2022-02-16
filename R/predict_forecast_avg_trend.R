@@ -40,6 +40,8 @@ predict_forecast_avg_trend <- function(df,
                                        types = c("imputed", "imputed", "projected"),
                                        source_col = NULL,
                                        source = NULL,
+                                       scenario_detail_col = NULL,
+                                       scenario_detail = NULL,
                                        replace_obs = c("missing", "all", "none")) {
 
   # Assertions and error checking
@@ -175,6 +177,8 @@ predict_forecast_avg_trend <- function(df,
                          types = types,
                          source_col = source_col,
                          source = source,
+                         scenario_detail_col = scenario_detail_col,
+                         scenario_detail = scenario_detail,
                          replace_obs = replace_obs)
 
   if (ret == "df") {

@@ -31,6 +31,8 @@ predict_holt <- function(df,
                          types = "projected",
                          source_col = NULL,
                          source = NULL,
+                         scenario_detail_col = NULL,
+                         scenario_detail = NULL,
                          replace_obs = c("missing", "all", "none")) {
   predict_forecast(df = df,
                    forecast_function = forecast::holt,
@@ -55,6 +57,8 @@ predict_holt <- function(df,
                    types = types,
                    source_col = source_col,
                    source = source,
+                   scenario_detail_col = scenario_detail_col,
+                   scenario_detail = scenario_detail,
                    replace_obs = replace_obs)
 }
 
@@ -90,6 +94,8 @@ predict_ses <- function(df,
                         types = "projected",
                         source_col = NULL,
                         source = NULL,
+                        scenario_detail_col = NULL,
+                        scenario_detail = NULL,
                         replace_obs = c("missing", "all", "none")) {
   predict_forecast(df = df,
                    forecast_function = forecast::ses,
@@ -114,5 +120,7 @@ predict_ses <- function(df,
                    types = types,
                    source_col = source_col,
                    source = source,
+                   scenario_detail_col = scenario_detail_col,
+                   scenario_detail = scenario_detail,
                    replace_obs = replace_obs)
 }

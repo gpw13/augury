@@ -22,6 +22,8 @@ merge_prediction <- function(df,
                              types,
                              source_col,
                              source,
+                             scenario_detail_col,
+                             scenario_detail,
                              replace_obs) {
   # in case no input lower/upper col exists
   df <- augury_add_columns(df, c(upper_col, lower_col))
@@ -68,6 +70,16 @@ merge_prediction <- function(df,
           eval(parse(text = obs_filter)) ~ .data[[source_col]],
           is.na(.data[[response]]) & !is.na(.data[[pred_col]]) ~ !!source,
           TRUE ~ .data[[source_col]]
+        ))
+    }
+
+    # add scenario_detail information for missing values, where applicable
+    if (!is.null(scenario_detail_col)) {
+      df <- df %>%
+        dplyr::mutate("{scenario_detail_col}" := dplyr::case_when(
+          eval(parse(text = obs_filter)) ~ .data[[scenario_detail_col]],
+          is.na(.data[[response]]) & !is.na(.data[[pred_col]]) ~ .env$scenario_detail,
+          TRUE ~ .data[[scenario_detail_col]]
         ))
     }
 

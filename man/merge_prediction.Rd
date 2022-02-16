@@ -20,6 +20,8 @@ merge_prediction(
   types,
   source_col,
   source,
+  scenario_detail_col,
+  scenario_detail,
   replace_obs
 )
 }
@@ -86,6 +88,14 @@ If provided, the argument in \code{source} is used to fill in where predictions
 have filled in missing data.}
 
 \item{source}{Source to add to missing values.}
+
+\item{scenario_detail_col}{Column name containing scenario_detail information
+for the data frame. If provided, the argument in \code{scenario_detail} is used
+to fill in where prediction shave filled in missing data.}
+
+\item{scenario_detail}{Scenario details to add to missing values (usually the
+name of the model being used to generate the projection, optionally with
+relevant parameters).}
 
 \item{replace_obs}{Character value specifying how, if at all, observations should
 be replaced by fitted values. Defaults to replacing only missing values,
