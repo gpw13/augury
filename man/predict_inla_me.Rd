@@ -13,6 +13,7 @@ predict_inla_me(
   control.predictor = list(compute = TRUE),
   family = "gaussian",
   control.inla = list(strategy = "laplace"),
+  safe = FALSE,
   ...,
   ret = c("df", "all", "error", "model"),
   scale = NULL,
@@ -61,6 +62,8 @@ for a list of possible alternatives and use \code{\link[INLA:doc]{INLA::inla.doc
 detailed docs for individual families.}
 
 \item{control.inla}{See \code{\link[INLA:control.inla]{INLA::control.inla()}} for details.}
+
+\item{safe}{(logical) \code{\link[INLA:inla]{INLA::inla()}} safe parameters. Default to FALSE.}
 
 \item{...}{Additional arguments passed to \code{\link[INLA:inla]{INLA::inla()}}.}
 

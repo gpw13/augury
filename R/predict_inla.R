@@ -14,6 +14,7 @@
 #'     of the fitted values returned for use in the infilling and predictions. Additional
 #'     arguments can be passed in the `control.predictor` list, but must always include
 #'     `compute = TRUE`. See [INLA::control.predictor()] for details.
+#' @param safe (logical) [INLA::inla()] safe parameters. Default to FALSE.
 #' @param ... Additional arguments passed to [INLA::inla()].
 #' @param filter_na Character value specifying how, if at all, to filter `NA`
 #'     values from the dataset prior to applying the model. By default, only
@@ -27,6 +28,7 @@
 predict_inla <- function(df,
                          formula,
                          control.predictor = list(compute = TRUE),
+                         safe = FALSE,
                          ...,
                          ret = c("df", "all", "error", "model"),
                          scale = NULL,
@@ -90,6 +92,7 @@ predict_inla <- function(df,
   mdl_df <- fit_inla_model(df = df,
                            formula = formula,
                            control.predictor = control.predictor,
+                           safe = safe,
                            ...,
                            formula_vars = formula_vars,
                            test_col = test_col,
@@ -225,6 +228,7 @@ predict_inla_data <- function(df,
 fit_inla_model <- function(df,
                            formula,
                            control.predictor,
+                           safe = FALSE,
                            ...,
                            formula_vars,
                            test_col,
@@ -263,11 +267,25 @@ fit_inla_model <- function(df,
     data <- purrr::map_dfr(data,
                            function(x) {
                              obs_check <- dplyr::filter(x, eval(parse(text = obs_filter)))
+                             successful <- FALSE
                              if (nrow(obs_check) == 0) {
-                               mdl <- INLA::inla(formula = formula,
-                                                 data = x,
-                                                 control.predictor = control.predictor,
-                                                 ...)
+                               while(!successful){
+                                 tryCatch(
+                                   {
+                                     mdl <- INLA::inla(formula = formula,
+                                                       data = x,
+                                                       control.predictor = control.predictor,
+                                                       safe = safe,
+                                                       ...)
+                                   },
+                                   error = function(e){
+                                     successful <<- FALSE
+                                   },
+                                   finally = {
+                                     successful <<- TRUE
+                                   }
+                                 )
+                               }
                                predict_inla_data(x,
                                                  mdl,
                                                  pred_col,
@@ -276,16 +294,31 @@ fit_inla_model <- function(df,
                              } else {
                                x
                              }
-                           })
+                           }
+    )
+
     data <- augury_add_columns(data, c(pred_col, pred_upper_col, pred_lower_col))
 
     mdl <- NULL # not returning all models together for grouped models
   } else { # single model fitting
-
-    mdl <- INLA::inla(formula = formula,
-                      data = data,
-                      control.predictor = control.predictor,
-                      ...)
+    successful <- FALSE
+    while(!successful){
+      tryCatch(
+        {
+          mdl <- INLA::inla(formula = formula,
+                            data = data,
+                            control.predictor = control.predictor,
+                            safe = safe,
+                            ...)
+        },
+        error = function(e){
+          successful <<- FALSE
+        },
+        finally = {
+          successful <<- TRUE
+        }
+      )
+    }
 
     # don't predict data if only returning model
     if (ret == "mdl") {
@@ -297,7 +330,6 @@ fit_inla_model <- function(df,
                                 pred_upper_col,
                                 pred_lower_col)
     }
-
   }
 
   # Merge predictions data with old df
