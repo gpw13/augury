@@ -48,4 +48,6 @@ Remotes:
     gpw13/billionaiRe,
     gpw13/ghost,
     gpw13/whoville
+Additional_repositories: 
+    https://inla.r-inla-download.org/R/stable/
 VignetteBuilder: knitr
