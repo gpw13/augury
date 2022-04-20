@@ -49,5 +49,5 @@ Remotes:
     gpw13/ghost,
     gpw13/whoville
 Additional_repositories: 
-    https://inla.r-inla-download.org/R/stable/
+    https://inla.r-inla-download.org/R/testing  
 VignetteBuilder: knitr

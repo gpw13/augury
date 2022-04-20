@@ -8,7 +8,6 @@ fit_inla_model(
   df,
   formula,
   control.predictor,
-  safe = FALSE,
   ...,
   formula_vars,
   test_col,
@@ -37,8 +36,6 @@ marginals of the fitted values are obtained and the mean and standard deviation
 of the fitted values returned for use in the infilling and predictions. Additional
 arguments can be passed in the \code{control.predictor} list, but must always include
 \code{compute = TRUE}. See \code{\link[INLA:control.predictor]{INLA::control.predictor()}} for details.}
-
-\item{safe}{(logical) \code{\link[INLA:inla]{INLA::inla()}} safe parameters. Default to FALSE.}
 
 \item{...}{Additional arguments passed to \code{\link[INLA:inla]{INLA::inla()}}.}
 

@@ -14,7 +14,6 @@
 #'     of the fitted values returned for use in the infilling and predictions. Additional
 #'     arguments can be passed in the `control.predictor` list, but must always include
 #'     `compute = TRUE`. See [INLA::control.predictor()] for details.
-#' @param safe (logical) [INLA::inla()] safe parameters. Default to FALSE.
 #' @param ... Additional arguments passed to [INLA::inla()].
 #' @param filter_na Character value specifying how, if at all, to filter `NA`
 #'     values from the dataset prior to applying the model. By default, only
@@ -28,7 +27,6 @@
 predict_inla <- function(df,
                          formula,
                          control.predictor = list(compute = TRUE),
-                         safe = FALSE,
                          ...,
                          ret = c("df", "all", "error", "model"),
                          scale = NULL,
@@ -92,7 +90,6 @@ predict_inla <- function(df,
   mdl_df <- fit_inla_model(df = df,
                            formula = formula,
                            control.predictor = control.predictor,
-                           safe = safe,
                            ...,
                            formula_vars = formula_vars,
                            test_col = test_col,
@@ -209,6 +206,34 @@ predict_inla_data <- function(df,
   df
 }
 
+map_model_behavior <- function(df, formula, control.predictor, ...){
+  success <- FALSE
+  iteration <- 0
+  while(iteration < 20 & !success){
+    if(exists("mdl")) {
+      rm(list = "mdl")
+    }
+
+    iteration <- iteration + 1
+    tryCatch({
+      mdl <- INLA::inla(formula = formula,
+                        data = df,
+                        control.predictor = control.predictor,
+                        ...)
+      if(exists("mdl")) {
+        success <- TRUE
+      }
+    },
+    error = function(e){
+      message(sprintf("Execution stopped due to the following error:\n\n%s", e))
+    },
+    finally = {
+      return(mdl)
+    })
+  }
+}
+
+
 #' Fit INLA model to data
 #'
 #' Used within `predict_inla()`, this function fits the model to the data
@@ -228,7 +253,6 @@ predict_inla_data <- function(df,
 fit_inla_model <- function(df,
                            formula,
                            control.predictor,
-                           safe = FALSE,
                            ...,
                            formula_vars,
                            test_col,
@@ -265,82 +289,33 @@ fit_inla_model <- function(df,
 
     # Map modeling behavior
     data <- purrr::map_dfr(data,
-                           function(x) {
-                             obs_check <- dplyr::filter(x, eval(parse(text = obs_filter)))
-                             success <- FALSE
-                             iteration <- 0
+                           function(df){
+                             obs_check <- dplyr::filter(df, eval(parse(text = obs_filter)))
                              if (nrow(obs_check) == 0) {
-                               while(iteration < 20 & !success){
-                                 if(exists("mdl")) {
-                                   rm(list = "mdl")
-                                 }
-
-                                 iteration <- iteration + 1
-                                 tryCatch({
-                                   mdl <- INLA::inla(formula = formula,
-                                                     data = x,
-                                                     control.predictor = control.predictor,
-                                                     safe = safe,
-                                                     ...)
-                                   if(exists("mdl")) {
-                                     success <- TRUE
-                                   }
-                                 },
-                                 error = function(e){
-                                   message(sprintf("Execution stopped due to the following error:\n\n%s", e))
-                                 },
-                                 finally = {
-                                   message(sprintf("Iteration %s finished with success = %s", iteration, success))
-                                 })
-                                 if(iteration >= 20 & is.null(mdl)){
-                                   stop("INLA modeling failed after 20 iterations")
-                                 }
-                               }
-
-                               predict_inla_data(x,
+                               mdl <- map_model_behavior(df = df,
+                                                         formula = formula,
+                                                         control.predictor = control.predictor,
+                                                         ...
+                               )
+                               predict_inla_data(df,
                                                  mdl,
                                                  pred_col,
                                                  pred_upper_col,
                                                  pred_lower_col)
-                             } else {
-                               x
+                             }else{
+                               df
                              }
-                           }
-    )
+                           })
 
     data <- augury_add_columns(data, c(pred_col, pred_upper_col, pred_lower_col))
 
     mdl <- NULL # not returning all models together for grouped models
   } else { # single model fitting
-    success <- FALSE
-    iteration <- 0
-    while(iteration < 20 & !success){
-      if(exists("mdl")) {
-        rm(list = "mdl")
-      }
 
-      iteration <- iteration + 1
-      tryCatch({
-        mdl <- INLA::inla(formula = formula,
-                          data = data,
-                          control.predictor = control.predictor,
-                          safe = safe,
-                          ...)
-
-        if(exists("mdl")) {
-          success <- TRUE
-        }
-      },
-      error = function(e){
-        message(sprintf("Execution stopped due to the following error:\n\n%s", e))
-      },
-      finally = {
-        message(sprintf("Iteration %s finished with success = %s", iteration, success))
-      })
-      if(iteration >= 20 & is.null(mdl)){
-        stop("INLA modeling failed after 20 iterations")
-      }
-    }
+    mdl <- map_model_behavior(df = data,
+                       formula = formula,
+                       control.predictor = control.predictor,
+                       ...)
 
     # don't predict data if only returning model
     if (ret == "mdl") {

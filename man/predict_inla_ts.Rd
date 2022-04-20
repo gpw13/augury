@@ -11,7 +11,6 @@ predict_inla_ts(
   family = "gaussian",
   control.predictor = list(compute = TRUE),
   control.inla = list(strategy = "laplace"),
-  safe = FALSE,
   ...,
   ret = c("df", "all", "error", "model"),
   scale = NULL,
@@ -60,8 +59,6 @@ arguments can be passed in the \code{control.predictor} list, but must always in
 \code{compute = TRUE}. See \code{\link[INLA:control.predictor]{INLA::control.predictor()}} for details.}
 
 \item{control.inla}{See \code{\link[INLA:control.inla]{INLA::control.inla()}} for details.}
-
-\item{safe}{(logical) \code{\link[INLA:inla]{INLA::inla()}} safe parameters. Default to FALSE.}
 
 \item{...}{Additional arguments passed to \code{\link[INLA:inla]{INLA::inla()}}.}
 
