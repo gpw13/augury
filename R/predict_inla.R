@@ -267,23 +267,36 @@ fit_inla_model <- function(df,
     data <- purrr::map_dfr(data,
                            function(x) {
                              obs_check <- dplyr::filter(x, eval(parse(text = obs_filter)))
-                             mdl <- NULL
+                             success <- FALSE
                              iteration <- 0
                              if (nrow(obs_check) == 0) {
-                               while(is.null(mdl) & iteration < 20){
+                               while(iteration < 20 & !success){
+                                 if(exists("mdl")) {
+                                   rm(list = "mdl")
+                                 }
+
                                  iteration <- iteration + 1
-                                 try(
-                                     mdl <- INLA::inla(formula = formula,
-                                                       data = x,
-                                                       control.predictor = control.predictor,
-                                                       safe = safe,
-                                                       ...)
-                                 )
+                                 tryCatch({
+                                   mdl <- INLA::inla(formula = formula,
+                                                     data = x,
+                                                     control.predictor = control.predictor,
+                                                     safe = safe,
+                                                     ...)
+                                   if(exists("mdl")) {
+                                     success <- TRUE
+                                   }
+                                 },
+                                 error = function(e){
+                                   message(sprintf("Execution stopped due to the following error:\n\n%s", e))
+                                 },
+                                 finally = {
+                                   message(sprintf("Iteration %s finished with success = %s", iteration, success))
+                                 })
                                  if(iteration >= 20 & is.null(mdl)){
                                    stop("INLA modeling failed after 20 iterations")
                                  }
-
                                }
+
                                predict_inla_data(x,
                                                  mdl,
                                                  pred_col,
@@ -299,17 +312,31 @@ fit_inla_model <- function(df,
 
     mdl <- NULL # not returning all models together for grouped models
   } else { # single model fitting
-    mdl <- NULL
+    success <- FALSE
     iteration <- 0
-    while(is.null(mdl) & iteration < 20){
+    while(iteration < 20 & !success){
+      if(exists("mdl")) {
+        rm(list = "mdl")
+      }
+
       iteration <- iteration + 1
-      try(
-          mdl <- INLA::inla(formula = formula,
-                            data = data,
-                            control.predictor = control.predictor,
-                            safe = safe,
-                            ...)
-      )
+      tryCatch({
+        mdl <- INLA::inla(formula = formula,
+                          data = data,
+                          control.predictor = control.predictor,
+                          safe = safe,
+                          ...)
+
+        if(exists("mdl")) {
+          success <- TRUE
+        }
+      },
+      error = function(e){
+        message(sprintf("Execution stopped due to the following error:\n\n%s", e))
+      },
+      finally = {
+        message(sprintf("Iteration %s finished with success = %s", iteration, success))
+      })
       if(iteration >= 20 & is.null(mdl)){
         stop("INLA modeling failed after 20 iterations")
       }
