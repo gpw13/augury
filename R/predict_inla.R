@@ -268,8 +268,10 @@ fit_inla_model <- function(df,
                            function(x) {
                              obs_check <- dplyr::filter(x, eval(parse(text = obs_filter)))
                              mdl <- NULL
+                             iteration <- 0
                              if (nrow(obs_check) == 0) {
-                               while(is.null(mdl)){
+                               while(is.null(mdl) & iteration < 20){
+                                 iteration <- iteration + 1
                                  try(
                                      mdl <- INLA::inla(formula = formula,
                                                        data = x,
@@ -277,6 +279,10 @@ fit_inla_model <- function(df,
                                                        safe = safe,
                                                        ...)
                                  )
+                                 if(iteration >= 20 & is.null(mdl)){
+                                   stop("INLA modeling failed after 20 iterations")
+                                 }
+
                                }
                                predict_inla_data(x,
                                                  mdl,
@@ -294,7 +300,9 @@ fit_inla_model <- function(df,
     mdl <- NULL # not returning all models together for grouped models
   } else { # single model fitting
     mdl <- NULL
-    while(is.null(mdl)){
+    iteration <- 0
+    while(is.null(mdl) & iteration < 20){
+      iteration <- iteration + 1
       try(
           mdl <- INLA::inla(formula = formula,
                             data = data,
@@ -302,6 +310,9 @@ fit_inla_model <- function(df,
                             safe = safe,
                             ...)
       )
+      if(iteration >= 20 & is.null(mdl)){
+        stop("INLA modeling failed after 20 iterations")
+      }
     }
 
     # don't predict data if only returning model
