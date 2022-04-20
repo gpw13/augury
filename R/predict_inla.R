@@ -267,23 +267,15 @@ fit_inla_model <- function(df,
     data <- purrr::map_dfr(data,
                            function(x) {
                              obs_check <- dplyr::filter(x, eval(parse(text = obs_filter)))
-                             successful <- FALSE
+                             mdl <- NULL
                              if (nrow(obs_check) == 0) {
-                               while(!successful){
-                                 tryCatch(
-                                   {
+                               while(is.null(mdl)){
+                                 try(
                                      mdl <- INLA::inla(formula = formula,
                                                        data = x,
                                                        control.predictor = control.predictor,
                                                        safe = safe,
                                                        ...)
-                                   },
-                                   error = function(e){
-                                     successful <<- FALSE
-                                   },
-                                   finally = {
-                                     successful <<- TRUE
-                                   }
                                  )
                                }
                                predict_inla_data(x,
@@ -301,22 +293,14 @@ fit_inla_model <- function(df,
 
     mdl <- NULL # not returning all models together for grouped models
   } else { # single model fitting
-    successful <- FALSE
-    while(!successful){
-      tryCatch(
-        {
+    mdl <- NULL
+    while(is.null(mdl)){
+      try(
           mdl <- INLA::inla(formula = formula,
                             data = data,
                             control.predictor = control.predictor,
                             safe = safe,
                             ...)
-        },
-        error = function(e){
-          successful <<- FALSE
-        },
-        finally = {
-          successful <<- TRUE
-        }
       )
     }
 
