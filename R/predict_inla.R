@@ -206,6 +206,16 @@ predict_inla_data <- function(df,
   df
 }
 
+#' Catch instability of INLA
+#'
+#' `map_model_behavior()` runs [INLA::inla()] until its successful. This is
+#' important on  linux machines where INLA can produce unstable results.
+#'
+#'
+#' @inheritParams fit_inla_model
+#'
+#' @return A data frame.
+
 map_model_behavior <- function(df, formula, control.predictor, ...){
   success <- FALSE
   iteration <- 0
