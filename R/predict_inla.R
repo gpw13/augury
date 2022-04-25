@@ -237,7 +237,6 @@ map_model_behavior <- function(df, formula, control.predictor, ...){
       message(sprintf("Execution stopped due to the following error:\n\n%s", e))
     },
     finally = {
-      message(sprintf("Execution succeeded on iteration: %s", iteration))
       mdl
     })
   }
