@@ -209,13 +209,12 @@ predict_inla_data <- function(df,
 map_model_behavior <- function(df, formula, control.predictor, ...){
   success <- FALSE
   iteration <- 0
-  while(iteration < 20 & !success){
-    if(exists("mdl")) {
-      rm(list = "mdl")
-    }
-
+  while(!success){
     iteration <- iteration + 1
     tryCatch({
+      if(exists("mdl")) {
+        rm(list = "mdl")
+      }
       mdl <- INLA::inla(formula = formula,
                         data = df,
                         control.predictor = control.predictor,
@@ -228,9 +227,11 @@ map_model_behavior <- function(df, formula, control.predictor, ...){
       message(sprintf("Execution stopped due to the following error:\n\n%s", e))
     },
     finally = {
-      return(mdl)
+      message(sprintf("Execution succeeded on iteration: %s", iteration))
+      mdl
     })
   }
+  return(mdl)
 }
 
 
