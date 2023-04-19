@@ -189,7 +189,7 @@ predict_forecast_data <- function(df,
     if (sort_descending) {
       fn <- dplyr::desc
     } else {
-      fn <- NULL
+      fn <- I
     }
     df <- dplyr::arrange(df, dplyr::across(dplyr::all_of(sort_col), fn), .by_group = TRUE)
   }
@@ -226,7 +226,7 @@ get_forecast_data <- function(df,
     if (sort_descending) {
       fn <- dplyr::desc
     } else {
-      fn <- NULL
+      fn <- I
     }
     df <- dplyr::arrange(df, dplyr::across(dplyr::all_of(sort_col), fn), .by_group = TRUE)
   }
