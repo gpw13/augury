@@ -61,7 +61,7 @@ model_error <- function(df,
     if (sort_descending) {
       fn <- dplyr::desc
     } else {
-      fn <- NULL
+      fn <- I
     }
     df <- dplyr::arrange(df,
                          dplyr::across(dplyr::all_of(sort_col), fn),

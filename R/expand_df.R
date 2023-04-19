@@ -73,7 +73,7 @@ expand_df_filter <- function(df,
       if (sort_descending) {
         fn <- dplyr::desc
       } else {
-        fn <- NULL
+        fn <- I
       }
       df <- dplyr::arrange(df, dplyr::across(sort_col, fn), .by_group = TRUE)
     }
