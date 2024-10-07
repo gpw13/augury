@@ -7,8 +7,8 @@
 predict_inla_me(
   df,
   model = "rw2",
- 
-    formula = stats::as.formula(sprintf("value ~ sdi_scaled + e0_scaled + f(region, model = 'iid') + f(year, model = '\%s')",
+  formula =
+    stats::as.formula(sprintf("value ~ sdi_scaled + e0_scaled + f(region, model = 'iid') + f(year, model = '\%s')",
     model)),
   control.predictor = list(compute = TRUE),
   family = "gaussian",
@@ -62,7 +62,7 @@ detailed docs for individual families.}
 
 \item{control.inla}{See \code{\link[INLA:control.inla]{INLA::control.inla()}} for details.}
 
-\item{...}{Additional arguments passed to \code{\link[INLA:inla]{INLA::inla()}}.}
+\item{...}{Additional arguments passed to \code{\link[INLA:INLA]{INLA::inla()}}.}
 
 \item{ret}{Character vector specifying what values the function returns. Defaults
 to returning a data frame, but can return a vector of model error, the
@@ -101,12 +101,14 @@ replace observations with predicted values. This is done in
 conjunction with \code{group_col}. So, if \code{group_col = "iso3"} and
 \code{obs_filter = ">= 5"}, then for this model, predictions will only be used
 for \code{iso3} vales that have 5 or more observations. Possible logical operators
-to use are \code{>}, \code{>=}, \code{<}, \code{<=}, \code{==}, and \code{!=}.\preformatted{If `group_models = FALSE`, then `obs_filter` is only used to determine when
+to use are \code{>}, \code{>=}, \code{<}, \code{<=}, \code{==}, and \code{!=}.
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{If `group_models = FALSE`, then `obs_filter` is only used to determine when
 predicted values replace observed values but **is not** used to restrict values
 from being used in model fitting. If `group_models = TRUE`, then a model
 is only fit for a group if they meet the `obs_filter` requirements. This provides
 speed benefits, particularly when running INLA time series using `predict_inla()`.
-}}
+}\if{html}{\out{</div>}}}
 
 \item{sort_col}{Column name(s) to use to \code{\link[dplyr:arrange]{dplyr::arrange()}} the data prior to
 supplying type and calculating mean absolute scaled error on data involving
@@ -140,7 +142,7 @@ values from the dataset prior to applying the model. By default, only
 observations with missing predictors are removed, although it can also remove
 rows only if they have missing dependent or independent variables, or no
 filtering at all. Model prediction and fitting are done in one pass with
-\code{\link[INLA:inla]{INLA::inla()}}, so there will be no predictions if observations with
+\code{\link[INLA:INLA]{INLA::inla()}}, so there will be no predictions if observations with
 missing dependent variables are removed.}
 
 \item{type_col}{Column name specifying data type.}

@@ -17,12 +17,12 @@ of the fitted values returned for use in the infilling and predictions. Addition
 arguments can be passed in the \code{control.predictor} list, but must always include
 \code{compute = TRUE}. See \code{\link[INLA:control.predictor]{INLA::control.predictor()}} for details.}
 
-\item{...}{Additional arguments passed to \code{\link[INLA:inla]{INLA::inla()}}.}
+\item{...}{Additional arguments passed to \code{\link[INLA:INLA]{INLA::inla()}}.}
 }
 \value{
 A data frame.
 }
 \description{
-\code{map_model_behavior()} runs \code{\link[INLA:inla]{INLA::inla()}} until its successful. This is
+\code{map_model_behavior()} runs \code{\link[INLA:INLA]{INLA::inla()}} until its successful. This is
 important on  linux machines where INLA can produce unstable results.
 }

@@ -27,7 +27,7 @@ fit_forecast_average_model(
 \item{df}{Data frame of model data.}
 
 \item{forecast_function}{An R function that outputs a forecast object coming from the
-forecast package. You can directly pass \code{\link[forecast:forecast]{forecast::forecast()}} to the
+forecast package. You can directly pass \code{\link[forecast:reexports]{forecast::forecast()}} to the
 function, or you can pass other wrappers to it such as \code{\link[forecast:ses]{forecast::holt()}} or
 \code{\link[forecast:ses]{forecast::ses()}}.}
 

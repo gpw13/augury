@@ -9,7 +9,7 @@ predict_inla_data(df, model, pred_col, pred_upper_col, pred_lower_col)
 \arguments{
 \item{df}{Data frame of model data.}
 
-\item{model}{INLA model object returned by \code{\link[INLA:inla]{INLA::inla()}} which contains
+\item{model}{INLA model object returned by \code{\link[INLA:INLA]{INLA::inla()}} which contains
 \code{summary.fitted.values}.}
 
 \item{pred_col}{Column name to store predicted value.}
@@ -26,6 +26,6 @@ values for the lower bound.}
 A data frame.
 }
 \description{
-\code{predict_inla_data()} generates a prediction vector from an \code{\link[INLA:inla]{INLA::inla()}}
+\code{predict_inla_data()} generates a prediction vector from an \code{\link[INLA:INLA]{INLA::inla()}}
 output object, putting this prediction back into the data frame.
 }

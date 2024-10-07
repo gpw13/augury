@@ -32,7 +32,8 @@ predict_lmer(
   replace_obs = c("missing", "all", "none"),
   error_correct = FALSE,
   error_correct_cols = NULL,
-  shift_trend = FALSE
+  shift_trend = FALSE,
+  REML = TRUE
 )
 }
 \arguments{
@@ -79,12 +80,14 @@ replace observations with predicted values. This is done in
 conjunction with \code{group_col}. So, if \code{group_col = "iso3"} and
 \code{obs_filter = ">= 5"}, then for this model, predictions will only be used
 for \code{iso3} vales that have 5 or more observations. Possible logical operators
-to use are \code{>}, \code{>=}, \code{<}, \code{<=}, \code{==}, and \code{!=}.\preformatted{If `group_models = FALSE`, then `obs_filter` is only used to determine when
+to use are \code{>}, \code{>=}, \code{<}, \code{<=}, \code{==}, and \code{!=}.
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{If `group_models = FALSE`, then `obs_filter` is only used to determine when
 predicted values replace observed values but **is not** used to restrict values
 from being used in model fitting. If `group_models = TRUE`, then a model
 is only fit for a group if they meet the `obs_filter` requirements. This provides
 speed benefits, particularly when running INLA time series using `predict_inla()`.
-}}
+}\if{html}{\out{</div>}}}
 
 \item{sort_col}{Column name(s) to use to \code{\link[dplyr:arrange]{dplyr::arrange()}} the data prior to
 supplying type and calculating mean absolute scaled error on data involving
@@ -157,6 +160,8 @@ error correction to the predicted values.}
 \item{shift_trend}{Logical value specifying whether or not to shift predictions
 so that the trend matches up to the last observation. If \code{error_correct} and
 \code{shift_trend} are both \code{TRUE}, \code{shift_trend} takes precedence.}
+
+\item{REML}{Flag passed directly to lme4::lmer(). From \code{lme4} docs: "logical scalar - Should the estimates be chosen to optimize the REML criterion (as opposed to the log-likelihood)?"}
 }
 \value{
 Depending on the value passed to \code{ret}, either a data frame with
