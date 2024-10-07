@@ -61,7 +61,7 @@ of the fitted values returned for use in the infilling and predictions. Addition
 arguments can be passed in the \code{control.predictor} list, but must always include
 \code{compute = TRUE}. See \code{\link[INLA:control.predictor]{INLA::control.predictor()}} for details.}
 
-\item{...}{Additional arguments passed to \code{\link[INLA:inla]{INLA::inla()}}.}
+\item{...}{Additional arguments passed to \code{\link[INLA:INLA]{INLA::inla()}}.}
 
 \item{ret}{Character vector specifying what values the function returns. Defaults
 to returning a data frame, but can return a vector of model error, the
@@ -105,12 +105,14 @@ replace observations with predicted values. This is done in
 conjunction with \code{group_col}. So, if \code{group_col = "iso3"} and
 \code{obs_filter = ">= 5"}, then for this model, predictions will only be used
 for \code{iso3} vales that have 5 or more observations. Possible logical operators
-to use are \code{>}, \code{>=}, \code{<}, \code{<=}, \code{==}, and \code{!=}.\preformatted{If `group_models = FALSE`, then `obs_filter` is only used to determine when
+to use are \code{>}, \code{>=}, \code{<}, \code{<=}, \code{==}, and \code{!=}.
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{If `group_models = FALSE`, then `obs_filter` is only used to determine when
 predicted values replace observed values but **is not** used to restrict values
 from being used in model fitting. If `group_models = TRUE`, then a model
 is only fit for a group if they meet the `obs_filter` requirements. This provides
 speed benefits, particularly when running INLA time series using `predict_inla()`.
-}}
+}\if{html}{\out{</div>}}}
 
 \item{sort_col}{Column name(s) to use to \code{\link[dplyr:arrange]{dplyr::arrange()}} the data prior to
 supplying type and calculating mean absolute scaled error on data involving
@@ -144,7 +146,7 @@ values from the dataset prior to applying the model. By default, only
 observations with missing predictors are removed, although it can also remove
 rows only if they have missing dependent or independent variables, or no
 filtering at all. Model prediction and fitting are done in one pass with
-\code{\link[INLA:inla]{INLA::inla()}}, so there will be no predictions if observations with
+\code{\link[INLA:INLA]{INLA::inla()}}, so there will be no predictions if observations with
 missing dependent variables are removed.}
 
 \item{type_col}{Column name specifying data type.}
@@ -193,7 +195,7 @@ predicted data, a vector of errors from \code{\link[=model_error]{model_error()}
 \description{
 \code{predict_inla_avg_trend()} uses a Integrated Nested Laplace approximation to fit a model
 to groups within the data, and then bring that fitted prediction back to the
-original data. The function uses \code{\link[INLA:inla]{INLA::inla()}} to perform the model fitting
+original data. The function uses \code{\link[INLA:INLA]{INLA::inla()}} to perform the model fitting
 and prediction, and full details and explanation of arguments that it can accept is available on that page.
 The function also allows for inputting of data type and source information
 directly into the data frame if the \code{type_col} and \code{source_col} are specified

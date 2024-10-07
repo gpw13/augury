@@ -39,7 +39,7 @@ predict_forecast(
 \item{df}{Data frame of model data.}
 
 \item{forecast_function}{An R function that outputs a forecast object coming from the
-forecast package. You can directly pass \code{\link[forecast:forecast]{forecast::forecast()}} to the
+forecast package. You can directly pass \code{\link[forecast:reexports]{forecast::forecast()}} to the
 function, or you can pass other wrappers to it such as \code{\link[forecast:ses]{forecast::holt()}} or
 \code{\link[forecast:ses]{forecast::ses()}}.}
 
@@ -94,12 +94,14 @@ replace observations with predicted values. This is done in
 conjunction with \code{group_col}. So, if \code{group_col = "iso3"} and
 \code{obs_filter = ">= 5"}, then for this model, predictions will only be used
 for \code{iso3} vales that have 5 or more observations. Possible logical operators
-to use are \code{>}, \code{>=}, \code{<}, \code{<=}, \code{==}, and \code{!=}.\preformatted{If `group_models = FALSE`, then `obs_filter` is only used to determine when
+to use are \code{>}, \code{>=}, \code{<}, \code{<=}, \code{==}, and \code{!=}.
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{If `group_models = FALSE`, then `obs_filter` is only used to determine when
 predicted values replace observed values but **is not** used to restrict values
 from being used in model fitting. If `group_models = TRUE`, then a model
 is only fit for a group if they meet the `obs_filter` requirements. This provides
 speed benefits, particularly when running INLA time series using `predict_inla()`.
-}}
+}\if{html}{\out{</div>}}}
 
 \item{sort_col}{Column name of column to arrange data by in \code{dplyr::arrange()},
 prior to filtering for latest contiguous time series and producing the
@@ -165,7 +167,7 @@ Depending on the value passed to \code{ret}, either a data frame with
 predicted data, a vector of errors from \code{\link[=model_error]{model_error()}}, a fitted model, or a list with all 3.
 }
 \description{
-\code{predict_forecast()} uses the forecast package's \code{\link[forecast:forecast]{forecast::forecast()}} methods
+\code{predict_forecast()} uses the forecast package's \code{\link[forecast:reexports]{forecast::forecast()}} methods
 to generate predictions on time series data. These use the longest contiguous
 observed values to forecast out a certain number periods. This function
 automatically detects the latest observed values and the number of missing

@@ -41,7 +41,7 @@ predict_forecast_avg_trend(
 \item{df}{Data frame of model data.}
 
 \item{forecast_function}{An R function that outputs a forecast object coming from the
-forecast package. You can directly pass \code{\link[forecast:forecast]{forecast::forecast()}} to the
+forecast package. You can directly pass \code{\link[forecast:reexports]{forecast::forecast()}} to the
 function, or you can pass other wrappers to it such as \code{\link[forecast:ses]{forecast::holt()}} or
 \code{\link[forecast:ses]{forecast::ses()}}.}
 
@@ -102,12 +102,14 @@ replace observations with predicted values. This is done in
 conjunction with \code{group_col}. So, if \code{group_col = "iso3"} and
 \code{obs_filter = ">= 5"}, then for this model, predictions will only be used
 for \code{iso3} vales that have 5 or more observations. Possible logical operators
-to use are \code{>}, \code{>=}, \code{<}, \code{<=}, \code{==}, and \code{!=}.\preformatted{If `group_models = FALSE`, then `obs_filter` is only used to determine when
+to use are \code{>}, \code{>=}, \code{<}, \code{<=}, \code{==}, and \code{!=}.
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{If `group_models = FALSE`, then `obs_filter` is only used to determine when
 predicted values replace observed values but **is not** used to restrict values
 from being used in model fitting. If `group_models = TRUE`, then a model
 is only fit for a group if they meet the `obs_filter` requirements. This provides
 speed benefits, particularly when running INLA time series using `predict_inla()`.
-}}
+}\if{html}{\out{</div>}}}
 
 \item{sort_col}{Column name of column to arrange data by in \code{dplyr::arrange()},
 prior to filtering for latest contiguous time series and producing the
@@ -175,7 +177,7 @@ predicted data, a vector of errors from \code{\link[=model_error]{model_error()}
 \description{
 \code{predict_forecast_avg_trend()} uses time series forecasting methods to fit a model
 to groups within the data, and then bring that fitted prediction back to the
-original data. The function uses \code{\link[forecast:forecast]{forecast::forecast()}}, and full details and
+original data. The function uses \code{\link[forecast:reexports]{forecast::forecast()}}, and full details and
 explanation of arguments that it can accept is available there. The augury
 implementation details are available at \code{\link[=predict_forecast]{predict_forecast()}}.
 The function also allows for inputting of data type and source information
