@@ -7,6 +7,7 @@
 #' [predict_lme4()].
 #'
 #' @inherit predict_general_mdl params return
+#' @param REML Flag passed directly to lme4::lmer(). From `lme4` docs: "logical scalar - Should the estimates be chosen to optimize the REML criterion (as opposed to the log-likelihood)?"
 #'
 #' @export
 predict_lmer <- function(df,
@@ -36,7 +37,8 @@ predict_lmer <- function(df,
                          replace_obs = c("missing", "all", "none"),
                          error_correct = FALSE,
                          error_correct_cols = NULL,
-                         shift_trend = FALSE) {
+                         shift_trend = FALSE,
+                         REML = TRUE) {
   predict_lme4(df = df,
                model = lme4::lmer,
                formula = formula,
@@ -65,7 +67,8 @@ predict_lmer <- function(df,
                replace_obs = replace_obs,
                error_correct = error_correct,
                error_correct_cols = error_correct_cols,
-               shift_trend = shift_trend)
+               shift_trend = shift_trend,
+               REML = REML)
 }
 
 #' Use a generalized linear mixed-effects model to infill and project data
